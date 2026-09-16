@@ -1,0 +1,13 @@
+Senior Backend Engineer
+
+About us: we are a small team building data tooling.
+
+What we are looking for:
+- 5+ years of professional Python experience
+- Strong SQL and data modelling skills
+- Experience building and operating REST APIs
+- Hands-on Kubernetes in production
+- Experience with Apache Kafka or similar streaming systems
+- Comfortable mentoring junior engineers
+
+Benefits: pension, learning budget, equal opportunity employer.

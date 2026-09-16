@@ -1,0 +1,17 @@
+Alex Carter
+Backend Engineer
+
+Experience
+
+Payments Platform, Senior Engineer, 2019 to present
+Built and operated REST APIs in Python serving 2M requests a day.
+Designed the SQL schema and data modelling for the ledger service.
+Ran weekly mentoring sessions for two junior engineers.
+Wrote Python services continuously since 2019.
+
+Data Team, Engineer, 2017 to 2019
+Maintained reporting pipelines and dashboards.
+Worked with Postgres and wrote complex analytical queries.
+
+Skills
+Python, SQL, Postgres, REST, Docker, Git

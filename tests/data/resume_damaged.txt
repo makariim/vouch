@@ -1,0 +1,26 @@
+Dana Okafor
+Platform Engineer
+
+Summary
+
+Platform engineer with seven years building and operating production services at scale. Core engineer on a document
+processing platform for regulated customers, owning it end to end: ingestion, indexing, retrieval and the deployment
+path into cloud, on-premise and fully air-gapped environments. Previously worked on high-
+traffic backend systems.
+
+Experience
+
+Document Platform, Senior Engineer, 2021 to present
+Rebuilt the ingestion pipeline's concurrency model, isolating image work in a bounded process pool and separating
+worker throughput from model-server throughput.
+Took retrieval from one collection to many so a single question can be answered across an entire corpus, and added
+hybrid BM25 plus dense reranking.
+
+T E C H N I C A L  S T A C K
+AI systems Languages Backend Infrastructure Frontend LLM orchestration, RAG and hybrid retrieval, BM25 and dense
+reranking, embeddings and multi-step OCR
+Python, TypeScript, Go, SQL
+FastAPI, Elasticsearch, Redis, PostgreSQL, Kafka
+Docker, Kubernetes, Helm, GitHub Actions, AWS ECR, GCP Secret Manager, on-prem and air-
+gapped deployment
+React, Next.js, TypeScript, admin tooling

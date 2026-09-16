@@ -1,55 +1,81 @@
 ---
-status: open
-date: 2026-09-13
+status: done
+date: 2026-09-15
 ---
 
 # 0001 — Evidence audit core
 
-> **Needs a yes before work starts.** This brief assumes the judging step is a
-> language model call, not deterministic matching. That is a recommendation, not
-> a decision, and there is no record in `docs/decisions/`. If the answer is
-> "deterministic instead", section 2 changes and the rest stands.
+> **Revised 2026-09-15.** The first version was one model call returning JSON —
+> extraction, not an agent. This version is the graph in decision `0001`, plus
+> the endpoint in decision `0004`.
+>
+> **This runs at the same time as brief 0002, the frontend.** The two never
+> touch the same files. They meet only at the contract in decision `0004`, and
+> neither session may change that contract alone.
 
 ## 1. Goal
 
 Take a job post as text and a resume as text. Pull out the discrete requirements
-the post is actually asking for. For each one, say whether the resume evidences
-it, partly evidences it, or does not, and quote the exact resume line that
-supports it when there is one.
+the post is asking for. For each one, say whether the resume evidences it,
+partly evidences it, or does not, and quote the exact resume line that supports
+it when there is one.
 
-This is the floor everything else stands on. Tailoring later is only allowed to
-use material this step marked evidenced, so if this step is loose, every later
-step inherits the looseness and nobody can see it any more.
+Build it as a **LangGraph state graph** that emits a step-by-step trace, because
+that trace is the demo and a later frontend will render it.
 
-**If we do not do this at all:** the tool becomes another rewriter that makes
-the resume sound better without knowing whether any of it is true. That is the
-thing this project exists not to be.
+**If we do not do this at all:** there is no product. Everything else in the
+project reads this step's output.
 
 ## 2. Scope
 
-Build the audit as a library plus a thin command line entry point.
+**The graph.** Nodes, and the edges between them:
 
-- **In:** two plain text files, paths given on the command line. One job post,
-  one resume.
-- **Extract:** split the post into discrete requirements. Each keeps an id and
-  the requirement text **verbatim from the post**. Do not paraphrase a
-  requirement into something tidier than it was written.
-- **Judge:** for each requirement, return exactly one of `evidenced`,
-  `partly_evidenced`, `not_evidenced`; the supporting resume line **verbatim**,
-  or nothing; and one short sentence of reason.
-- **Out:** one structured result (JSON), and a plain readable rendering of the
-  same thing on stdout. Same data, two shapes.
-- **Seam:** the judging step sits behind one interface, called from one place.
-  Whatever model or method is behind it, the caller does not know.
+```
+extract → search → judge → verify → (retry, or next requirement) → report
+```
 
-A "line" is a line as it appears in the resume file. That is the unit, and it is
-what makes the verbatim rule checkable.
+- **extract** — post text in, a list of discrete requirements out. Each keeps
+  its text **verbatim from the post**. Runs once.
+- **search** — a **tool**, not an argument. Index the resume by line. The node
+  queries it for the current requirement and gets back real lines with line
+  numbers. **Do not put the whole resume in the prompt.**
+- **judge** — requirement plus retrieved lines in. One of `evidenced`,
+  `partly_evidenced`, `not_evidenced`, the supporting line, and one sentence of
+  reason.
+- **verify** — is that quoted line actually in the resume, character for
+  character? On a mismatch the requirement goes back to **search**, at most
+  three attempts, then it is recorded as failed rather than retried for ever.
+- **the agent decides how hard to look.** When retrieved evidence is weak,
+  search again with different terms. The model chooses the terms and chooses
+  when to stop. This is the decision nobody told it to make, and it must appear
+  in the trace.
+
+**The loop counts requirements, not model turns.** Twelve requirements is twelve
+passes. Nothing may end the run early.
+
+**The trace.** Every node emits a named event: which step, which requirement,
+what it decided. Stream it. A later brief renders it; this one only has to emit
+it in a shape a frontend can consume.
+
+**The entry point.** Two file paths in, the audit printed, the JSON written.
+
+**The HTTP layer.** Exactly what decision `0004` specifies, and nothing more:
+
+- `POST /audit` takes `{"post": "...", "resume": "..."}` and streams
+  server-sent events.
+- Every event is one JSON object with a `type`. Six types, listed in `0004`.
+- `GET /` serves whatever static file is in the frontend folder. **Serve it,
+  do not write it.** Brief 0002 owns that file.
+- **Save one real run's events to `fixtures/trace-sample.json`** as soon as the
+  stream works. The frontend session is waiting on it.
 
 **Out of scope — do not touch, do not add:**
 
-- any frontend, web page, or server
-- tailoring, rewriting, drafting, cover letters, suggestions for improvement
-- PDF, DOCX, or HTML parsing; reading a job post from a URL
+- **any HTML, CSS or frontend JavaScript.** Brief 0002 owns those, in another
+  session, right now. Touching them causes a collision.
+- Langfuse, or any observability wiring — its own brief, after this one works
+- tailoring, rewriting, drafting, cover letters
+- PDF, DOCX or HTML parsing; reading a job post from a URL
 - scoring, percentages, an overall match number
 - storing resumes, caching runs, any database
 - multiple languages
@@ -58,57 +84,73 @@ what makes the verbatim rule checkable.
 
 Standing ones apply: no writing to version control, no deciding anything — stop
 and report, no changing a check because it failed, and where something cannot be
-established say so rather than estimating.
+established, say so rather than estimating.
 
 Specific to this work:
 
-- **A supporting line that is not in the resume.** Every quoted line must be
-  present in the resume text character for character. This is the whole point.
+- **A supporting line that is not in the resume.** Every quote must be present
+  character for character. The retrieval tool is what makes this structural; the
+  verify node is what proves it.
 - **A requirement that is not in the post.** Same rule, other direction.
-- **A fourth verdict.** No "likely", no "unclear", no empty. Three, always.
-- **Filling a gap to look complete.** `not_evidenced` with no line is a correct
-  and expected answer, not a failure.
-- **Any network call other than the judging step.** No fetching, no telemetry.
-- **Writing the resume or post anywhere on disk** other than where the user
-  already has them.
+- **A fourth verdict.** Three, always. `not_evidenced` with no line is a correct
+  answer, not a failure.
+- **Any network call other than the model call.** Decision `0002`.
+- **Changing the contract in decision `0004` alone.** The frontend is being
+  built against it at this moment. A mismatch is reported, not fixed quietly.
+- **Ending the run before every requirement has a verdict.**
+- **Writing the resume or post anywhere on disk** other than where they already
+  are.
 
 ## 4. Done when
 
-- Running the entry point on two text file paths prints an audit and writes the
-  JSON.
-- **Every supporting line in the output is a verbatim substring of the resume
-  file.** This is an automated check, not an eyeball. Write it.
+- The entry point runs on two text file paths and produces an audit and JSON.
+- **Every quoted supporting line is a verbatim substring of the resume file.**
+  Automated check, not an eyeball. Write it.
 - **Every extracted requirement is a verbatim substring of the post file.** Same.
-- Every requirement carries exactly one of the three verdicts.
+- Every requirement carries exactly one of the three verdicts, and the count of
+  verdicts equals the count of requirements.
 - A resume with nothing in common with the post returns all `not_evidenced` and
   quotes nothing. Build that pair as a test input.
 - An empty resume, and an empty post, each fail with a clear message rather than
   returning an empty audit that looks like a real result.
-- It has been run once on a real post and a real resume the human supplies, and
-  the output is in the report in full.
+- **The trace shows the retry happening at least once** on a real input. If it
+  never fires, the decision the agent makes is not demonstrable and the agent
+  claim is weak.
+- **`POST /audit` streams the five event types from decision `0004`**, as
+  `data:` frames. **Not `EventSource`** — it is GET only and cannot send a body,
+  so the contract rules it out. The page uses `fetch()` and reads the body as a
+  stream. This line was wrong in the original brief.
+- **`fixtures/trace-real.json` exists** and holds a real run's events.
+  `fixtures/trace-sample.json` is brief 0002's hand-written fixture and stays.
+- It has been run once on the **real DataRobot job post** and the real resume,
+  and the whole output is in the report.
 
-**What would tell us it failed:** the human reads that one real run and
-disagrees with the verdicts, or the extraction invents requirements, merges two
-into one, or drops one that is plainly in the post. **How many disagreements is
-too many is NOT ESTABLISHED** — no bar has been set, and guessing one here would
-be inventing evidence. Record the real run in the report so a bar can be set
-from it next turn.
+**What would tell us it failed:** the human reads that run and disagrees with
+the verdicts; or extraction invents requirements, merges two, or drops one that
+is plainly in the post; or the trace is too sparse to show in a demo.
+
+**How many disagreements is too many is NOT ESTABLISHED.** No bar has been set
+and guessing one here would be inventing evidence. Record the run so a bar can
+be set from it.
 
 ## 5. Checked by
 
-`formwork check`, as a whole, plus the two verbatim checks named in section 4.
+`formwork check` as a whole, plus the two verbatim checks in section 4.
 
 The gate cannot tell whether a verdict is *right*. It can only tell whether the
-quoted text is real. The real evidence for correctness is the one hand-read run,
-and that is why section 6 asks for it in full.
+quoted text is real. The real evidence is the one hand-read run, which is why
+section 6 asks for it in full.
 
 ## 6. The report must contain
 
 The standing list in `formwork/templates/report.md`, plus:
 
-- the full output of the one real run, not a summary of it
-- the list of requirements the extraction produced from that post, so the
-  splitting can be judged separately from the judging
-- **where the judging was shaky** — the requirements where the call between
-  `partly_evidenced` and one of its neighbours was close, named individually
-- anything in section 2 that turned out to be the wrong shape once it was built
+- the full output of the real DataRobot run, not a summary
+- the trace from that run, so the steps can be judged as a demo
+- the requirement list extraction produced, so splitting can be judged apart
+  from judging
+- **where the judging was shaky** — requirements where the call between
+  `partly_evidenced` and a neighbour was close, named one by one
+- **how long it took**, because decision `0001` names a fallback to Pydantic AI
+  if the graph is not running end to end by the end of day one
+- anything in section 2 that turned out to be the wrong shape once built

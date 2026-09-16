@@ -1,118 +1,169 @@
 ---
 status: open
-date: 2026-09-15
+date: 2026-09-16
 ---
 
-# 0010 — Learn the system, one unit at a time
+# 0010 — Hand Vouch over to someone who has never seen it
 
-> **Run this in a fresh session, on its own.** It is not part of wave 1 and it
-> touches no files those sessions own.
->
-> **This brief builds nothing.** The thing being produced is a person who can
-> explain this system under questioning.
+> **Run this in a fresh session.** It builds nothing and touches no file.
 
 ## 1. Goal
 
-Muhammad had this built by agents while short of time. It works. He cannot yet
-explain all of it, and in a few days he has to defend it to an interview panel
-who will ask why it is shaped this way.
+**Treat the person you are talking to as brand new.** They have never seen
+Vouch, never read a line of it, and know nothing about how it was built. They
+are taking it over.
 
-**The deliverable is his understanding, not a document.**
+**By the end they must be able to stand in front of anyone — present it, and
+defend it under questions.** Not read notes. Talk.
 
-**If we do not do this:** he presents work he cannot answer questions about,
-which is worse than presenting something smaller that he can.
+Assume nothing. If something was obvious to whoever built it, say it anyway.
 
-## 2. Who you are teaching
+## 2. How this session runs
 
-A software engineer who moved into AI a year ago. Daily stack is **DSPy and
-Hatchet**.
+**One small step, then stop and wait.** Do not start the next step until they
+say so.
 
-- **Lean on that.** Signatures, modules, durable steps, workers, DAGs — that
-  vocabulary lands. LangGraph state is close to a Hatchet workflow context.
-- **Do not explain** what an agent is, what a tool call is, what an API is, or
-  how Python works.
-- **Do explain** what is *different* about a thing, not what it is.
-- One known blind spot: `dspy.ReAct` is an agent, so "you need an agent
-  framework" reads as "I already have one". The real distinction is **who owns
-  the control flow**, not whether it qualifies as an agent.
+Three words, and **repeat them at the end of every step** so they never have to
+remember:
 
-Write short. Blank line between blocks. Headings and bullets, not stacked bold
-paragraphs. `docs/style.md` is his, and it wins.
+| They say | You do |
+|---|---|
+| **next** | go on to the next step |
+| **deeper** | more detail on that same step, then stop again |
+| **again** | say the same thing differently, simpler |
 
-## 3. How to run it
+**Start shallow every time.** The first version of a step is the short one.
+Detail only when asked. Finishing every step lightly beats stopping halfway
+because one went deep.
 
-**One unit at a time. Stop after each one.**
+**There is no clock.** Do not rush them and do not say how long anything takes.
 
-For each unit:
+## 3. How to write
 
-1. Say what it does, in **three or four lines**. Not a tour of the file.
-2. Show **the few lines that matter**, not the whole file.
-3. Say **why it is shaped that way** — the decision behind it. This is the part
-   an interviewer asks about.
-4. **Ask him one question** an interviewer would ask, and wait for his answer.
-5. If the answer is thin, explain the gap and move on. Do not re-teach twice.
+**They read English as a second language.**
 
-**Do not dump a file and narrate it.** He has read the reports already. What is
-missing is the reasoning, not the contents.
+- Short sentences. One idea each.
+- Common words. If a word has a simpler twin, use the twin.
+- **No new word without explaining it in the same breath.** Never drop
+  "reducer", "conditional edge" or "index" on them bare.
+- Blank line between blocks. Give it room.
 
-**Units are in dependency order. They are also resumable** — if he stops at 4,
-a later session starts at 5.
+**Show the real thing. Do not describe it.** Real requirement, real resume line,
+the real words the model chose. Real text explains itself; a sentence about it
+does not.
 
-### The units
+Code snippets: **five lines maximum**, only where they help. Many steps need
+none.
 
-| # | Unit | The thing he must be able to say |
+## 4. What they bring with them
+
+A software engineer who moved into AI about a year ago. Works daily in **DSPy
+and Hatchet**. **Has never used LangGraph.**
+
+- A LangGraph node is like a Hatchet step, and the state is like the workflow
+  context. Say what is **different**, not what it is.
+- Do not explain what an agent, a tool call or an API is.
+- **One trap:** `dspy.ReAct` is an agent too, so "you need an agent framework"
+  sounds to them like "you already have one". The real difference is **who
+  chooses what happens next.** In ReAct the model chooses. Here a person chose,
+  and the model only answers small questions inside each step.
+
+## 5. The steps, in order
+
+Use the real run in `audit.json`. Pick **one** requirement early and follow that
+same one throughout. Never switch examples.
+
+**Part A — the product.** They should be able to present this part on its own.
+
+| | Step | What they can say afterwards |
 |---|---|---|
-| 1 | `src/audit/index.py` | the resume is a **tool**, not a prompt argument, and the verbatim guarantee lives here |
-| 2 | `src/audit/model.py` | three calls, Pydantic schemas, and why `Literal` makes a fourth verdict **impossible** rather than unlikely |
-| 3 | `src/audit/events.py` | one place constructs the wire shapes, and why that mattered with parallel sessions |
-| 4 | `graph.py` — state and reducers | nodes return **partial updates**; `operator.add` on `events` is the entire trace mechanism |
-| 5 | `graph.py` — nodes and edges | the six nodes, and **which three never call the model** |
-| 6 | `graph.py` — `verify` and the retry edge | the model returns a **line number**, never text; a conditional edge is why "where does it decide" has a pointable answer |
-| 7 | `src/audit/server.py` | one request, many replies; why `EventSource` could not be used |
-| 8 | `web/app.js` | reading a stream with `fetch`, splitting frames by hand |
-| 9 | The five decision records | the arguments, not the outcomes |
-| 10 | What is wrong with it | the retry never firing, 60% `partly`, non-determinism, BM25 being a library |
+| 1 | The problem, and who has it | a job post asks for twenty-odd things; a person reads it once and guesses |
+| 2 | What Vouch does | three answers per requirement, and the resume line that proves it — or nothing at all |
+| 3 | **Why one big model call does not work** | you cannot tell whether the resume said it or the model wanted it to. **This is the argument the whole product rests on** |
+| 4 | The two ways in | the **page**, where you paste the post and upload your PDF resume; the **extension**, where you paste nothing |
+| 5 | **Why the extension is not a scraper** | the page is already open and you are already signed in. Nothing is fetched. There is nothing to get past |
+| 6 | What is on screen at the end | the call, what is missing, what proves you fit, and **which lines of your resume undersell you** |
+| 7 | The two speeds | an instant word match that is free and local; the full audit that costs money and takes about ninety seconds |
 
-**Unit 10 is not optional and not last because it matters least.** It is the
-material that scores highest, and he must be able to say it without flinching.
+**Part B — how it works.**
 
-## 4. Must not happen
+| | Step | What they can say afterwards |
+|---|---|---|
+| 8 | The shape | six steps: extract, search, judge, verify, advance, report |
+| 9 | **extract** | the model proposes a requirement; we keep the post's own words, and drop anything we cannot find in the post |
+| 10 | **search** | the resume is never in the prompt. The model picks search words; we do the looking and hand back six lines |
+| 11 | **judge** | the one step where the model's opinion is the product |
+| 12 | **verify** | the model returns a line **number**. The text on screen is read out of the file. **A made-up quote is impossible, not unlikely** |
+| 13 | advance and report | the loop counts requirements, so nothing can stop early |
+| 14 | **Where it decides for itself** | when the first look finds nothing, it looks again with different words — and that choice is a branch in the graph you can point at |
 
-- **Do not write or edit any code.** Four sessions own `src/`, `web/`,
-  `extension/` and `design/` right now. Touching any of them causes a collision.
-- **Do not edit `docs/standing.md`.** That belongs to the director.
-- **Do not lecture.** If a unit runs past a few minutes without a question,
-  it has become a lecture.
-- **Do not tell him it is all fine.** Unit 10 exists for the opposite reason.
-- **Do not skip a unit because it seems obvious.** Units 4 and 6 look obvious and
-  are where the interview questions land.
+**Part C — the honest part. Do not skip it.**
 
-## 5. Done when
+| | Step | What they can say afterwards |
+|---|---|---|
+| 15 | What is wrong with it today | the self-report that never fired, the middle verdict doing two jobs, extraction not being deterministic |
+| 16 | What we chose not to build, and why | `docs/future.md` — eight things, each with the reason |
 
-- All ten units covered, or he stops and the session says where it stopped.
-- **He has answered a question on each unit in his own words.**
-- **He can answer three questions cold**, without looking:
-  - why is a fabricated quote impossible, rather than unlikely?
-  - where exactly does your agent make a decision nobody told it to make?
-  - what is wrong with this system today?
+**Part D — taking it over.**
 
-**What would tell us it failed:** he can repeat the words and cannot answer a
-question phrased differently from how it was taught.
+| | Step | What they can say afterwards |
+|---|---|---|
+| 17 | Where everything lives | `src/` the audit, `web/` the page, `extension/`, `design/`, and **`docs/decisions/` for why anything is the way it is** |
 
-## 6. Checked by
+**Steps 3, 12 and 14 are the three that matter most.** If they tire, those are
+the three to protect.
 
-`formwork check`, only to prove nothing was touched.
+## 6. Then make them present it
 
-**Nothing can check understanding.** The evidence is in section 7.
+When the steps are done, say this:
 
-## 7. The report must contain
+> Now present it back to me. Two minutes, as if I am the panel and I have never
+> heard of it. I will not help.
 
-Short. Three things:
+**Let them finish without interrupting.** Then say what was missing, once.
 
-- **which units were covered**, and where it stopped
-- **what he could not explain back** — named, unit by unit. **This is the most
-  valuable thing in the report.** Those are exactly the questions that will sink
-  him in the room, and they are what to prepare
-- anything in the code that could not be justified while explaining it. If a
-  piece cannot be defended out loud, that is a finding about the code, not about
-  him
+## 7. Then three questions, cold
+
+No looking back.
+
+1. **Why can this tool not make up a quote?**
+2. **Where does it decide something nobody told it to decide?**
+3. **What is wrong with it today?**
+
+For question 3, this is the answer:
+
+> I asked the model to tell me when its evidence was weak. It never did — not
+> once in three runs, even when it was wrong. So I stopped trusting what it said
+> about itself, and made it look again whenever the first look found nothing.
+> Then it fired three times on the real post.
+
+If an answer is thin, say what was missing in two lines. **Do not teach it
+again.** Write it down for the report.
+
+## 8. Must not happen
+
+- **Do not write or edit any file.**
+- **Do not run two steps together.** One step, then stop. Every time.
+- **Do not assume they know anything.** They are new.
+- **Do not go deep unless asked.**
+- **Do not use a word they have not met without explaining it.**
+- **Do not tell them it is all fine.** Step 15 exists for the opposite reason.
+
+## 9. Done when
+
+- All seventeen steps covered, or they stop and you say where you got to.
+- **They presented it back in two minutes, unaided.**
+- **They answered the three questions in their own words.**
+
+**What would tell us it failed:** they can repeat the sentences but cannot
+answer a question asked in different words.
+
+## 10. The report must contain
+
+Three things, short.
+
+- which steps were covered, and where it stopped
+- **what they could not explain back**, named step by step. **This is the most
+  valuable thing in the report** — it is what they revise from
+- anything in the code that could not be explained in plain words. If a piece
+  cannot be defended out loud, that is a finding about the code, not about them

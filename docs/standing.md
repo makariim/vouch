@@ -39,53 +39,49 @@ network.
 
 ## Where we are now
 
-**The product is finished. The presentation is drafted and has never been
-rehearsed.** That is the whole position on the day of the working deadline.
+**The product is finished. Nothing is left to build.**
 
-**The slides and the demo script are in `docs/presentation/`** — 13 slides and a
-click-by-click script with a fallback. Report `0005` has what was cut and the
-four questions that have no good answer.
+Backend, page, extension, design, PDF upload, the resume view. 172 tests,
+`formwork check` green, everything committed and pushed.
 
-**What works, measured:**
+**Reading the PDF in the right order changed the verdict.** `pdfplumber` sorts
+text by its position on the page — reading order — where `pypdf` returned it in
+the order the file was written. Same resume, same post, same model, both runs
+minutes apart:
 
-- the LangGraph audit, the page, the extension, the design, all of it
-- **the retry fires on its own** — 3 times on the real post, requirements 3, 20
-  and 22, nobody pressing anything
-- **8 evidenced, 12 partly, 3 not** of 23 requirements on the real DataRobot post
-- `undersells` down from 8 items to 4, the false positive gone as predicted
-- the extension runs in **Brave** — work Chrome blocks unpacked extensions by
-  corporate policy, and always will
-- 154 tests, `formwork check` green
+| | lines | requirements | evidenced | partly | fit |
+|---|---|---|---|---|---|
+| before | 160 | 22 | 3 | 17 | **weak** |
+| after | **51** | 21 | **6** | **13** | **worth applying** |
 
-**Brief `0016` is confirmed on a real page.** The count on a real LinkedIn post
-went **79 → 25**. The general scorer works: strip the furniture, score every
-block on length and how little of it is clickable, take the winner. No per-site
-rules.
+**Nothing about the model changed. Only how the file was read.** That is the
+strongest thing this project has to say.
 
-**A demo rule, learned by measuring:** LinkedIn collapses the description behind
-`... more`. Collapsed it reads **13**; expanded, **25**. The extension reads what
-the page has rendered. **Click "... more" before running an audit on LinkedIn.**
-Not fixed — the general fix is to expand before reading, and it is roadmap.
+**A true sidebar resume would still interleave.** Sorting by position fixes a
+single-column layout with left titles and right dates, which is what this one
+is. NOT ESTABLISHED for a full-height sidebar; there is no such file to test.
 
-**What is left is all human, and none of it is optional:**
+**What the last round fixed:** tabs from PDF extraction no longer reach the
+screen (1,130 in the file, 0 in the index); a "Nice to Have" heading without a
+colon is now found; the page shows a loud amber banner while a recording is on;
+and a reload no longer loses the uploaded resume.
 
-1. **Two full demo runs**, start to finish, on the real post. Once is not a
-   rehearsal.
-2. **The slides read aloud against a clock.** 940 words are scripted, about
-   seven minutes. **The other eight minutes have never been timed.**
-3. **The fallback tested** — model slow, switch to the recording tab, keep
-   talking.
-4. **The two-metre test.** One minute.
+**Two things to say carefully, both found by measuring:**
 
-Brief `0015` — four small backend gaps — is optional and none of them is on the
-demo path.
+- **Do not promise a nice-to-have count.** The heading fix is real, but on that
+  post four items resolved partly because it was pasted hard-wrapped. Unwrapped,
+  the same fix gives one. Heading attribution depends on line wrapping.
+- **Do not promise a requirement count.** Extraction is a model call: 23, then
+  21, then 22 on the same post.
 
-**Known and accepted, not fixed:**
+**Four things left, and every one of them is the human's:**
 
-- a full audit is about **90 seconds**; the panel says "about 1 minute"
-- the scorer fails where a related-jobs list links only the title. Found,
-  measured, fixed one level up, and three other failure modes are named in
-  report `0016`
+1. **Rehearse the presentation twice, against a clock.** Never done. This is the
+   only real risk left in the project.
+2. The two-metre test on the page.
+3. One reload after an upload, to confirm brief `0019`.
+4. Check one quote's line number against the resume view, **on the real PDF** —
+   the seam was proven on a simpler file the session built itself.
 
 ## What is decided
 
@@ -119,11 +115,14 @@ All four accepted 2026-09-15. The records hold the reasoning.
 
 ## What is next
 
-**Stop building. Rehearse.** The writing is done; brief `0005` stays open until
-the demo has been run twice and the talk has been timed.
+**Rehearse. Nothing else.**
 
-Brief `0015` is optional — its four gaps are small and none of them is on the
-demo path.
+The slides and the demo script are in `docs/presentation/`. The script has the
+clicks, the words, the fallback and the questions. It has never been read aloud
+against a clock.
+
+The presentation carries four of the five scoring criteria and it is the only
+part of the deliverable that has never been tested.
 
 ## What we tried and stopped
 

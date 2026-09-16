@@ -1,0 +1,88 @@
+[
+  {"type":"requirements","items":[
+    {"id":1,"text":"5+ years of professional Python experience"},
+    {"id":2,"text":"Experience building and shipping LLM-powered applications"},
+    {"id":3,"text":"Familiarity with at least one agent framework (LangChain, LangGraph, CrewAI)"},
+    {"id":4,"text":"Strong SQL and data modelling skills"},
+    {"id":5,"text":"Experience working directly with customers in a pre-sales or professional services role"},
+    {"id":6,"text":"Comfortable presenting technical material to non-technical stakeholders"},
+    {"id":7,"text":"Hands-on experience with cloud platforms (AWS, GCP or Azure)"},
+    {"id":8,"text":"Experience with containerisation and Kubernetes"},
+    {"id":9,"text":"Working knowledge of machine learning evaluation and monitoring"},
+    {"id":10,"text":"Bachelor's degree in Computer Science or a related field"},
+    {"id":11,"text":"Willingness to travel up to 25% of the time"},
+    {"id":12,"text":"Fluent written and spoken English"}
+  ]},
+
+  {"type":"step","requirement_id":1,"step":"search","detail":"python years experience"},
+  {"type":"step","requirement_id":1,"step":"verify","detail":"checking the quoted line is in the resume"},
+  {"type":"verdict","requirement_id":1,"verdict":"evidenced",
+   "line":"Senior Software Engineer, Python — 2019 to present (6 years)","line_number":11,
+   "reason":"states Python and a span longer than five years"},
+
+  {"type":"step","requirement_id":2,"step":"search","detail":"LLM application shipped production"},
+  {"type":"step","requirement_id":2,"step":"verify","detail":"checking the quoted line is in the resume"},
+  {"type":"verdict","requirement_id":2,"verdict":"evidenced",
+   "line":"Shipped a retrieval-augmented support assistant serving 4k requests a day","line_number":18,
+   "reason":"an LLM application in production, with load"},
+
+  {"type":"step","requirement_id":3,"step":"search","detail":"LangChain LangGraph CrewAI"},
+  {"type":"step","requirement_id":3,"step":"retry","detail":"only a tools list matched, no framework named — searching again"},
+  {"type":"step","requirement_id":3,"step":"search","detail":"agent orchestration state graph workflow"},
+  {"type":"step","requirement_id":3,"step":"verify","detail":"checking the quoted line is in the resume"},
+  {"type":"verdict","requirement_id":3,"verdict":"partly_evidenced",
+   "line":"Built multi-step agent workflows with DSPy and a durable task runner","line_number":20,
+   "reason":"agent work is shown, but none of the three named frameworks"},
+
+  {"type":"step","requirement_id":4,"step":"search","detail":"SQL schema data model warehouse"},
+  {"type":"step","requirement_id":4,"step":"verify","detail":"checking the quoted line is in the resume"},
+  {"type":"verdict","requirement_id":4,"verdict":"evidenced",
+   "line":"Designed the Postgres schema behind the billing service and its reporting views","line_number":14,
+   "reason":"schema design plus SQL reporting"},
+
+  {"type":"step","requirement_id":5,"step":"search","detail":"customer facing pre-sales consulting"},
+  {"type":"step","requirement_id":5,"step":"retry","detail":"nothing customer-facing found — widening to workshops and stakeholders"},
+  {"type":"step","requirement_id":5,"step":"search","detail":"client workshop stakeholder delivery"},
+  {"type":"step","requirement_id":5,"step":"verify","detail":"checking the quoted line is in the resume"},
+  {"type":"verdict","requirement_id":5,"verdict":"partly_evidenced",
+   "line":"Ran onboarding workshops for two enterprise customers during rollout","line_number":22,
+   "reason":"customer contact, but after the sale rather than before it"},
+
+  {"type":"step","requirement_id":6,"step":"search","detail":"presented non-technical audience"},
+  {"type":"step","requirement_id":6,"step":"verify","detail":"checking the quoted line is in the resume"},
+  {"type":"verdict","requirement_id":6,"verdict":"evidenced",
+   "line":"Presented quarterly architecture reviews to product and finance leadership","line_number":24,
+   "reason":"technical material presented to non-technical audiences"},
+
+  {"type":"step","requirement_id":7,"step":"search","detail":"AWS GCP Azure cloud"},
+  {"type":"step","requirement_id":7,"step":"verify","detail":"checking the quoted line is in the resume"},
+  {"type":"verdict","requirement_id":7,"verdict":"evidenced",
+   "line":"Migrated the platform from bare metal to AWS (ECS, RDS, S3)","line_number":16,
+   "reason":"named cloud platform with named services"},
+
+  {"type":"step","requirement_id":8,"step":"search","detail":"Kubernetes docker container orchestration"},
+  {"type":"step","requirement_id":8,"step":"verify","detail":"checking the quoted line is in the resume"},
+  {"type":"verdict","requirement_id":8,"verdict":"partly_evidenced",
+   "line":"Packaged every service as a Docker image built in CI","line_number":17,
+   "reason":"containers yes, Kubernetes not mentioned anywhere"},
+
+  {"type":"step","requirement_id":9,"step":"search","detail":"model evaluation monitoring drift"},
+  {"type":"verdict","requirement_id":9,"verdict":"not_evidenced",
+   "reason":"no evaluation or monitoring of models anywhere in the resume"},
+
+  {"type":"step","requirement_id":10,"step":"search","detail":"degree BSc computer science university"},
+  {"type":"step","requirement_id":10,"step":"verify","detail":"checking the quoted line is in the resume"},
+  {"type":"verdict","requirement_id":10,"verdict":"evidenced",
+   "line":"BSc Computer Engineering, Cairo University, 2015","line_number":30,
+   "reason":"a related engineering degree"},
+
+  {"type":"step","requirement_id":11,"step":"search","detail":"travel relocation on-site"},
+  {"type":"verdict","requirement_id":11,"verdict":"not_evidenced",
+   "reason":"the resume says nothing about travel"},
+
+  {"type":"step","requirement_id":12,"step":"search","detail":"English language fluency"},
+  {"type":"verdict","requirement_id":12,"verdict":"not_evidenced",
+   "reason":"no language section; writing quality is not a claim the resume makes"},
+
+  {"type":"done","counts":{"evidenced":6,"partly_evidenced":3,"not_evidenced":3}}
+]

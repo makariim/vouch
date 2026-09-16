@@ -1,0 +1,80 @@
+{
+  "note": "The second pass over one requirement, in fixture mode. Keyed by requirement id, with a fallback for any id not listed here (a real trace, another post). Every sequence has a `retry` step in it, because the point of the button is to make the retry visible on demand. `verdict: \"unchanged\"` means the second pass found nothing better and the first verdict stands — the page re-renders the verdict it already has and never invents a new one.",
+  "default": {
+    "steps": [
+      {"step": "search", "detail": "second pass: the requirement's own wording, stopwords removed"},
+      {"step": "retry", "detail": "the first pass matched on one word only — widening to the whole resume"},
+      {"step": "search", "detail": "second pass: whole resume, sections ignored"},
+      {"step": "verify", "detail": "checking the quoted line is in the resume"}
+    ],
+    "verdict": {"verdict": "unchanged", "reason": "second pass found nothing the first pass missed. The verdict stands."}
+  },
+  "by_requirement": {
+    "3": {
+      "steps": [
+        {"step": "search", "detail": "agent framework named LangGraph state machine"},
+        {"step": "retry", "detail": "the skills list has no framework in it — searching the projects section instead"},
+        {"step": "search", "detail": "projects section: LangGraph DSPy orchestration"},
+        {"step": "verify", "detail": "checking the quoted line is in the resume"}
+      ],
+      "verdict": {"verdict": "evidenced",
+                  "line": "Side project: a LangGraph agent that audits a resume against a job post",
+                  "line_number": 41,
+                  "reason": "names an agent framework directly, in something the candidate built"}
+    },
+    "5": {
+      "steps": [
+        {"step": "search", "detail": "pre-sales scoping discovery call proof of concept"},
+        {"step": "retry", "detail": "no sales words anywhere — searching for what the work was called instead"},
+        {"step": "search", "detail": "enterprise rollout onboarding migration support"},
+        {"step": "verify", "detail": "checking the quoted line is in the resume"}
+      ],
+      "verdict": {"verdict": "partly_evidenced",
+                  "line": "Ran onboarding workshops for two enterprise customers during rollout",
+                  "line_number": 22,
+                  "reason": "the same line, and the same limit: this is delivery after the sale, not before it"}
+    },
+    "8": {
+      "steps": [
+        {"step": "search", "detail": "k8s cluster helm deployment manifest"},
+        {"step": "retry", "detail": "no Kubernetes spelling matched — searching for what it ran on instead"},
+        {"step": "search", "detail": "ECS task definition container scheduler"},
+        {"step": "verify", "detail": "checking the quoted line is in the resume"}
+      ],
+      "verdict": {"verdict": "partly_evidenced",
+                  "line": "Migrated the platform from bare metal to AWS (ECS, RDS, S3)",
+                  "line_number": 16,
+                  "reason": "a container scheduler, just not Kubernetes. Preferred, so this does not block."}
+    },
+    "9": {
+      "steps": [
+        {"step": "search", "detail": "evaluation harness offline metrics regression suite"},
+        {"step": "retry", "detail": "no evaluation section — searching for the words a resume actually uses"},
+        {"step": "search", "detail": "accuracy latency dashboard alerting drift"},
+        {"step": "verify", "detail": "checking the quoted line is in the resume"}
+      ],
+      "verdict": {"verdict": "partly_evidenced",
+                  "line": "Added accuracy and latency dashboards for the support assistant, alerting on drops",
+                  "line_number": 19,
+                  "reason": "monitoring of a model in production, though no formal evaluation"}
+    },
+    "11": {
+      "steps": [
+        {"step": "search", "detail": "travel percentage on-site client visits"},
+        {"step": "retry", "detail": "nothing on travel — searching for location and remote wording instead"},
+        {"step": "search", "detail": "remote relocation willing to travel location"}
+      ],
+      "verdict": {"verdict": "not_evidenced",
+                  "reason": "still nothing. The resume does not answer this one, and a second pass cannot invent it."}
+    },
+    "12": {
+      "steps": [
+        {"step": "search", "detail": "languages spoken written fluency level"},
+        {"step": "retry", "detail": "no language section — checking whether the resume shows it rather than says it"},
+        {"step": "search", "detail": "publications talks conference writing English"}
+      ],
+      "verdict": {"verdict": "not_evidenced",
+                  "reason": "the resume is written in English, which is not the same as the resume saying so. It still does not show this."}
+    }
+  }
+}

@@ -1,0 +1,133 @@
+{
+  "note": "The empty case. A `summary` event with no blockers and no undersells, so the page is forced to say something rather than render two bare headings. Requirement 4 is preferred and missing: it must NOT appear as a blocker.",
+  "events": [
+    {
+      "type": "requirements",
+      "items": [
+        {
+          "id": 1,
+          "text": "3+ years writing Python in production",
+          "required": true
+        },
+        {
+          "id": 2,
+          "text": "Experience with a relational database",
+          "required": true
+        },
+        {
+          "id": 3,
+          "text": "Comfortable owning a service end to end",
+          "required": true
+        },
+        {
+          "id": 4,
+          "text": "Kubernetes in anger is a strong plus",
+          "required": false
+        }
+      ]
+    },
+    {
+      "type": "step",
+      "requirement_id": 1,
+      "step": "search",
+      "detail": "python years production"
+    },
+    {
+      "type": "step",
+      "requirement_id": 1,
+      "step": "verify",
+      "detail": "checking the quoted line is in the resume"
+    },
+    {
+      "type": "verdict",
+      "requirement_id": 1,
+      "verdict": "evidenced",
+      "line": "Senior Software Engineer, Python — 2019 to present (6 years)",
+      "line_number": 11,
+      "reason": "six years, stated plainly"
+    },
+    {
+      "type": "step",
+      "requirement_id": 2,
+      "step": "search",
+      "detail": "Postgres SQL schema"
+    },
+    {
+      "type": "step",
+      "requirement_id": 2,
+      "step": "verify",
+      "detail": "checking the quoted line is in the resume"
+    },
+    {
+      "type": "verdict",
+      "requirement_id": 2,
+      "verdict": "evidenced",
+      "line": "Designed the Postgres schema behind the billing service and its reporting views",
+      "line_number": 14,
+      "reason": "a relational database, designed rather than used"
+    },
+    {
+      "type": "step",
+      "requirement_id": 3,
+      "step": "search",
+      "detail": "owned service end to end on-call"
+    },
+    {
+      "type": "step",
+      "requirement_id": 3,
+      "step": "verify",
+      "detail": "checking the quoted line is in the resume"
+    },
+    {
+      "type": "verdict",
+      "requirement_id": 3,
+      "verdict": "evidenced",
+      "line": "Owned the billing service from first commit through two years of on-call",
+      "line_number": 13,
+      "reason": "ownership across build and run"
+    },
+    {
+      "type": "step",
+      "requirement_id": 4,
+      "step": "search",
+      "detail": "Kubernetes cluster helm"
+    },
+    {
+      "type": "verdict",
+      "requirement_id": 4,
+      "verdict": "not_evidenced",
+      "reason": "Docker yes, Kubernetes nowhere"
+    },
+    {
+      "type": "done",
+      "counts": {
+        "evidenced": 3,
+        "partly_evidenced": 0,
+        "not_evidenced": 1
+      }
+    },
+    {
+      "type": "summary",
+      "fit": "strong",
+      "fit_reason": "Every thing they require has a line in your resume behind it.",
+      "blockers": [],
+      "undersells": [],
+      "strengths": [
+        {
+          "requirement_id": 1,
+          "text": "3+ years writing Python in production",
+          "line": "Senior Software Engineer, Python — 2019 to present (6 years)",
+          "line_number": 11,
+          "reason": "Six years, stated as a span. Nobody has to work it out."
+        },
+        {
+          "requirement_id": 3,
+          "text": "Comfortable owning a service end to end",
+          "line": "Owned the billing service from first commit through two years of on-call",
+          "line_number": 13,
+          "reason": "You owned it and you carried the pager for it. That is the whole requirement in one line."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,797 @@
+/* ============================================================================
+   Vouch — the page.
+
+   Every colour, type step and radius in this file is a variable out of
+   tokens.css. There is no literal colour here and no font stack. If you find
+   one, it is a bug in this file.
+
+   Lengths are the one exception, and tokens.css sanctions it: section 7 says
+   the space scale governs the gaps BETWEEN things, while the padding inside a
+   component is a property of that component. So section rhythm is --v-s-*, and
+   a card's own 14px/16px inset is written here, matching the artboard.
+
+   Reference: design/canvas/Web.dc.html.
+   ========================================================================= */
+
+:root {
+  /* THE ONE GAP, and it is a naming gap rather than a missing value.
+     Web.dc.html sets 13px sans text in eighteen places: the header note, the
+     rail's sub-lines, every quote caption, the run button's meta, the trace.
+     tokens.css has 13px twice — --v-text-quote, which its own comment reserves
+     for mono, and --v-text-p-note, which is the panel's cut. The page has no
+     sans role at 13px.
+
+     This alias points at the panel's token so the number still has exactly one
+     source. When design adds a page-level role, this line is the only thing
+     that changes. Reported in docs/reports/0013. */
+  --page-note: var(--v-text-p-note);
+}
+
+* { box-sizing: border-box; }
+
+/* `hidden` must win. Half the blocks on this page carry a `display` rule of
+   their own, and a plain `display:flex` beats the browser's own `[hidden]`
+   default -- which is a silent bug: the element is hidden in the markup and on
+   screen anyway. */
+[hidden] { display: none !important; }
+
+html, body { margin: 0; padding: 0; }
+
+body {
+  background: var(--v-bg-0);
+  color: var(--v-ink);
+  font-family: var(--v-font-ui);
+  font-size: var(--v-text-body);
+  font-weight: var(--v-weight-regular);
+  line-height: var(--v-lh-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection { background: var(--v-agent-dim); color: var(--v-ink-970); }
+
+/* One ring, everywhere, never removed. */
+:focus-visible {
+  outline: none;
+  box-shadow: var(--v-focus-ring);
+  border-radius: var(--v-radius-2);
+}
+
+.offscreen {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0; border: 0;
+  clip-path: inset(50%);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.top-gap { flex: 1; }
+
+/* ============================================================================
+   THE HEADER
+   ========================================================================= */
+
+.top {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: var(--v-s-4);
+  height: var(--v-header-h);
+  padding: 0 var(--v-rail-pad-x);
+  background: var(--v-bg-1);
+  border-bottom: 1px solid var(--v-line);
+}
+
+.brand { display: flex; align-items: center; gap: var(--v-s-3); flex: none; color: var(--v-ink); }
+.logo { display: block; }
+.wordmark {
+  font-size: var(--v-text-note);
+  font-weight: var(--v-weight-medium);
+  letter-spacing: 0.01em;
+}
+
+.header-note {
+  margin: 0;
+  flex: none;
+  font-size: var(--page-note);
+  color: var(--v-ink-3);
+}
+
+/* ---- the demo controls -------------------------------------------------- */
+
+.demo { display: flex; align-items: center; gap: var(--v-s-2); flex: none; }
+.demo-label { font-size: var(--v-text-label); color: var(--v-ink-4); }
+
+.segment {
+  display: flex;
+  gap: 3px;
+  padding: 3px;
+  background: var(--v-bg-190);
+  border: 1px solid var(--v-line);
+  border-radius: var(--v-radius-tab);
+}
+.segment label {
+  position: relative;
+  font-size: var(--v-text-label);
+  padding: 5px 10px;
+  border-radius: var(--v-radius-2);
+  color: var(--v-ink-3);
+  cursor: pointer;
+}
+.segment input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.segment label:has(input:checked) { background: var(--v-ink); color: var(--v-bg-0); }
+.segment label:has(input:focus-visible) { box-shadow: var(--v-focus-ring); }
+
+#fixture {
+  font: inherit;
+  font-size: var(--v-text-label);
+  padding: 6px 8px;
+  color: var(--v-ink-2);
+  background: var(--v-bg-190);
+  border: 1px solid var(--v-line);
+  border-radius: var(--v-radius-2);
+  cursor: pointer;
+}
+#fixture:disabled { color: var(--v-ink-4); border-color: var(--v-line-270); cursor: default; }
+
+button.quiet {
+  font: inherit;
+  font-size: var(--v-text-label);
+  padding: 6px 10px;
+  color: var(--v-ink-3);
+  background: none;
+  border: 1px solid var(--v-line);
+  border-radius: var(--v-radius-2);
+  cursor: pointer;
+}
+button.quiet:hover:enabled { color: var(--v-ink); background: var(--v-bg-3); }
+button.quiet:disabled { color: var(--v-ink-4); border-color: var(--v-line-270); cursor: default; }
+
+/* ============================================================================
+   THE FRAME: a left rail to set the run up, the answers on the right.
+
+   This is what stops five full-width blocks pushing the list below the fold.
+   ========================================================================= */
+
+.frame {
+  display: grid;
+  grid-template-columns: var(--v-setup-col) minmax(0, 1fr);
+  align-items: start;
+  max-width: var(--v-page-max);
+  margin: 0 auto;
+}
+
+/* ---- the rail ----------------------------------------------------------- */
+
+.rail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--v-s-6);
+  padding: var(--v-s-6) var(--v-rail-pad-x) var(--v-s-8);
+  min-height: calc(100vh - var(--v-header-h));
+  border-right: 1px solid var(--v-line);
+}
+
+.rail-block { display: flex; flex-direction: column; gap: var(--v-s-3); }
+
+.rail-label {
+  margin: 0;
+  font-size: var(--v-text-label);
+  font-weight: var(--v-weight-medium);
+  line-height: var(--v-lh-label);
+  color: var(--v-ink-3);
+}
+
+.rail textarea {
+  font: inherit;
+  font-size: var(--v-text-p-body);
+  line-height: var(--v-lh-body);
+  min-height: 140px;
+  resize: vertical;
+  padding: 14px 16px;
+  color: var(--v-ink);
+  background: var(--v-bg-205);
+  border: 1px solid var(--v-line-340);
+  border-radius: var(--v-radius-3);
+}
+.rail textarea::placeholder { color: var(--v-ink-4); }
+/* Once there is something in it, the well becomes a card. */
+.rail textarea.filled { background: var(--v-bg-2); border-color: var(--v-line); }
+
+/* The strip under the post, once we know what it asks for. */
+.rail-foot {
+  margin: 0;
+  padding: 11px 16px;
+  font-size: var(--page-note);
+  color: var(--v-ink-3);
+  background: var(--v-bg-225);
+  border-radius: var(--v-radius-3);
+}
+
+button.run {
+  font: inherit;
+  font-size: var(--v-text-body);
+  font-weight: var(--v-weight-medium);
+  min-height: var(--v-tap-min);
+  width: 100%;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--v-s-3);
+  text-align: left;
+  cursor: pointer;
+  border-radius: var(--v-radius-3);
+  color: var(--v-ink-on-light);
+  background: var(--v-ink);
+  border: 1px solid var(--v-ink);
+}
+button.run .run-meta {
+  font-weight: var(--v-weight-regular);
+  font-size: var(--page-note);
+  color: var(--v-ink-440);
+}
+
+/* Stop. Rose, because stopping is about what is happening right now. */
+button.run.stopping {
+  color: var(--v-agent);
+  background: none;
+  border-color: var(--v-agent-dim);
+}
+button.run.stopping .run-meta { color: var(--v-ink-4); }
+
+/* Finished, or nothing to do yet. */
+button.run.secondary {
+  color: var(--v-ink-2);
+  background: none;
+  border-color: var(--v-line-strong);
+}
+button.run.secondary .run-meta { color: var(--v-ink-4); }
+
+button.run:disabled {
+  color: var(--v-ink-4);
+  background: none;
+  border-color: var(--v-line-270);
+  cursor: not-allowed;
+}
+button.run:disabled .run-meta { color: var(--v-ink-4); }
+
+.rail-note {
+  margin: 0;
+  font-size: var(--page-note);
+  line-height: var(--v-lh-lead);
+  color: var(--v-ink-560);
+}
+
+.rail-gap { flex: 1; }
+
+.rail-privacy {
+  margin: 0;
+  padding-top: var(--v-s-5);
+  font-size: var(--page-note);
+  line-height: var(--v-lh-quote);
+  color: var(--v-ink-540);
+  border-top: 1px solid var(--v-line);
+}
+
+/* ---- the answer column -------------------------------------------------- */
+
+main { padding: var(--v-s-6) var(--v-page-pad-x) var(--v-s-8); min-width: 0; }
+
+/* ============================================================================
+   THE MARK. Two arms and a fill that rises from the bottom to 100 / 50 / 0.
+
+   The fill level is what carries the answer in greyscale and to a colour-blind
+   reader. Colour is the second signal and never the only one.
+   ========================================================================= */
+
+.mark {
+  position: relative;
+  flex: none;
+  display: block;
+  width: var(--v-mark-size);
+  height: var(--v-mark-size);
+  color: var(--v-ink-350);
+}
+.mark i { position: absolute; }
+.mark .arm-l, .mark .arm-r {
+  top: 0; bottom: 0;
+  width: var(--v-mark-arm);
+  border: var(--v-mark-stroke) solid currentColor;
+}
+.mark .arm-l { left: 0;  border-right: none; border-radius: var(--v-mark-radius) 0 0 var(--v-mark-radius); }
+.mark .arm-r { right: 0; border-left: none;  border-radius: 0 var(--v-mark-radius) var(--v-mark-radius) 0; }
+.mark .fill {
+  left: var(--v-mark-arm);
+  right: var(--v-mark-arm);
+  bottom: 0;
+  height: 0;
+  background: currentColor;
+}
+
+.mark.evidenced, .mark.shown        { color: var(--v-shown);  }
+.mark.evidenced .fill,
+.mark.shown .fill                   { height: 100%; }
+
+.mark.partly_evidenced              { color: var(--v-partly); }
+.mark.partly_evidenced .fill        { height: 50%; }
+
+.mark.not_evidenced                 { color: var(--v-not);    }
+.mark.not_evidenced .fill           { height: 0; }
+
+/* Being worked on right now. Rose, empty, breathing. */
+.mark.working                       { color: var(--v-agent); }
+.mark.working .fill                 { height: 0; }
+.mark.working { animation: vpulse var(--v-dur-pulse) var(--v-ease) infinite; }
+
+.mark.quiet { opacity: var(--v-mark-quiet-opacity); }
+
+@keyframes vpulse { 0%, 100% { opacity: 0.45; } 50% { opacity: 1; } }
+@keyframes vsweep { 0% { transform: translateX(-100%); } 100% { transform: translateX(320%); } }
+
+/* ============================================================================
+   NOTHING LOADED
+   ========================================================================= */
+
+.intro { display: flex; flex-direction: column; max-width: 620px; }
+
+.intro h1 {
+  margin: 0 0 var(--v-s-5);
+  font-family: var(--v-font-display);
+  font-weight: var(--v-weight-bold);
+  font-size: var(--v-text-display);
+  line-height: var(--v-lh-display);
+  text-wrap: pretty;
+}
+.intro-lead {
+  margin: 0 0 var(--v-s-7);
+  max-width: 50ch;
+  font-size: var(--v-text-note);
+  line-height: var(--v-lh-note);
+  color: var(--v-ink-2);
+  text-wrap: pretty;
+}
+.intro .rail-label { margin-bottom: var(--v-s-4); }
+
+.legend { display: flex; flex-direction: column; gap: var(--v-s-5); }
+.legend-row { display: flex; align-items: flex-start; gap: var(--v-s-4); }
+.legend-row .mark { margin-top: 4px; }
+
+.legend-label {
+  margin: 0;
+  font-size: var(--v-text-note);
+  font-weight: var(--v-weight-medium);
+}
+.legend-label.shown  { color: var(--v-shown);  }
+.legend-label.partly { color: var(--v-partly); }
+.legend-label.not    { color: var(--v-not);    }
+
+.legend-desc {
+  margin: var(--v-s-1) 0 0;
+  max-width: 46ch;
+  font-size: var(--v-text-body);
+  color: var(--v-ink-2);
+  text-wrap: pretty;
+}
+
+.intro-tail {
+  margin: var(--v-s-7) 0 0;
+  max-width: 44ch;
+  font-size: var(--v-text-body);
+  line-height: var(--v-lh-quote);
+  color: var(--v-ink-3);
+}
+
+/* ============================================================================
+   SOMETHING WENT WRONG. Red lives here and nowhere else.
+   ========================================================================= */
+
+.wrong {
+  display: flex;
+  flex-direction: column;
+  max-width: 600px;
+  padding: 28px 30px;
+  background: var(--v-error-wash);
+  border-radius: var(--v-radius-4);
+}
+.wrong-where {
+  margin: 0 0 var(--v-s-3);
+  font-size: var(--page-note);
+  color: var(--v-error);
+}
+.wrong h2 {
+  margin: 0 0 var(--v-s-3);
+  font-family: var(--v-font-display);
+  font-weight: var(--v-weight-bold);
+  font-size: var(--v-text-count);
+  line-height: var(--v-lh-tight);
+  text-wrap: pretty;
+}
+.wrong-lead {
+  margin: 0;
+  font-size: var(--v-text-note);
+  color: var(--v-ink-strong);
+  text-wrap: pretty;
+}
+.wrong-detail {
+  margin: var(--v-s-5) 0 0;
+  padding: 14px 16px;
+  font-size: var(--page-note);
+  line-height: var(--v-lh-note);
+  color: var(--v-error-text);
+  background: var(--v-error-code-page);
+  border-radius: var(--v-radius-3);
+}
+.wrong-actions { display: flex; gap: var(--v-s-3); flex-wrap: wrap; margin-top: var(--v-s-5); }
+.wrong-actions button {
+  font: inherit;
+  font-size: var(--v-text-body);
+  min-height: var(--v-tap-min);
+  padding: 12px 18px;
+  cursor: pointer;
+  border-radius: var(--v-radius-3);
+  color: var(--v-ink-on-error);
+  background: none;
+  border: 1px solid var(--v-error-line);
+}
+
+/* ============================================================================
+   THE ANSWER
+   ========================================================================= */
+
+.audit { display: flex; flex-direction: column; max-width: var(--v-answer-max); }
+
+/* ---- while it is working ------------------------------------------------ */
+
+.live {
+  display: flex;
+  flex-direction: column;
+  padding: 22px 24px;
+  margin-bottom: var(--v-s-6);
+  background: var(--v-agent-wash);
+  border-radius: var(--v-radius-4);
+}
+.live-head { display: flex; align-items: baseline; gap: var(--v-s-3); flex-wrap: wrap; }
+.live-title { font-size: var(--page-note); color: var(--v-agent-bright); }
+.live-meta  { font-size: var(--page-note); color: var(--v-ink-800); }
+
+.live-headline {
+  margin: var(--v-s-3) 0 0;
+  font-family: var(--v-font-display);
+  font-weight: var(--v-weight-bold);
+  font-size: var(--v-text-live);
+  line-height: var(--v-lh-section);
+  text-wrap: pretty;
+}
+
+.live-bar {
+  margin-top: var(--v-s-4);
+  height: 3px;
+  overflow: hidden;
+  border-radius: var(--v-radius-1);
+  background: var(--v-agent-track);
+}
+.live-bar i {
+  display: block;
+  height: 3px;
+  width: 26%;
+  border-radius: var(--v-radius-1);
+  background: var(--v-agent);
+  animation: vsweep var(--v-dur-sweep) linear infinite;
+}
+
+/* ---- level one: the call ------------------------------------------------ */
+
+.answer { display: flex; flex-direction: column; }
+/* Dimmed while one of its inputs is being looked at again. */
+.answer.behind { opacity: 0.45; }
+
+.answer-kicker {
+  margin: 0 0 var(--v-s-3);
+  font-size: var(--v-text-label);
+  font-weight: var(--v-weight-medium);
+  line-height: var(--v-lh-label);
+  color: var(--v-ink-3);
+}
+
+.call {
+  margin: 0 0 var(--v-s-4);
+  font-family: var(--v-font-display);
+  font-weight: var(--v-weight-bold);
+  font-size: var(--v-text-answer);
+  line-height: var(--v-lh-answer);
+}
+
+.call-why {
+  margin: 0 0 var(--v-s-6);
+  max-width: 52ch;
+  font-size: var(--v-text-lead);
+  line-height: var(--v-lh-lead);
+  color: var(--v-ink-strong);
+  text-wrap: pretty;
+}
+
+.counts {
+  display: flex;
+  gap: var(--v-s-6);
+  flex-wrap: wrap;
+  padding: var(--v-s-5) 0;
+  margin-bottom: var(--v-s-7);
+  border-top: 1px solid var(--v-line);
+  border-bottom: 1px solid var(--v-line);
+}
+.count { display: flex; align-items: center; gap: var(--v-s-3); }
+.count .n { font-size: var(--v-text-count); line-height: var(--v-lh-flat); }
+.count .k { font-size: var(--v-text-body); color: var(--v-ink-700); }
+.count.evidenced .n        { color: var(--v-shown);  }
+.count.partly_evidenced .n { color: var(--v-partly); }
+.count.not_evidenced .n    { color: var(--v-not);    }
+
+/* ---- level two: the few things that decide it --------------------------- */
+
+.decide { margin: 0 0 var(--v-s-7); }
+
+.decide h2 {
+  margin: 0 0 var(--v-s-1);
+  font-family: var(--v-font-display);
+  font-weight: var(--v-weight-bold);
+  font-size: var(--v-text-section);
+  line-height: var(--v-lh-section);
+  text-wrap: pretty;
+}
+.decide-lead {
+  margin: 0 0 var(--v-s-5);
+  max-width: 56ch;
+  font-size: var(--v-text-body);
+  color: var(--v-ink-700);
+  text-wrap: pretty;
+}
+.decide-items { display: flex; flex-direction: column; gap: var(--v-s-4); }
+
+/* A thing they need that nothing in the resume shows. No quote block, ever:
+   that silence is the product. */
+.gap-item { display: flex; gap: var(--v-s-4); align-items: flex-start; }
+.gap-item .mark { margin-top: 4px; }
+.gap-item .what { font-size: var(--v-text-item); line-height: var(--v-lh-item); text-wrap: pretty; }
+.gap-item .why {
+  margin: var(--v-s-1) 0 0;
+  max-width: 52ch;
+  font-size: var(--v-text-body);
+  color: var(--v-ink-700);
+  text-wrap: pretty;
+}
+
+.line-item .why {
+  margin: var(--v-s-2) 0 0;
+  max-width: 54ch;
+  font-size: var(--v-text-body);
+  color: var(--v-ink-2);
+  text-wrap: pretty;
+}
+.line-item.fix .why { color: var(--v-ink-900); }
+
+/* ---- a quoted resume line, wherever it appears -------------------------- */
+
+.quote {
+  padding: 14px 16px;
+  background: var(--v-bg-2);
+  border-left: var(--v-quote-edge) solid var(--v-line-strong);
+  border-radius: 0 var(--v-radius-3) var(--v-radius-3) 0;
+}
+.quote .where {
+  display: block;
+  margin-bottom: 7px;
+  font-size: var(--v-text-label);
+  color: var(--v-ink-3);
+}
+.quote .words {
+  margin: 0;
+  font-family: var(--v-font-mono);
+  font-weight: var(--v-weight-regular);
+  font-size: var(--v-text-quote);
+  line-height: var(--v-lh-quote);
+  white-space: pre-wrap;   /* the resume's own spacing survives, character
+                              for character. No trimming, no smart quotes. */
+}
+.quote.evidenced        { border-left-color: var(--v-shown);  }
+.quote.partly_evidenced { border-left-color: var(--v-partly); }
+.quote.not_evidenced    { border-left-color: var(--v-not);    }
+
+.nothing-here {
+  margin: 0;
+  max-width: 54ch;
+  font-size: var(--v-text-body);
+  color: var(--v-ink-700);
+  text-wrap: pretty;
+}
+
+/* Said out loud when looking again has moved the counts past the call above. */
+.behind-note {
+  margin: 0 0 var(--v-s-6);
+  padding: 14px 16px;
+  font-size: var(--v-text-body);
+  line-height: var(--v-lh-body);
+  color: var(--v-ink-2);
+  background: var(--v-bg-212);
+  border-left: var(--v-quote-edge) solid var(--v-line-strong);
+  border-radius: 0 var(--v-radius-3) var(--v-radius-3) 0;
+  max-width: 56ch;
+}
+
+/* ============================================================================
+   LEVEL THREE: the working, folded away.
+
+   Reference material. It never sits above the answer. It opens by itself only
+   while the run is going, because that minute is the interesting part.
+   ========================================================================= */
+
+.workings { border-top: 1px solid var(--v-line); padding-top: var(--v-s-5); }
+
+button.list-toggle {
+  font: inherit;
+  display: flex;
+  align-items: center;
+  gap: var(--v-s-3);
+  width: 100%;
+  min-height: var(--v-tap-min);
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--v-ink);
+  text-align: left;
+}
+.list-toggle .chev { width: 14px; flex: none; font-size: var(--page-note); color: var(--v-ink-3); }
+.list-toggle .list-title { font-size: var(--v-text-item); font-weight: var(--v-weight-medium); }
+.list-toggle .list-meta { font-size: var(--page-note); color: var(--v-ink-3); }
+
+.list-hint {
+  margin: var(--v-s-3) 0 0 var(--v-s-5);
+  max-width: 52ch;
+  font-size: var(--v-text-small);
+  color: var(--v-ink-560);
+}
+
+.list { display: flex; flex-direction: column; margin-top: var(--v-s-5); }
+
+/* ---- one requirement ---------------------------------------------------- */
+
+.req {
+  display: grid;
+  grid-template-columns: var(--v-mark-size) minmax(0, 1fr);
+  gap: 0 var(--v-s-4);
+  padding: 20px 22px;
+  margin-bottom: var(--v-s-3);
+  background: var(--v-bg-212);
+  border-radius: var(--v-radius-4);
+}
+.req > .mark { margin-top: 4px; }
+.req.working { background: var(--v-agent-row); }
+/* Everything except the one being looked at again steps back. */
+.req.aside { opacity: 0.5; }
+
+.req-body { min-width: 0; }
+
+.req-head { display: flex; align-items: baseline; gap: var(--v-s-3); flex-wrap: wrap; }
+.req-text {
+  flex: 1 1 auto;
+  min-width: 200px;
+  font-size: var(--v-text-item);
+  line-height: var(--v-lh-item);
+  text-wrap: pretty;
+}
+.req.waiting .req-text { color: var(--v-ink-700); }
+
+.kind {
+  flex: none;
+  font-size: var(--v-text-label);
+  padding: 3px 10px;
+  border-radius: var(--v-radius-pill);
+  background: var(--v-bg-265);
+  color: var(--v-ink-3);
+  white-space: nowrap;
+}
+.req.waiting .kind { background: var(--v-bg-235); color: var(--v-ink-660); }
+
+.said {
+  margin: var(--v-s-3) 0 0;
+  font-size: var(--v-text-small);
+  font-weight: var(--v-weight-medium);
+}
+.said.evidenced        { color: var(--v-shown);  }
+.said.partly_evidenced { color: var(--v-partly); }
+.said.not_evidenced    { color: var(--v-not);    }
+
+.req .quote { margin-top: var(--v-s-3); }
+
+.req-why {
+  margin: var(--v-s-3) 0 0;
+  max-width: 58ch;
+  font-size: var(--v-text-body);
+  line-height: var(--v-lh-lead);
+  color: var(--v-ink-2);
+  text-wrap: pretty;
+}
+
+/* ---- the trace: what it is doing, in sentences -------------------------- */
+
+.trace {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin-top: var(--v-s-3);
+  padding: 2px 0 2px var(--v-s-4);
+  border-left: var(--v-quote-edge) solid var(--v-agent-dim);
+  border-radius: var(--v-radius-1);
+}
+.trace p {
+  margin: 0;
+  font-size: var(--v-text-small);
+  line-height: var(--v-lh-quote);
+  color: var(--v-ink-660);
+  white-space: pre-wrap;
+  text-wrap: pretty;
+}
+/* The moment it throws away its own answer. The one line that must not slip
+   past, so it keeps the rose and the full-strength ink. */
+.trace p.turn {
+  max-width: 50ch;
+  font-size: var(--v-text-body);
+  line-height: var(--v-lh-lead);
+  color: var(--v-agent-bright);
+}
+.trace p.now {
+  font-size: var(--v-text-body);
+  line-height: var(--v-lh-lead);
+  color: var(--v-ink-strong);
+  animation: vpulse var(--v-dur-pulse) var(--v-ease) infinite;
+}
+
+/* When the run is over the rose leaves the screen. A trace is only kept at all
+   on a row where it changed its mind, and then it is history, not activity. */
+.req.settled .trace { border-left-color: var(--v-line-strong); }
+.req.settled .trace p.turn { color: var(--v-ink-2); }
+.req.settled .trace p.now { color: var(--v-ink-660); animation: none; font-size: var(--v-text-small); }
+
+button.again {
+  font: inherit;
+  font-size: var(--page-note);
+  margin-top: var(--v-s-3);
+  min-height: var(--v-tap-min);
+  padding: 7px 14px;
+  color: var(--v-ink-700);
+  background: none;
+  border: 1px solid var(--v-line-330);
+  border-radius: var(--v-radius-pill);
+  cursor: pointer;
+}
+button.again:hover:enabled { color: var(--v-ink); border-color: var(--v-line-strong); }
+button.again:disabled { color: var(--v-ink-4); border-color: var(--v-line-270); cursor: default; }
+
+/* ============================================================================
+   Anybody who has asked their system to stop moving things gets no motion.
+   The durations are already zeroed in tokens.css; these two are the animations
+   themselves, which a zero duration would still leave running at zero length.
+   ========================================================================= */
+@media (prefers-reduced-motion: reduce) {
+  .mark.working, .live-bar i, .trace p.now { animation: none; }
+}
+
+/* ============================================================================
+   Narrow. The rail stops being a rail and becomes the top of the page.
+   ========================================================================= */
+@media (max-width: 900px) {
+  .frame { grid-template-columns: minmax(0, 1fr); }
+  .rail {
+    min-height: 0;
+    border-right: none;
+    border-bottom: 1px solid var(--v-line);
+  }
+  .rail-gap { display: none; }
+  main { padding: var(--v-s-5) var(--v-rail-pad-x) var(--v-s-8); }
+  .top { flex-wrap: wrap; height: auto; padding-block: var(--v-s-3); }
+  .demo { flex-wrap: wrap; flex: 1 1 100%; }
+  .header-note { flex: 1 1 100%; }
+}

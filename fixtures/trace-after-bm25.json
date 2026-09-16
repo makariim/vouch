@@ -1,0 +1,705 @@
+[
+  {
+    "type": "requirements",
+    "items": [
+      {
+        "id": 1,
+        "text": "Partner with Customers: Collaborate closely with customer stakeholders to understand their business goals, identify high-impact use cases, and define technical requirements for AI solutions."
+      },
+      {
+        "id": 2,
+        "text": "Build & Deploy AI Solutions: Design, develop, and deploy end-to-end AI solutions using the DataRobot platform and open-source tools. This includes:"
+      },
+      {
+        "id": 3,
+        "text": "Agentic AI:  Developing and deploying agents on DataRobot leveraging common frameworks such as Langgraph, CrewAI, Llama Index"
+      },
+      {
+        "id": 4,
+        "text": "Generative AI: Building custom GenAI chatbots, Retrieval-Augmented Generation (RAG) systems."
+      },
+      {
+        "id": 5,
+        "text": "Predictive AI: Developing and deploying classic machine learning models for use cases like forecasting, churn prediction, and fraud detection."
+      },
+      {
+        "id": 6,
+        "text": "Serve as a Technical Expert: Act as a subject matter expert on the DataRobot platform and modern AI/ML development, guiding customers on best practices for MLOps, model governance, and scaling AI initiatives."
+      },
+      {
+        "id": 7,
+        "text": "Deliver Value: Ensure that the solutions you build are robust, scalable, and directly contribute to the customer's business objectives."
+      },
+      {
+        "id": 8,
+        "text": "Communicate & Collaborate: Clearly communicate complex technical concepts and project outcomes to both technical and non-technical audiences, from data scientists to C-level executives."
+      },
+      {
+        "id": 9,
+        "text": "Strong proficiency in Python and common data science libraries (e.g., pandas, scikit-learn, NumPy, etc.)."
+      },
+      {
+        "id": 10,
+        "text": "Practical experience with Generative AI technologies, including Large Language Models (LLMs), vector databases,"
+      },
+      {
+        "id": 11,
+        "text": "Solid understanding of the end-to-end agentic AI lifecycle from building agents in  frameworks like LangGraph or CrewAI, to at scale deployment and monitoring."
+      },
+      {
+        "id": 12,
+        "text": "Demonstrable experience developing and deploying applications, including building REST APIs (e.g., using Flask, FastAPI) to serve ML models and GenAI logic."
+      },
+      {
+        "id": 13,
+        "text": "Proficiency with containerization using Docker"
+      },
+      {
+        "id": 14,
+        "text": "experience deploying and managing applications on container orchestration platforms like Kubernetes (K8s)."
+      },
+      {
+        "id": 15,
+        "text": "Solid understanding of secure application development practices, including authentication/authorization (e.g., OAuth, API keys), secrets management, and securing public-facing endpoints."
+      },
+      {
+        "id": 16,
+        "text": "Experience in a client-facing or consulting role with exceptional verbal and written communication skills."
+      },
+      {
+        "id": 17,
+        "text": "You must be comfortable leading technical discussions and presenting to diverse audiences."
+      },
+      {
+        "id": 18,
+        "text": "A deep curiosity and a passion for solving complex, unstructured problems."
+      },
+      {
+        "id": 19,
+        "text": "Experience: Approximately 6-8 years of hands-on experience in AI Application development, software engineering, machine learning engineering, or a similar role with a proven track record of deploying AI solutions or applications into production."
+      },
+      {
+        "id": 20,
+        "text": "Education: A Master\u2019s Degree or Ph.D. in Computer Science, Statistics, Artificial Intelligence, Engineering, or a related quantitative field."
+      },
+      {
+        "id": 21,
+        "text": "Cloud Experience: Hands-on experience with a major cloud platform (AWS, Azure, or GCP)."
+      },
+      {
+        "id": 22,
+        "text": "DataRobot Experience: Familiarity with the DataRobot AI Platform is a strong plus."
+      },
+      {
+        "id": 23,
+        "text": "MLOps Knowledge: Understanding of MLOps principles and tools for model CI/CD, monitoring, and governance."
+      }
+    ]
+  },
+  {
+    "type": "step",
+    "requirement_id": 1,
+    "step": "search",
+    "detail": "customer engagement, stakeholder management, business goals, use case identification, technical requirements, AI solutions, client partnership, solution architect, requirements gathering, AI implementation, machine learning projects, client workshops, business analysis"
+  },
+  {
+    "type": "step",
+    "requirement_id": 1,
+    "step": "judge",
+    "detail": "partly_evidenced -- Shows client\u2011facing AI product work but does not explicitly describe collaborating with customers to define goals or requirements"
+  },
+  {
+    "type": "step",
+    "requirement_id": 1,
+    "step": "verify",
+    "detail": "line 41 confirmed"
+  },
+  {
+    "type": "verdict",
+    "requirement_id": 1,
+    "verdict": "partly_evidenced",
+    "line": "Deliver client-facing AI products against fixed demo dates, including a multi-step document analysis workflow with a human review",
+    "line_number": 41,
+    "reason": "Shows client\u2011facing AI product work but does not explicitly describe collaborating with customers to define goals or requirements"
+  },
+  {
+    "type": "step",
+    "requirement_id": 2,
+    "step": "search",
+    "detail": "DataRobot, AI solution, machine learning pipeline, model deployment, MLOps, TensorFlow, PyTorch, scikit-learn, Docker, Kubernetes, REST API, model serving, CI/CD, MLflow"
+  },
+  {
+    "type": "step",
+    "requirement_id": 2,
+    "step": "judge",
+    "detail": "partly_evidenced -- Demonstrates design and deployment of AI solutions with open\u2011source tools, but does not mention the DataRobot platform"
+  },
+  {
+    "type": "step",
+    "requirement_id": 2,
+    "step": "verify",
+    "detail": "line 79 confirmed"
+  },
+  {
+    "type": "verdict",
+    "requirement_id": 2,
+    "verdict": "partly_evidenced",
+    "line": "Docker, Kubernetes, Helm, GitHub Actions, AWS ECR and CodeArtifact, GCP Secret Manager, on-prem and air-",
+    "line_number": 79,
+    "reason": "Demonstrates design and deployment of AI solutions with open\u2011source tools, but does not mention the DataRobot platform"
+  },
+  {
+    "type": "step",
+    "requirement_id": 3,
+    "step": "search",
+    "detail": "DataRobot, LangGraph, CrewAI, LlamaIndex, agentic AI, AI agents, LLM agent framework, agent deployment, prompt engineering"
+  },
+  {
+    "type": "step",
+    "requirement_id": 3,
+    "step": "judge",
+    "detail": "partly_evidenced -- Shows agentic query and deployment experience but does not mention DataRobot or the specified frameworks."
+  },
+  {
+    "type": "step",
+    "requirement_id": 3,
+    "step": "verify",
+    "detail": "line 47 confirmed"
+  },
+  {
+    "type": "verdict",
+    "requirement_id": 3,
+    "verdict": "partly_evidenced",
+    "line": "ingestion, search, SQL, agentic query, deployment and on-site air-gapped debugging.",
+    "line_number": 47,
+    "reason": "Shows agentic query and deployment experience but does not mention DataRobot or the specified frameworks."
+  },
+  {
+    "type": "step",
+    "requirement_id": 4,
+    "step": "search",
+    "detail": "Generative AI, chatbot, LLM, large language model, GPT, OpenAI API, LangChain, Retrieval Augmented Generation, RAG, vector store, FAISS, Pinecone, Weaviate, prompt engineering, fine\u2011tuning, transformer, HuggingFace, Dialogflow, Azure OpenAI, Vertex AI"
+  },
+  {
+    "type": "step",
+    "requirement_id": 4,
+    "step": "judge",
+    "detail": "evidenced -- Resume mentions RAG and LLM orchestration with agents, indicating experience building custom GenAI chatbots and retrieval\u2011augmented generation systems."
+  },
+  {
+    "type": "step",
+    "requirement_id": 4,
+    "step": "verify",
+    "detail": "line 73 confirmed"
+  },
+  {
+    "type": "verdict",
+    "requirement_id": 4,
+    "verdict": "evidenced",
+    "line": "AI systems Languages Backend & data Infrastructure Frontend Quality LLM orchestration, DSPy and ReAct agents, RAG and hybrid retrieval, BM25 and dense reranking, LSH,",
+    "line_number": 73,
+    "reason": "Resume mentions RAG and LLM orchestration with agents, indicating experience building custom GenAI chatbots and retrieval\u2011augmented generation systems."
+  },
+  {
+    "type": "step",
+    "requirement_id": 5,
+    "step": "search",
+    "detail": "machine learning, predictive modeling, forecasting, time series, regression, classification, churn prediction, customer churn, fraud detection, anomaly detection, scikit-learn, XGBoost, Random Forest, Logistic Regression, Python, R"
+  },
+  {
+    "type": "step",
+    "requirement_id": 5,
+    "step": "judge",
+    "detail": "partly_evidenced -- The line mentions building fraud detection infrastructure, indicating relevance to the fraud detection use case, but does not specify developing classic machine learning models."
+  },
+  {
+    "type": "step",
+    "requirement_id": 5,
+    "step": "verify",
+    "detail": "line 65 confirmed"
+  },
+  {
+    "type": "verdict",
+    "requirement_id": 5,
+    "verdict": "partly_evidenced",
+    "line": "Built fraud detection and campaign infrastructure for the Microsoft Rewards loyalty programme, modernised Notifications Platform",
+    "line_number": 65,
+    "reason": "The line mentions building fraud detection infrastructure, indicating relevance to the fraud detection use case, but does not specify developing classic machine learning models."
+  },
+  {
+    "type": "step",
+    "requirement_id": 6,
+    "step": "search",
+    "detail": "DataRobot, MLOps, model governance, AI scaling, machine learning operations, model deployment, CI/CD for ML, model monitoring, AI governance, ML lifecycle, subject matter expert, SME, technical lead, AI architecture"
+  },
+  {
+    "type": "step",
+    "requirement_id": 6,
+    "step": "judge",
+    "detail": "partly_evidenced -- Demonstrates knowledge of model serving and deployment, indicating some MLOps expertise, though it does not mention DataRobot or guiding customers."
+  },
+  {
+    "type": "step",
+    "requirement_id": 6,
+    "step": "verify",
+    "detail": "line 7 confirmed"
+  },
+  {
+    "type": "verdict",
+    "requirement_id": 6,
+    "verdict": "partly_evidenced",
+    "line": "answering, text-to-SQL, model serving and evaluation, and the deployment path into cloud, on-premise and fully air-gapped",
+    "line_number": 7,
+    "reason": "Demonstrates knowledge of model serving and deployment, indicating some MLOps expertise, though it does not mention DataRobot or guiding customers."
+  },
+  {
+    "type": "step",
+    "requirement_id": 7,
+    "step": "search",
+    "detail": "scalable robust high\u2011availability performance optimization solution architecture business impact ROI customer value delivery cost reduction efficiency metrics"
+  },
+  {
+    "type": "step",
+    "requirement_id": 7,
+    "step": "judge",
+    "detail": "partly_evidenced -- Shows the solution was built at high scale, indicating scalability but does not fully address robustness or direct business impact."
+  },
+  {
+    "type": "step",
+    "requirement_id": 7,
+    "step": "verify",
+    "detail": "line 64 confirmed"
+  },
+  {
+    "type": "verdict",
+    "requirement_id": 7,
+    "verdict": "partly_evidenced",
+    "line": "maintained the high-scale Spark and MapReduce pipelines behind it.",
+    "line_number": 64,
+    "reason": "Shows the solution was built at high scale, indicating scalability but does not fully address robustness or direct business impact."
+  },
+  {
+    "type": "step",
+    "requirement_id": 8,
+    "step": "search",
+    "detail": "presented, delivered presentations, technical writing, cross-functional, stakeholder, executive briefings, client communication, collaborated, team collaboration, workshop facilitation, training sessions, liaison, reporting, documentation, public speaking, whitepaper, briefed, communicated, interfaced"
+  },
+  {
+    "type": "step",
+    "requirement_id": 8,
+    "step": "judge",
+    "detail": "partly_evidenced -- Shows presentation of a project to a corporate AI organization and securing investment, indicating communication of technical outcomes to senior stakeholders."
+  },
+  {
+    "type": "step",
+    "requirement_id": 8,
+    "step": "verify",
+    "detail": "line 55 confirmed"
+  },
+  {
+    "type": "verdict",
+    "requirement_id": 8,
+    "verdict": "partly_evidenced",
+    "line": "engineering, against a fixed deadline. Presented it to the Microsoft AI organisation; it secured immediate investment in Shopping",
+    "line_number": 55,
+    "reason": "Shows presentation of a project to a corporate AI organization and securing investment, indicating communication of technical outcomes to senior stakeholders."
+  },
+  {
+    "type": "step",
+    "requirement_id": 9,
+    "step": "search",
+    "detail": "Python pandas scikit-learn sklearn NumPy"
+  },
+  {
+    "type": "step",
+    "requirement_id": 9,
+    "step": "judge",
+    "detail": "partly_evidenced -- The line shows Python proficiency but does not mention the required data science libraries."
+  },
+  {
+    "type": "step",
+    "requirement_id": 9,
+    "step": "verify",
+    "detail": "line 78 confirmed"
+  },
+  {
+    "type": "verdict",
+    "requirement_id": 9,
+    "verdict": "partly_evidenced",
+    "line": "Python, REST API design",
+    "line_number": 78,
+    "reason": "The line shows Python proficiency but does not mention the required data science libraries."
+  },
+  {
+    "type": "step",
+    "requirement_id": 10,
+    "step": "search",
+    "detail": "LLM GPT-3 GPT-4 ChatGPT OpenAI API Hugging Face Transformers LangChain RAG vector database FAISS Pinecone Weaviate Milvus Annoy ElasticSearch embeddings"
+  },
+  {
+    "type": "step",
+    "requirement_id": 10,
+    "step": "judge",
+    "detail": "partly_evidenced -- Shows experience with LLM orchestration but does not mention vector databases, so only part of the requirement is met."
+  },
+  {
+    "type": "step",
+    "requirement_id": 10,
+    "step": "verify",
+    "detail": "line 73 confirmed"
+  },
+  {
+    "type": "verdict",
+    "requirement_id": 10,
+    "verdict": "partly_evidenced",
+    "line": "AI systems Languages Backend & data Infrastructure Frontend Quality LLM orchestration, DSPy and ReAct agents, RAG and hybrid retrieval, BM25 and dense reranking, LSH,",
+    "line_number": 73,
+    "reason": "Shows experience with LLM orchestration but does not mention vector databases, so only part of the requirement is met."
+  },
+  {
+    "type": "step",
+    "requirement_id": 11,
+    "step": "search",
+    "detail": "LangGraph, CrewAI, agentic AI, AI agent framework, LLM agent, AI lifecycle, deployment, monitoring, MLOps, Docker, Kubernetes, SageMaker, MLflow"
+  },
+  {
+    "type": "step",
+    "requirement_id": 11,
+    "step": "judge",
+    "detail": "partly_evidenced -- Mentions agentic query and deployment but does not reference specific frameworks like LangGraph or CrewAI."
+  },
+  {
+    "type": "step",
+    "requirement_id": 11,
+    "step": "verify",
+    "detail": "line 47 confirmed"
+  },
+  {
+    "type": "verdict",
+    "requirement_id": 11,
+    "verdict": "partly_evidenced",
+    "line": "ingestion, search, SQL, agentic query, deployment and on-site air-gapped debugging.",
+    "line_number": 47,
+    "reason": "Mentions agentic query and deployment but does not reference specific frameworks like LangGraph or CrewAI."
+  },
+  {
+    "type": "step",
+    "requirement_id": 12,
+    "step": "search",
+    "detail": "Flask, FastAPI, REST API, API development, model serving, ML model deployment, containerization, Docker, Kubernetes, AWS Lambda, TensorFlow Serving"
+  },
+  {
+    "type": "step",
+    "requirement_id": 12,
+    "step": "judge",
+    "detail": "partly_evidenced -- Shows experience with FastAPI, a key technology for building REST APIs, but does not explicitly link to serving ML models or GenAI logic."
+  },
+  {
+    "type": "step",
+    "requirement_id": 12,
+    "step": "verify",
+    "detail": "line 77 confirmed"
+  },
+  {
+    "type": "verdict",
+    "requirement_id": 12,
+    "verdict": "partly_evidenced",
+    "line": "FastAPI, Hatchet workflow orchestration, Elasticsearch, Redis, PostgreSQL, Kafka, Spark and MapReduce, async",
+    "line_number": 77,
+    "reason": "Shows experience with FastAPI, a key technology for building REST APIs, but does not explicitly link to serving ML models or GenAI logic."
+  },
+  {
+    "type": "step",
+    "requirement_id": 13,
+    "step": "search",
+    "detail": "Docker, Dockerfile, containerized, Docker Compose, containerization, Docker images, Docker containers"
+  },
+  {
+    "type": "step",
+    "requirement_id": 13,
+    "step": "judge",
+    "detail": "evidenced -- The line lists Docker as a technology the candidate works with, showing proficiency with containerization."
+  },
+  {
+    "type": "step",
+    "requirement_id": 13,
+    "step": "verify",
+    "detail": "line 79 confirmed"
+  },
+  {
+    "type": "verdict",
+    "requirement_id": 13,
+    "verdict": "evidenced",
+    "line": "Docker, Kubernetes, Helm, GitHub Actions, AWS ECR and CodeArtifact, GCP Secret Manager, on-prem and air-",
+    "line_number": 79,
+    "reason": "The line lists Docker as a technology the candidate works with, showing proficiency with containerization."
+  },
+  {
+    "type": "step",
+    "requirement_id": 14,
+    "step": "search",
+    "detail": "Kubernetes K8s EKS GKE AKS helm helm charts kubectl Docker Swarm container orchestration"
+  },
+  {
+    "type": "step",
+    "requirement_id": 14,
+    "step": "judge",
+    "detail": "partly_evidenced -- Mentions Kubernetes as a tool, indicating familiarity but not explicit deployment/management experience."
+  },
+  {
+    "type": "step",
+    "requirement_id": 14,
+    "step": "verify",
+    "detail": "line 79 confirmed"
+  },
+  {
+    "type": "verdict",
+    "requirement_id": 14,
+    "verdict": "partly_evidenced",
+    "line": "Docker, Kubernetes, Helm, GitHub Actions, AWS ECR and CodeArtifact, GCP Secret Manager, on-prem and air-",
+    "line_number": 79,
+    "reason": "Mentions Kubernetes as a tool, indicating familiarity but not explicit deployment/management experience."
+  },
+  {
+    "type": "step",
+    "requirement_id": 15,
+    "step": "search",
+    "detail": "OAuth OAuth2 OpenID Connect JWT SAML Auth0 Okta IAM RBAC \"role-based access control\" \"API keys\" \"secret management\" \"HashiCorp Vault\" \"AWS Secrets Manager\" \"Azure Key Vault\" TLS HTTPS CORS CSRF OWASP"
+  },
+  {
+    "type": "step",
+    "requirement_id": 15,
+    "step": "judge",
+    "detail": "partly_evidenced -- Mentions use of GCP Secret Manager, indicating experience with secrets management."
+  },
+  {
+    "type": "step",
+    "requirement_id": 15,
+    "step": "verify",
+    "detail": "line 79 confirmed"
+  },
+  {
+    "type": "verdict",
+    "requirement_id": 15,
+    "verdict": "partly_evidenced",
+    "line": "Docker, Kubernetes, Helm, GitHub Actions, AWS ECR and CodeArtifact, GCP Secret Manager, on-prem and air-",
+    "line_number": 79,
+    "reason": "Mentions use of GCP Secret Manager, indicating experience with secrets management."
+  },
+  {
+    "type": "step",
+    "requirement_id": 16,
+    "step": "search",
+    "detail": "client-facing consultant \"client services\" \"account manager\" \"customer liaison\" \"stakeholder management\" presentation \"public speaking\" \"technical writing\" proposal \"business development\""
+  },
+  {
+    "type": "step",
+    "requirement_id": 16,
+    "step": "judge",
+    "detail": "partly_evidenced -- Shows client-facing experience but does not demonstrate communication skills."
+  },
+  {
+    "type": "step",
+    "requirement_id": 16,
+    "step": "verify",
+    "detail": "line 41 confirmed"
+  },
+  {
+    "type": "verdict",
+    "requirement_id": 16,
+    "verdict": "partly_evidenced",
+    "line": "Deliver client-facing AI products against fixed demo dates, including a multi-step document analysis workflow with a human review",
+    "line_number": 41,
+    "reason": "Shows client-facing experience but does not demonstrate communication skills."
+  },
+  {
+    "type": "step",
+    "requirement_id": 17,
+    "step": "search",
+    "detail": "technical lead, presented, public speaking, delivered presentations, facilitated meetings, stakeholder communication, conducted workshops, client presentations, conference speaker, keynote, training sessions, product demo"
+  },
+  {
+    "type": "step",
+    "requirement_id": 17,
+    "step": "judge",
+    "detail": "partly_evidenced -- Shows leading technical discussions but does not demonstrate presenting to diverse audiences."
+  },
+  {
+    "type": "step",
+    "requirement_id": 17,
+    "step": "verify",
+    "detail": "line 57 confirmed"
+  },
+  {
+    "type": "verdict",
+    "requirement_id": 17,
+    "verdict": "partly_evidenced",
+    "line": "Led three engineers as tech lead: technical direction, design review, execution planning, dependency unblocking and alignment with",
+    "line_number": 57,
+    "reason": "Shows leading technical discussions but does not demonstrate presenting to diverse audiences."
+  },
+  {
+    "type": "step",
+    "requirement_id": 18,
+    "step": "search",
+    "detail": "problem solving, complex problems, unstructured data, research, analytical, algorithm design, data mining, investigative, curiosity, innovation, exploratory analysis"
+  },
+  {
+    "type": "step",
+    "requirement_id": 18,
+    "step": "judge",
+    "detail": "evidenced -- Demonstrates independent research and building a demo for a customer's unique problem, indicating curiosity and passion for tackling complex, unstructured issues."
+  },
+  {
+    "type": "step",
+    "requirement_id": 18,
+    "step": "verify",
+    "detail": "line 8 confirmed"
+  },
+  {
+    "type": "verdict",
+    "requirement_id": 18,
+    "verdict": "evidenced",
+    "line": "environments. Forward deployed into new accounts, where a demo built from independent research on the customer's own problem",
+    "line_number": 8,
+    "reason": "Demonstrates independent research and building a demo for a customer's unique problem, indicating curiosity and passion for tackling complex, unstructured issues."
+  },
+  {
+    "type": "step",
+    "requirement_id": 19,
+    "step": "search",
+    "detail": "machine learning, deep learning, AI application, model deployment, production, MLOps, TensorFlow, PyTorch, scikit-learn, Keras, AWS SageMaker, Azure ML, Google Cloud AI, AI Engineer, ML Engineer, AI developer, CI/CD, Docker, Kubernetes, REST API, Flask, FastAPI"
+  },
+  {
+    "type": "step",
+    "requirement_id": 19,
+    "step": "judge",
+    "detail": "evidenced -- The candidate states six years of experience building and operating production AI systems, matching the required 6-8 years of hands\u2011on AI application development."
+  },
+  {
+    "type": "step",
+    "requirement_id": 19,
+    "step": "verify",
+    "detail": "line 5 confirmed"
+  },
+  {
+    "type": "verdict",
+    "requirement_id": 19,
+    "verdict": "evidenced",
+    "line": "AI engineer with six years building and operating production systems at scale. Core engineer on an enterprise knowledge intelligence",
+    "line_number": 5,
+    "reason": "The candidate states six years of experience building and operating production AI systems, matching the required 6-8 years of hands\u2011on AI application development."
+  },
+  {
+    "type": "step",
+    "requirement_id": 20,
+    "step": "search",
+    "detail": "Master of Science OR M.S. OR MS OR Master's Degree OR Ph.D. OR PhD OR Doctorate OR Computer Science OR CS OR Statistics OR Artificial Intelligence OR AI OR Engineering OR Quantitative"
+  },
+  {
+    "type": "step",
+    "requirement_id": 20,
+    "step": "judge",
+    "detail": "not_evidenced -- The provided lines only list a B.Sc. degree and no Master's or Ph.D. degree is mentioned."
+  },
+  {
+    "type": "step",
+    "requirement_id": 20,
+    "step": "verify",
+    "detail": "no quote to check"
+  },
+  {
+    "type": "verdict",
+    "requirement_id": 20,
+    "verdict": "not_evidenced",
+    "line": null,
+    "line_number": null,
+    "reason": "The provided lines only list a B.Sc. degree and no Master's or Ph.D. degree is mentioned."
+  },
+  {
+    "type": "step",
+    "requirement_id": 21,
+    "step": "search",
+    "detail": "AWS Amazon Web Services Azure Microsoft Azure GCP Google Cloud Platform EC2 S3 Lambda Azure Functions Google Compute Engine"
+  },
+  {
+    "type": "step",
+    "requirement_id": 21,
+    "step": "judge",
+    "detail": "evidenced -- The line lists AWS and GCP services, demonstrating hands\u2011on cloud platform experience."
+  },
+  {
+    "type": "step",
+    "requirement_id": 21,
+    "step": "verify",
+    "detail": "line 79 confirmed"
+  },
+  {
+    "type": "verdict",
+    "requirement_id": 21,
+    "verdict": "evidenced",
+    "line": "Docker, Kubernetes, Helm, GitHub Actions, AWS ECR and CodeArtifact, GCP Secret Manager, on-prem and air-",
+    "line_number": 79,
+    "reason": "The line lists AWS and GCP services, demonstrating hands\u2011on cloud platform experience."
+  },
+  {
+    "type": "step",
+    "requirement_id": 22,
+    "step": "search",
+    "detail": "DataRobot, DataRobot AI Platform, DataRobot Studio, DataRobot Automated Machine Learning, DataRobot MLOps"
+  },
+  {
+    "type": "step",
+    "requirement_id": 22,
+    "step": "judge",
+    "detail": "not_evidenced -- None of the provided lines mention DataRobot or its AI Platform."
+  },
+  {
+    "type": "step",
+    "requirement_id": 22,
+    "step": "verify",
+    "detail": "no quote to check"
+  },
+  {
+    "type": "verdict",
+    "requirement_id": 22,
+    "verdict": "not_evidenced",
+    "line": null,
+    "line_number": null,
+    "reason": "None of the provided lines mention DataRobot or its AI Platform."
+  },
+  {
+    "type": "step",
+    "requirement_id": 23,
+    "step": "search",
+    "detail": "MLOps MLflow Kubeflow TFX TensorFlow-Extended CI/CD Jenkins GitLab CI Docker Kubernetes model monitoring Prometheus Grafana model governance DVC Airflow"
+  },
+  {
+    "type": "step",
+    "requirement_id": 23,
+    "step": "judge",
+    "detail": "partly_evidenced -- Lists CI/CD and governance tools but does not mention monitoring or explicit MLOps principles"
+  },
+  {
+    "type": "step",
+    "requirement_id": 23,
+    "step": "verify",
+    "detail": "line 79 confirmed"
+  },
+  {
+    "type": "verdict",
+    "requirement_id": 23,
+    "verdict": "partly_evidenced",
+    "line": "Docker, Kubernetes, Helm, GitHub Actions, AWS ECR and CodeArtifact, GCP Secret Manager, on-prem and air-",
+    "line_number": 79,
+    "reason": "Lists CI/CD and governance tools but does not mention monitoring or explicit MLOps principles"
+  },
+  {
+    "type": "done",
+    "counts": {
+      "evidenced": 5,
+      "partly_evidenced": 16,
+      "not_evidenced": 2
+    }
+  }
+]

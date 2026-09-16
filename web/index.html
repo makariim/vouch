@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vouch</title>
+<!-- design/assets/favicon.svg, inline as a data URI. A <link> to a file would
+     be a fetch, and a missing one is a 404 on every page load. -->
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 16 16&quot;><rect width=&quot;16&quot; height=&quot;16&quot; fill=&quot;%2322262e&quot;/><path d=&quot;M5.5 3 H2.5 V13 H5.5&quot; fill=&quot;none&quot; stroke=&quot;%23f4f5f7&quot; stroke-width=&quot;1.5&quot;/><path d=&quot;M10.5 3 H13.5 V13 H10.5&quot; fill=&quot;none&quot; stroke=&quot;%23f4f5f7&quot; stroke-width=&quot;1.5&quot;/><rect x=&quot;7&quot; y=&quot;3&quot; width=&quot;2&quot; height=&quot;10&quot; fill=&quot;%23f4f5f7&quot;/></svg>">
+<!-- tokens.css first: styles.css is written entirely in its variables and has
+     no colour, size or radius of its own. See the header of tokens.css for why
+     it is a copy rather than an import of design/tokens.css. -->
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="brand">
+    <!-- design/assets/mark.svg, inline so nothing is fetched. It takes its
+         colour from the parent, which is why there is no fill here. -->
+    <svg class="logo" viewBox="0 0 32 32" width="20" height="20" role="img" aria-label="Vouch">
+      <path d="M11 6 H5 V26 H11" fill="none" stroke="currentColor" stroke-width="3"/>
+      <path d="M21 6 H27 V26 H21" fill="none" stroke="currentColor" stroke-width="3"/>
+      <rect x="13.5" y="6" width="5" height="20" fill="currentColor"/>
+    </svg>
+    <span class="wordmark">Vouch</span>
+  </div>
+
+  <p id="status" class="header-note" role="status" aria-live="polite">Nothing loaded yet</p>
+
+  <div class="top-gap"></div>
+
+  <!-- The demo controls. Not part of the product: they pick where the answers
+       come from so the thing can be shown without spending money. -->
+  <div class="demo">
+    <span class="demo-label">Show</span>
+
+    <div class="segment" role="radiogroup" aria-label="Where the answers come from">
+      <label><input type="radio" name="mode" value="fixture" checked><span>A recording</span></label>
+      <label><input type="radio" name="mode" value="live"><span>A real run</span></label>
+    </div>
+
+    <label class="offscreen" for="fixture">Which recording</label>
+    <select id="fixture">
+      <option value="summary" selected>Something to fix</option>
+      <option value="clean">Nothing to fix</option>
+      <option value="recorded">The first recording</option>
+    </select>
+
+    <button id="error-preview" class="quiet" type="button">When it breaks</button>
+  </div>
+</header>
+
+<div class="frame">
+
+  <!-- ============================ SET UP THE RUN ============================ -->
+  <aside class="rail">
+
+    <section class="rail-block">
+      <label class="rail-label" for="resume">Your resume</label>
+      <textarea id="resume" spellcheck="false"
+                placeholder="Paste your whole resume here."></textarea>
+      <p id="resume-foot" class="rail-foot" hidden></p>
+    </section>
+
+    <section class="rail-block">
+      <label class="rail-label" for="post">The job post</label>
+      <textarea id="post" spellcheck="false"
+                placeholder="Paste the whole post here. Including the parts you would rather skip."></textarea>
+      <p id="post-foot" class="rail-foot" hidden></p>
+    </section>
+
+    <section class="rail-block">
+      <button id="run" class="run" type="button">
+        <span class="run-label">Check my fit</span>
+        <span class="run-meta">about 1 minute</span>
+      </button>
+      <p id="run-note" class="rail-note">You click this every time. It takes about a minute and it costs money.</p>
+    </section>
+
+    <div class="rail-gap"></div>
+
+    <p class="rail-privacy">Everything runs on this computer. Nothing is uploaded. There is no account.</p>
+  </aside>
+
+  <!-- ================================ ANSWERS ============================== -->
+  <main>
+
+    <!-- ---------- nothing loaded ---------- -->
+    <section id="intro" class="intro">
+      <h1>We check every thing the job asks for against one line of your resume.</h1>
+      <p class="intro-lead">If your resume does not show it, we say so and quote nothing. No paragraph telling you that you are still a great fit.</p>
+
+      <p class="rail-label">Three answers. Never a fourth.</p>
+      <div class="legend">
+        <div class="legend-row">
+          <span class="mark shown" aria-hidden="true"><i class="arm-l"></i><i class="arm-r"></i><i class="fill"></i></span>
+          <div>
+            <p class="legend-label shown">Your resume shows this</p>
+            <p class="legend-desc">One line proves it. We quote that line and give its number.</p>
+          </div>
+        </div>
+        <div class="legend-row">
+          <span class="mark partly_evidenced" aria-hidden="true"><i class="arm-l"></i><i class="arm-r"></i><i class="fill"></i></span>
+          <div>
+            <p class="legend-label partly">Your resume shows part of this</p>
+            <p class="legend-desc">Part of it is proved. We tell you which part is missing.</p>
+          </div>
+        </div>
+        <div class="legend-row">
+          <span class="mark not_evidenced" aria-hidden="true"><i class="arm-l"></i><i class="arm-r"></i><i class="fill"></i></span>
+          <div>
+            <p class="legend-label not">Your resume does not show this</p>
+            <p class="legend-desc">Nothing in your resume proves it, so we quote nothing. That is an answer, not a gap to fill.</p>
+          </div>
+        </div>
+      </div>
+
+      <p class="intro-tail">Fit comes back as a word, not a score. A number would sound more exact than it is.</p>
+    </section>
+
+    <!-- ---------- something went wrong ---------- -->
+    <section id="banner" class="wrong" hidden></section>
+
+    <!-- ---------- the answer ---------- -->
+    <section id="audit" class="audit" hidden>
+
+      <!-- while it is working -->
+      <div id="live" class="live" hidden>
+        <div class="live-head">
+          <span id="live-title" class="live-title">Working</span>
+          <span class="top-gap"></span>
+          <span id="live-meta" class="live-meta"></span>
+        </div>
+        <p id="live-headline" class="live-headline"></p>
+        <div class="live-bar" aria-hidden="true"><i></i></div>
+      </div>
+
+      <!-- level one and two: the call, then the few things that decide it -->
+      <div id="summary" class="answer" hidden></div>
+
+      <!-- level three: the working, folded away -->
+      <div id="workings" class="workings" hidden>
+        <button id="list-toggle" class="list-toggle" type="button"
+                aria-expanded="false" aria-controls="list">
+          <span id="list-chev" class="chev" aria-hidden="true">&#9656;</span>
+          <span class="list-title">Everything they asked for</span>
+          <span class="top-gap"></span>
+          <span id="list-meta" class="list-meta"></span>
+        </button>
+        <p id="list-hint" class="list-hint">Open this when you want to see the working: every thing they asked for, the line we matched it to, and why.</p>
+        <div id="list" class="list" hidden aria-live="polite"></div>
+      </div>
+
+    </section>
+
+  </main>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

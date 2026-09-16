@@ -1,0 +1,385 @@
+{
+  "note": "Hand-written. The recorded run in fixtures/trace-sample.json plus the two things decision 0005 adds: `required` on each requirement, and a `summary` event after `done`. Brief 0007 owns fixtures/; this folder is brief 0009's own, so the two cannot collide.",
+  "events": [
+    {
+      "type": "requirements",
+      "items": [
+        {
+          "id": 1,
+          "text": "5+ years of professional Python experience",
+          "required": true
+        },
+        {
+          "id": 2,
+          "text": "Experience building and shipping LLM-powered applications",
+          "required": true
+        },
+        {
+          "id": 3,
+          "text": "Familiarity with at least one agent framework (LangChain, LangGraph, CrewAI)",
+          "required": true
+        },
+        {
+          "id": 4,
+          "text": "Strong SQL and data modelling skills",
+          "required": true
+        },
+        {
+          "id": 5,
+          "text": "Experience working directly with customers in a pre-sales or professional services role",
+          "required": true
+        },
+        {
+          "id": 6,
+          "text": "Comfortable presenting technical material to non-technical stakeholders",
+          "required": true
+        },
+        {
+          "id": 7,
+          "text": "Hands-on experience with cloud platforms (AWS, GCP or Azure)",
+          "required": true
+        },
+        {
+          "id": 8,
+          "text": "Experience with containerisation and Kubernetes",
+          "required": false
+        },
+        {
+          "id": 9,
+          "text": "Working knowledge of machine learning evaluation and monitoring",
+          "required": false
+        },
+        {
+          "id": 10,
+          "text": "Bachelor's degree in Computer Science or a related field",
+          "required": true
+        },
+        {
+          "id": 11,
+          "text": "Willingness to travel up to 25% of the time",
+          "required": true
+        },
+        {
+          "id": 12,
+          "text": "Fluent written and spoken English",
+          "required": true
+        }
+      ]
+    },
+    {
+      "type": "step",
+      "requirement_id": 1,
+      "step": "search",
+      "detail": "python years experience"
+    },
+    {
+      "type": "step",
+      "requirement_id": 1,
+      "step": "verify",
+      "detail": "checking the quoted line is in the resume"
+    },
+    {
+      "type": "verdict",
+      "requirement_id": 1,
+      "verdict": "evidenced",
+      "line": "Senior Software Engineer, Python — 2019 to present (6 years)",
+      "line_number": 11,
+      "reason": "states Python and a span longer than five years"
+    },
+    {
+      "type": "step",
+      "requirement_id": 2,
+      "step": "search",
+      "detail": "LLM application shipped production"
+    },
+    {
+      "type": "step",
+      "requirement_id": 2,
+      "step": "verify",
+      "detail": "checking the quoted line is in the resume"
+    },
+    {
+      "type": "verdict",
+      "requirement_id": 2,
+      "verdict": "evidenced",
+      "line": "Shipped a retrieval-augmented support assistant serving 4k requests a day",
+      "line_number": 18,
+      "reason": "an LLM application in production, with load"
+    },
+    {
+      "type": "step",
+      "requirement_id": 3,
+      "step": "search",
+      "detail": "LangChain LangGraph CrewAI"
+    },
+    {
+      "type": "step",
+      "requirement_id": 3,
+      "step": "retry",
+      "detail": "only a tools list matched, no framework named — searching again"
+    },
+    {
+      "type": "step",
+      "requirement_id": 3,
+      "step": "search",
+      "detail": "agent orchestration state graph workflow"
+    },
+    {
+      "type": "step",
+      "requirement_id": 3,
+      "step": "verify",
+      "detail": "checking the quoted line is in the resume"
+    },
+    {
+      "type": "verdict",
+      "requirement_id": 3,
+      "verdict": "partly_evidenced",
+      "line": "Built multi-step agent workflows with DSPy and a durable task runner",
+      "line_number": 20,
+      "reason": "agent work is shown, but none of the three named frameworks"
+    },
+    {
+      "type": "step",
+      "requirement_id": 4,
+      "step": "search",
+      "detail": "SQL schema data model warehouse"
+    },
+    {
+      "type": "step",
+      "requirement_id": 4,
+      "step": "verify",
+      "detail": "checking the quoted line is in the resume"
+    },
+    {
+      "type": "verdict",
+      "requirement_id": 4,
+      "verdict": "evidenced",
+      "line": "Designed the Postgres schema behind the billing service and its reporting views",
+      "line_number": 14,
+      "reason": "schema design plus SQL reporting"
+    },
+    {
+      "type": "step",
+      "requirement_id": 5,
+      "step": "search",
+      "detail": "customer facing pre-sales consulting"
+    },
+    {
+      "type": "step",
+      "requirement_id": 5,
+      "step": "retry",
+      "detail": "nothing customer-facing found — widening to workshops and stakeholders"
+    },
+    {
+      "type": "step",
+      "requirement_id": 5,
+      "step": "search",
+      "detail": "client workshop stakeholder delivery"
+    },
+    {
+      "type": "step",
+      "requirement_id": 5,
+      "step": "verify",
+      "detail": "checking the quoted line is in the resume"
+    },
+    {
+      "type": "verdict",
+      "requirement_id": 5,
+      "verdict": "partly_evidenced",
+      "line": "Ran onboarding workshops for two enterprise customers during rollout",
+      "line_number": 22,
+      "reason": "customer contact, but after the sale rather than before it"
+    },
+    {
+      "type": "step",
+      "requirement_id": 6,
+      "step": "search",
+      "detail": "presented non-technical audience"
+    },
+    {
+      "type": "step",
+      "requirement_id": 6,
+      "step": "verify",
+      "detail": "checking the quoted line is in the resume"
+    },
+    {
+      "type": "verdict",
+      "requirement_id": 6,
+      "verdict": "evidenced",
+      "line": "Presented quarterly architecture reviews to product and finance leadership",
+      "line_number": 24,
+      "reason": "technical material presented to non-technical audiences"
+    },
+    {
+      "type": "step",
+      "requirement_id": 7,
+      "step": "search",
+      "detail": "AWS GCP Azure cloud"
+    },
+    {
+      "type": "step",
+      "requirement_id": 7,
+      "step": "verify",
+      "detail": "checking the quoted line is in the resume"
+    },
+    {
+      "type": "verdict",
+      "requirement_id": 7,
+      "verdict": "evidenced",
+      "line": "Migrated the platform from bare metal to AWS (ECS, RDS, S3)",
+      "line_number": 16,
+      "reason": "named cloud platform with named services"
+    },
+    {
+      "type": "step",
+      "requirement_id": 8,
+      "step": "search",
+      "detail": "Kubernetes docker container orchestration"
+    },
+    {
+      "type": "step",
+      "requirement_id": 8,
+      "step": "verify",
+      "detail": "checking the quoted line is in the resume"
+    },
+    {
+      "type": "verdict",
+      "requirement_id": 8,
+      "verdict": "partly_evidenced",
+      "line": "Packaged every service as a Docker image built in CI",
+      "line_number": 17,
+      "reason": "containers yes, Kubernetes not mentioned anywhere"
+    },
+    {
+      "type": "step",
+      "requirement_id": 9,
+      "step": "search",
+      "detail": "model evaluation monitoring drift"
+    },
+    {
+      "type": "verdict",
+      "requirement_id": 9,
+      "verdict": "not_evidenced",
+      "reason": "no evaluation or monitoring of models anywhere in the resume"
+    },
+    {
+      "type": "step",
+      "requirement_id": 10,
+      "step": "search",
+      "detail": "degree BSc computer science university"
+    },
+    {
+      "type": "step",
+      "requirement_id": 10,
+      "step": "verify",
+      "detail": "checking the quoted line is in the resume"
+    },
+    {
+      "type": "verdict",
+      "requirement_id": 10,
+      "verdict": "evidenced",
+      "line": "BSc Computer Engineering, Cairo University, 2015",
+      "line_number": 30,
+      "reason": "a related engineering degree"
+    },
+    {
+      "type": "step",
+      "requirement_id": 11,
+      "step": "search",
+      "detail": "travel relocation on-site"
+    },
+    {
+      "type": "verdict",
+      "requirement_id": 11,
+      "verdict": "not_evidenced",
+      "reason": "the resume says nothing about travel"
+    },
+    {
+      "type": "step",
+      "requirement_id": 12,
+      "step": "search",
+      "detail": "English language fluency"
+    },
+    {
+      "type": "verdict",
+      "requirement_id": 12,
+      "verdict": "not_evidenced",
+      "reason": "no language section; writing quality is not a claim the resume makes"
+    },
+    {
+      "type": "done",
+      "counts": {
+        "evidenced": 6,
+        "partly_evidenced": 3,
+        "not_evidenced": 3
+      }
+    },
+    {
+      "type": "summary",
+      "fit": "worth_applying",
+      "fit_reason": "You can show the engineering half of this post line by line. The customer-facing half is real work, but your resume writes it up as something internal.",
+      "blockers": [
+        {
+          "requirement_id": 11,
+          "text": "Willingness to travel up to 25% of the time",
+          "line": null,
+          "line_number": null,
+          "reason": "Nothing in your resume mentions travel at all. They will ask. Decide your answer before the call."
+        },
+        {
+          "requirement_id": 12,
+          "text": "Fluent written and spoken English",
+          "line": null,
+          "line_number": null,
+          "reason": "Your resume never says it. Everything in it is written in English, which is not the same as claiming the skill."
+        }
+      ],
+      "undersells": [
+        {
+          "requirement_id": 3,
+          "text": "Familiarity with at least one agent framework (LangChain, LangGraph, CrewAI)",
+          "line": "Built multi-step agent workflows with DSPy and a durable task runner",
+          "line_number": 20,
+          "reason": "\"multi-step agent workflows\" is exactly what they are asking for, and the line never calls it an agent framework or names the one you used."
+        },
+        {
+          "requirement_id": 5,
+          "text": "Experience working directly with customers in a pre-sales or professional services role",
+          "line": "Ran onboarding workshops for two enterprise customers during rollout",
+          "line_number": 22,
+          "reason": "Running onboarding workshops for two enterprise customers is professional-services work. The line states it as a rollout chore, not as customer delivery."
+        },
+        {
+          "requirement_id": 8,
+          "text": "Experience with containerisation and Kubernetes",
+          "line": "Packaged every service as a Docker image built in CI",
+          "line_number": 17,
+          "reason": "\"Packaged every service as a Docker image\" is the smallest true version of this. The orchestration around it is not stated at all."
+        }
+      ],
+      "strengths": [
+        {
+          "requirement_id": 1,
+          "text": "5+ years of professional Python experience",
+          "line": "Senior Software Engineer, Python — 2019 to present (6 years)",
+          "line_number": 11,
+          "reason": "Six years, stated as a span. This is the line that gets you past the first filter."
+        },
+        {
+          "requirement_id": 2,
+          "text": "Experience building and shipping LLM-powered applications",
+          "line": "Shipped a retrieval-augmented support assistant serving 4k requests a day",
+          "line_number": 18,
+          "reason": "A real system with real load. Say it in your first paragraph."
+        },
+        {
+          "requirement_id": 7,
+          "text": "Hands-on experience with cloud platforms (AWS, GCP or Azure)",
+          "line": "Migrated the platform from bare metal to AWS (ECS, RDS, S3)",
+          "line_number": 16,
+          "reason": "A named cloud platform and the services you actually used. Not a skills list."
+        }
+      ]
+    }
+  ]
+}

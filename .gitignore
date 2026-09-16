@@ -1,0 +1,25 @@
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+*.egg-info/
+
+# Audit output. Real resumes and job posts are personal data (decision 0002)
+# and do not belong in a public repository.
+audit.json
+fixtures/trace-real.json
+fixtures/trace-before-bm25.json
+
+# Your real inputs and your key. Personal data, public repo (decision 0002).
+private/
+.env
+
+# Uploaded resumes. Decision 0002: stored means on this machine. The folder is
+# plain files you can open and delete by hand -- and it never gets committed.
+resumes/
+
+# Remembered audits (decision 0006). These are audit output about a real
+# resume and a real job post, so they are personal data twice over. They
+# normally live in `resumes/audits/` and are already covered by the line
+# above; this is here for the case where AUDIT_RESUMES points somewhere else.
+audits/

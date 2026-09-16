@@ -41,7 +41,7 @@ network.
 
 **The product is finished. Nothing is left to build.**
 
-Backend, page, extension, design, PDF upload, the resume view. 172 tests,
+Backend, page, extension, design, PDF upload, the resume view. 173 tests,
 `formwork check` green, everything committed and pushed.
 
 **Reading the PDF in the right order changed the verdict.** `pdfplumber` sorts

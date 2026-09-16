@@ -16,7 +16,7 @@ user's own machine. No accounts, no hosted data, English only.
 **Why it exists:** it is a technical assignment for a DataRobot Professional
 Services interview. The deliverable is a working application plus a fifteen
 minute presentation with a live demo, and the code goes on GitHub at
-`makariim/job-hunter`.
+`makariim/vouch`.
 
 **Fixed by the assignment, not by us:**
 

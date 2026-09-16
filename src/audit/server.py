@@ -41,7 +41,7 @@ FRONTEND_DIR = Path(os.environ.get("AUDIT_FRONTEND", "web"))
 RESUME_DIR = Path(os.environ.get("AUDIT_RESUMES", str(DEFAULT_ROOT)))
 
 _WAITING = """<!doctype html>
-<meta charset="utf-8"><title>job-hunter</title>
+<meta charset="utf-8"><title>Vouch</title>
 <body style="font:16px system-ui;padding:3rem;max-width:40rem">
 <h1>Backend is up.</h1>
 <p>No page found in <code>{folder}</code>. Brief 0002 owns that file;
@@ -100,7 +100,7 @@ def create_app(
 ) -> FastAPI:
     """The model and both stores are injectable so tests can drive the real
     endpoints without a key, a network call, or a folder outside the test."""
-    app = FastAPI(title="job-hunter audit")
+    app = FastAPI(title="Vouch audit")
     store = resumes or ResumeStore(RESUME_DIR)
     remembered = audits or AuditStore(store.root)
 

@@ -585,46 +585,6 @@ wheels = [
 ]
 
 [[package]]
-name = "job-hunter"
-version = "0.1.0"
-source = { editable = "." }
-dependencies = [
-    { name = "anthropic" },
-    { name = "fastapi" },
-    { name = "langchain-groq" },
-    { name = "langgraph" },
-    { name = "pdfplumber" },
-    { name = "pydantic" },
-    { name = "pypdf" },
-    { name = "python-multipart" },
-    { name = "rank-bm25" },
-    { name = "uvicorn" },
-]
-
-[package.optional-dependencies]
-dev = [
-    { name = "httpx" },
-    { name = "pytest" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "anthropic", specifier = ">=0.40" },
-    { name = "fastapi", specifier = ">=0.115" },
-    { name = "httpx", marker = "extra == 'dev'" },
-    { name = "langchain-groq", specifier = ">=1.1" },
-    { name = "langgraph", specifier = ">=0.2" },
-    { name = "pdfplumber", specifier = ">=0.11" },
-    { name = "pydantic", specifier = ">=2.7" },
-    { name = "pypdf", specifier = ">=6.0" },
-    { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0" },
-    { name = "python-multipart", specifier = ">=0.0.9" },
-    { name = "rank-bm25", specifier = ">=0.2.2" },
-    { name = "uvicorn", specifier = ">=0.30" },
-]
-provides-extras = ["dev"]
-
-[[package]]
 name = "jsonpatch"
 version = "1.33"
 source = { registry = "https://pypi.org/simple" }
@@ -1459,6 +1419,46 @@ sdist = { url = "https://files.pythonhosted.org/packages/5d/ad/04bbb797c84fc1f26
 wheels = [
     { url = "https://files.pythonhosted.org/packages/76/18/0eea75741ee812e9f598b687619ce2454f6c3a1c5cd21ea990ec6bd26f45/uvicorn-0.53.0-py3-none-any.whl", hash = "sha256:e8dca71ec86dce5f04e333f0d56cdedf942446e6643b9cea1af0d6d3a02cb03e", size = 87081, upload-time = "2026-09-14T07:44:22.179Z" },
 ]
+
+[[package]]
+name = "vouch"
+version = "0.1.0"
+source = { editable = "." }
+dependencies = [
+    { name = "anthropic" },
+    { name = "fastapi" },
+    { name = "langchain-groq" },
+    { name = "langgraph" },
+    { name = "pdfplumber" },
+    { name = "pydantic" },
+    { name = "pypdf" },
+    { name = "python-multipart" },
+    { name = "rank-bm25" },
+    { name = "uvicorn" },
+]
+
+[package.optional-dependencies]
+dev = [
+    { name = "httpx" },
+    { name = "pytest" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "anthropic", specifier = ">=0.40" },
+    { name = "fastapi", specifier = ">=0.115" },
+    { name = "httpx", marker = "extra == 'dev'" },
+    { name = "langchain-groq", specifier = ">=1.1" },
+    { name = "langgraph", specifier = ">=0.2" },
+    { name = "pdfplumber", specifier = ">=0.11" },
+    { name = "pydantic", specifier = ">=2.7" },
+    { name = "pypdf", specifier = ">=6.0" },
+    { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0" },
+    { name = "python-multipart", specifier = ">=0.0.9" },
+    { name = "rank-bm25", specifier = ">=0.2.2" },
+    { name = "uvicorn", specifier = ">=0.30" },
+]
+provides-extras = ["dev"]
 
 [[package]]
 name = "websockets"

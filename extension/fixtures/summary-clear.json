@@ -1,0 +1,18 @@
+{
+  "type": "summary",
+  "known": true,
+  "fit": "strong",
+  "fit_reason": "Every one of the six things they ask for is in your resume, word for word.",
+  "blockers": [],
+  "strengths": [
+    {"requirement_id": 17, "text": "Familiarity with at least one agent framework (LangChain, LangGraph, CrewAI)",
+     "line": "- Built a six-node LangGraph agent that audits resumes against job posts,\n  with a retry pass on weak evidence.",
+     "line_number": 5,
+     "reason": "Say this first. It is their framework and a real system."},
+    {"requirement_id": 2, "text": "Experience building and shipping LLM-powered applications",
+     "line": "- Shipped three LLM features to production, the largest serving 40k\n  requests a day.",
+     "line_number": 18,
+     "reason": "Shipped, not tried. A number and a result."}
+  ],
+  "undersells": []
+}

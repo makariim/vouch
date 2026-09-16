@@ -1,0 +1,523 @@
+/* The panel, in the design's own values.
+   ---------------------------------------------------------------------------
+   Everything paintable comes from ../tokens.css, which is a byte-for-byte copy
+   of design/tokens.css. It is copied rather than imported because a Chrome
+   extension can only read files inside its own folder -- `@import
+   "../../design/tokens.css"` resolves to a chrome-extension:// URL outside the
+   package and fails silently. See extension/README.md for the drift check.
+
+   Decision 0002: no @import off disk, no CDN, no web font. ../tokens.css has
+   none either, so the only network this stylesheet can touch is none.
+
+   THE MONO RULE. --v-font-mono is for lines quoted out of the resume and
+   nothing else. Not labels, not buttons, not counts, not the filename. Mono
+   means "this came out of your resume and we did not touch it."
+
+   WHAT IS NOT A TOKEN, AND WHY. Every literal length this file uses is in the
+   block below, named, in one place, so the gap is countable. design/README.md
+   section 7 says padding and gaps inside a component are properties of that
+   component rather than steps on a scale -- these are those, read off
+   design/canvas/Extension.dc.html. No colour, no type size and no duration is
+   a literal anywhere in this file. */
+
+@import "../tokens.css";
+
+:root {
+  /* read off the artboard, component-internal, not on the 4px scale */
+  --p-pad-y:        20px;  /* a section's own top and bottom padding       */
+  --p-pad-y-head:   15px;  /* the header strip is shallower                */
+  --p-pad-y-lead:   22px;  /* the answer block is given more air           */
+  --p-gap-row:      11px;  /* between rows of a count list                 */
+  --p-gap-item:     14px;  /* between items in a list                      */
+  --p-gap-quote:    16px;  /* between quoted items, which are taller       */
+  --p-gap-inline:    9px;  /* between two things on one line               */
+  --p-quote-pad-y:  11px;  /* inside a quote block                         */
+  --p-quote-pad-x:  13px;
+  --p-note-gap:      7px;  /* a quote block to the sentence under it       */
+  --p-hair:          1px;  /* every divider and border in the panel        */
+  --p-bar-h:         3px;  /* the sweep bar that means "working"           */
+  --p-tick-h:        7px;  /* one tick of the quick-match meter            */
+  --p-tick-gap:      4px;
+  --p-mark-nudge:    3px;  /* a mark down onto the first line of its text  */
+  --p-quote-label:   5px;  /* "Line 22, word for word" to the line itself  */
+  --p-flag-pad-y:    2px;  /* the FIXTURES pill                            */
+  --p-num-col:      14px;  /* the column a one-digit count sits in         */
+  --p-chev-col:     12px;  /* the column the disclosure arrow sits in      */
+  --p-name-max:    150px;  /* a filename in the header, before it ellipses */
+  --p-sweep-w:       30%;  /* how much of the groove the bar fills         */
+}
+
+* { box-sizing: border-box; }
+
+body {
+  width: var(--v-ext-width);
+  margin: 0;
+  background: var(--v-bg-1);
+  color: var(--v-ink);
+  font-family: var(--v-font-ui);
+  font-size: var(--v-text-p-body);
+  font-weight: var(--v-weight-regular);
+  line-height: var(--v-lh-p-item);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* The artboard draws the panel as a rounded card because it is showing it
+   sitting on a desk. In Chrome the popup IS the window: there is nothing
+   behind it to round against, so --v-radius-5 is deliberately not used here. */
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--v-focus-ring);
+  border-radius: var(--v-radius-2);
+}
+
+/* --- the header strip ---------------------------------------------------- */
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: var(--v-s-2);
+  padding: var(--p-pad-y-head) var(--v-ext-pad-x);
+  border-bottom: var(--p-hair) solid var(--v-line-panel);
+}
+
+.bar .logo { width: var(--v-mark-p-size); height: var(--v-mark-p-size); flex: none; }
+
+.wordmark {
+  font-size: var(--v-text-p-body);
+  font-weight: var(--v-weight-medium);
+}
+
+.bar .spacer { flex: 1; }
+
+.bar-note {
+  font-size: var(--v-text-p-label);
+  color: var(--v-ink-560);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: var(--p-name-max);
+}
+
+/* When the app is not running the mark and the wordmark go quiet and the note
+   turns into the one red word on the panel. Decision: red only ever means the
+   run broke, never an answer. */
+body.is-down .bar .logo,
+body.is-down .wordmark { color: var(--v-ink-600); }
+body.is-down .bar-note { color: var(--v-error); }
+
+.flag {
+  font-size: var(--v-text-p-label);
+  font-weight: var(--v-weight-medium);
+  letter-spacing: 0.08em;
+  padding: var(--p-flag-pad-y) var(--v-s-2);
+  border-radius: var(--v-radius-pill);
+  background: var(--v-partly-wash);
+  color: var(--v-partly);
+  flex: none;
+}
+
+/* --- sections ------------------------------------------------------------ */
+
+.sec {
+  padding: var(--p-pad-y) var(--v-ext-pad-x);
+  border-top: var(--p-hair) solid var(--v-line-panel);
+}
+.sec:first-child { border-top: none; }
+
+.sec-title {
+  font-family: var(--v-font-display);
+  font-weight: var(--v-weight-bold);
+  font-size: var(--v-text-p-section);
+  line-height: var(--v-lh-section);
+}
+
+.label {
+  font-size: var(--v-text-p-note);
+  color: var(--v-ink-3);
+}
+
+.note {
+  font-size: var(--v-text-p-note);
+  line-height: var(--v-lh-note);
+  color: var(--v-ink-680);
+  text-wrap: pretty;
+}
+
+.quiet {
+  font-size: var(--v-text-p-note);
+  line-height: var(--v-lh-note);
+  color: var(--v-ink-3);
+  text-wrap: pretty;
+}
+
+.stack { display: flex; flex-direction: column; }
+.stack.rows  { gap: var(--p-gap-row); }
+.stack.items { gap: var(--p-gap-item); }
+.stack.quotes{ gap: var(--p-gap-quote); }
+
+.pad-0 { margin: 0; }
+.mt-1 { margin-top: var(--v-s-1); }
+.mt-2 { margin-top: var(--v-s-2); }
+.mt-3 { margin-top: var(--v-s-3); }
+.mt-4 { margin-top: var(--v-s-4); }
+
+/* --- the answer, level one ----------------------------------------------- */
+
+.lead { padding-top: var(--p-pad-y-lead); }
+
+.answer {
+  font-family: var(--v-font-display);
+  font-weight: var(--v-weight-bold);
+  font-size: var(--v-text-p-answer);
+  line-height: var(--v-lh-answer);
+  margin: 0;
+}
+
+.answer-why {
+  margin: var(--p-gap-row) 0 0;
+  font-size: var(--v-text-body);
+  line-height: var(--v-lh-p-item);
+  color: var(--v-ink-strong);
+  text-wrap: pretty;
+}
+
+/* --- the job on this page ------------------------------------------------ */
+
+.job-title {
+  font-family: var(--v-font-display);
+  font-weight: var(--v-weight-bold);
+  font-size: var(--v-text-lead);
+  line-height: var(--v-lh-section);
+  /* A long job title truncates. The panel never scrolls sideways. */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* --- the answer mark ----------------------------------------------------- */
+/* A square box holding three absolutely-positioned pieces: a left arm, a right
+   arm, and a fill that rises from the bottom to 100% / 50% / 0%. The fill level
+   is what carries the meaning in greyscale, so colour is never the only signal.
+   Never scale one size into another with a transform; the stroke goes wrong. */
+
+.mark {
+  position: relative;
+  flex: none;
+  width: var(--v-mark-p-size);
+  height: var(--v-mark-p-size);
+}
+.mark i {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: var(--v-mark-p-arm);
+  border: var(--v-mark-p-stroke) solid currentColor;
+}
+.mark i.l {
+  left: 0;
+  border-right: none;
+  border-radius: var(--v-mark-p-radius) 0 0 var(--v-mark-p-radius);
+}
+.mark i.r {
+  right: 0;
+  border-left: none;
+  border-radius: 0 var(--v-mark-p-radius) var(--v-mark-p-radius) 0;
+}
+.mark b {
+  position: absolute;
+  left: var(--v-mark-p-arm);
+  right: var(--v-mark-p-arm);
+  bottom: 0;
+  background: currentColor;
+}
+.mark.shown  { color: var(--v-shown); }
+.mark.shown  b { height: 100%; }
+.mark.partly { color: var(--v-partly); }
+.mark.partly b { height: 50%; }
+.mark.not    { color: var(--v-not); }
+.mark.not    b { height: 0; }
+
+/* the page-sized mark, used once: the empty state's big quiet bracket */
+.mark.big {
+  width: var(--v-mark-size);
+  height: var(--v-mark-size);
+  opacity: var(--v-mark-quiet-opacity);
+  color: var(--v-ink-4);
+}
+.mark.big i { width: var(--v-mark-arm); border-width: var(--v-mark-stroke); }
+.mark.big i.l { border-radius: var(--v-mark-radius) 0 0 var(--v-mark-radius); }
+.mark.big i.r { border-radius: 0 var(--v-mark-radius) var(--v-mark-radius) 0; }
+.mark.big b { left: var(--v-mark-arm); right: var(--v-mark-arm); }
+
+/* --- a list item with a mark beside it ----------------------------------- */
+
+.item { display: flex; gap: var(--v-s-3); align-items: flex-start; }
+.item .mark { margin-top: var(--p-mark-nudge); }
+.item .body { min-width: 0; }
+.item .text { font-size: var(--v-text-p-body); line-height: var(--v-lh-p-item); text-wrap: pretty; }
+
+/* --- a quoted resume line ------------------------------------------------ */
+/* Word for word: pre-wrap so the resume's own spacing survives, no italics, no
+   trimming. When the answer is "does not show this" there is no quote block at
+   all -- not an empty box, not a dash. That silence is the product. */
+
+.quote {
+  background: var(--v-bg-252);
+  border-left: var(--v-quote-edge) solid var(--v-not);
+  border-radius: 0 var(--v-radius-3) var(--v-radius-3) 0;
+  padding: var(--p-quote-pad-y) var(--p-quote-pad-x);
+}
+.quote.shown  { border-left-color: var(--v-shown); }
+.quote.partly { border-left-color: var(--v-partly); }
+
+.quote-where {
+  font-size: var(--v-text-p-label);
+  color: var(--v-ink-600);
+  margin-bottom: var(--p-quote-label);
+}
+
+.quote-line {
+  font-family: var(--v-font-mono);
+  font-size: var(--v-text-p-quote);
+  line-height: var(--v-lh-p-quote);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.why {
+  font-size: var(--v-text-p-note);
+  line-height: var(--v-lh-note);
+  color: var(--v-ink-720);
+  margin-top: var(--p-note-gap);
+  text-wrap: pretty;
+}
+.why.fix { color: var(--v-ink-900); }
+
+/* --- counts row ---------------------------------------------------------- */
+
+.count-row { display: flex; align-items: center; gap: var(--p-gap-row); }
+.count-row .n { font-size: var(--v-text-note); width: var(--p-num-col); flex: none; }
+.count-row .of { font-size: var(--v-text-p-body); color: var(--v-ink-720); }
+
+/* --- the quick word match ------------------------------------------------ */
+
+.match { display: flex; align-items: baseline; gap: var(--p-gap-inline); }
+.match .big {
+  font-size: var(--v-text-p-count);
+  line-height: var(--v-lh-flat);
+  font-weight: var(--v-weight-medium);
+}
+.match .of {
+  font-size: var(--v-text-p-of);
+  line-height: var(--v-lh-flat);
+  color: var(--v-ink-540);
+}
+.match-says { font-size: var(--v-text-body); color: var(--v-ink-900); }
+
+.ticks { display: flex; gap: var(--p-tick-gap); }
+.ticks i {
+  flex: 1;
+  height: var(--p-tick-h);
+  border-radius: var(--v-radius-tick);
+  background: var(--v-ink-300);
+}
+.ticks i.on { background: var(--v-ink-900); }
+
+/* --- working ------------------------------------------------------------- */
+/* Rose means one thing: the app is working on this right now. Never an answer,
+   never a plain button, never decoration. Every duration is a token, so
+   prefers-reduced-motion in tokens.css zeroes all of it. */
+
+@keyframes v-pulse { 0%, 100% { opacity: 0.45; } 50% { opacity: 1; } }
+@keyframes v-sweep { 0% { transform: translateX(-100%); } 100% { transform: translateX(320%); } }
+
+.working {
+  font-size: var(--v-text-body);
+  color: var(--v-agent-bright);
+  animation: v-pulse var(--v-dur-pulse) var(--v-ease) infinite;
+}
+
+.sweep {
+  height: var(--p-bar-h);
+  border-radius: var(--v-radius-1);
+  background: var(--v-agent-track);
+  overflow: hidden;
+}
+.sweep i {
+  display: block;
+  height: var(--p-bar-h);
+  width: var(--p-sweep-w);
+  border-radius: var(--v-radius-1);
+  background: var(--v-agent);
+  animation: v-sweep var(--v-dur-sweep-p) linear infinite;
+}
+
+/* --- buttons ------------------------------------------------------------- */
+
+button {
+  font: inherit;
+  cursor: pointer;
+  min-height: var(--v-tap-min);
+}
+
+.btn {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--v-s-2);
+  padding: var(--v-s-3) var(--v-s-4);
+  border: none;
+  border-radius: var(--v-radius-3);
+  background: var(--v-ink);
+  color: var(--v-ink-on-light);
+  font-size: var(--v-text-body);
+  font-weight: var(--v-weight-medium);
+  text-align: left;
+}
+.btn .meta {
+  font-weight: var(--v-weight-regular);
+  font-size: var(--v-text-p-note);
+  color: var(--v-ink-440);
+  flex: none;
+}
+.btn:hover { background: var(--v-ink-970); }
+
+.btn.second {
+  background: none;
+  border: var(--p-hair) solid var(--v-line-380);
+  color: var(--v-ink-860);
+  font-weight: var(--v-weight-regular);
+  justify-content: center;
+}
+.btn.second:hover { background: var(--v-bg-3); }
+
+.btn-row { display: flex; gap: var(--p-gap-inline); flex-wrap: wrap; }
+.btn-row .btn { flex: 1 1 auto; width: auto; }
+
+/* --- the disclosure ------------------------------------------------------ */
+
+.more {
+  display: flex;
+  align-items: center;
+  gap: var(--p-gap-inline);
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--v-ink);
+  text-align: left;
+  font-size: var(--v-text-p-body);
+  font-weight: var(--v-weight-medium);
+}
+.more .chev {
+  font-size: var(--v-text-p-label);
+  color: var(--v-ink-600);
+  width: var(--p-chev-col);
+  flex: none;
+}
+
+/* --- links --------------------------------------------------------------- */
+
+a, .linkish {
+  color: var(--v-ink-660);
+  font-size: var(--v-text-p-note);
+  text-decoration: none;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+  min-height: 0;
+}
+a:hover, .linkish:hover { color: var(--v-agent-bright); }
+
+/* --- the empty state ----------------------------------------------------- */
+
+.empty { padding: var(--v-s-6) var(--v-ext-pad-x) var(--v-s-5); text-align: center; }
+.empty .mark-wrap { display: flex; justify-content: center; margin-bottom: var(--v-s-5); }
+.empty .said { font-size: var(--v-text-body); color: var(--v-ink-900); }
+
+.foot-row {
+  margin-top: var(--v-s-6);
+  padding-top: var(--v-s-4);
+  border-top: var(--p-hair) solid var(--v-line-panel);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--v-s-3);
+}
+.foot-row .name {
+  font-size: var(--v-text-p-label);
+  color: var(--v-ink-560);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* --- nothing to check against -------------------------------------------- */
+
+.well {
+  border: var(--p-hair) dashed var(--v-line-strong);
+  border-radius: var(--v-radius-4);
+  padding: var(--v-s-5) var(--v-s-4);
+  text-align: center;
+  background: var(--v-bg-205);
+}
+.well .said { font-size: var(--v-text-body); line-height: var(--v-lh-p-item); color: var(--v-ink); }
+
+/* --- the run broke ------------------------------------------------------- */
+/* Red lives here and nowhere else. An answer is never red. */
+
+.detail {
+  font-size: var(--v-text-p-note);
+  line-height: var(--v-lh-note);
+  color: var(--v-error-text);
+  background: var(--v-error-code);
+  border-radius: var(--v-radius-3);
+  padding: var(--v-s-3) var(--p-quote-pad-x);
+}
+
+.cmd {
+  display: block;
+  font-family: var(--v-font-mono);
+  font-size: var(--v-text-p-quote);
+  line-height: var(--v-lh-p-quote);
+  background: var(--v-bg-205);
+  border-radius: var(--v-radius-3);
+  padding: var(--v-s-3) var(--p-quote-pad-x);
+  color: var(--v-ink-2);
+  user-select: all;
+  overflow-wrap: anywhere;
+}
+
+/* --- the fixture switch --------------------------------------------------- */
+/* Developer furniture, not product. It is quiet on purpose, but it is never
+   hidden: fixture mode is a switch a person flips, never an automatic
+   fallback, and you must always be able to see which way it is set. */
+
+.devbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--v-s-2);
+  padding: var(--v-s-3) var(--v-ext-pad-x);
+  border-top: var(--p-hair) solid var(--v-line-panel);
+  background: var(--v-bg-190);
+  font-size: var(--v-text-p-label);
+  color: var(--v-ink-560);
+}
+
+.switch { display: flex; align-items: center; gap: var(--v-s-2); cursor: pointer; }
+.switch input { accent-color: var(--v-agent); }
+
+select {
+  font: inherit;
+  font-family: var(--v-font-ui);
+  color: var(--v-ink-2);
+  background: var(--v-bg-212);
+  border: var(--p-hair) solid var(--v-line-270);
+  border-radius: var(--v-radius-2);
+  padding: var(--v-s-1) var(--v-s-2);
+}
+select:disabled { color: var(--v-ink-4); }

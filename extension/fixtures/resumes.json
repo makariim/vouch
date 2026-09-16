@@ -1,0 +1,6 @@
+{
+  "resumes": [
+    {"id": "resume", "lines": 19, "default": true},
+    {"id": "makariim-long", "lines": 63, "default": false}
+  ]
+}

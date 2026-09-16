@@ -1,0 +1,27 @@
+{
+  "type": "summary",
+  "fit": "worth_applying",
+  "fit_reason": "You can prove the two things they do every day. You cannot prove Kubernetes at all.",
+  "blockers": [
+    {"requirement_id": 3, "text": "Kubernetes in production, including writing operators",
+     "line": null, "line_number": null,
+     "reason": "Nothing in your resume touches this. They will ask."},
+    {"requirement_id": 5, "text": "Built and ran a streaming pipeline handling real traffic",
+     "line": null, "line_number": null,
+     "reason": "Line 18 comes close, but it is too vague."}
+  ],
+  "strengths": [
+    {"requirement_id": 4, "text": "Take part in the on call rotation for a critical service",
+     "line": "- Primary on-call for settlement for 2.5 years, including the Black Friday 2023\n  incident (4h, 0 lost payments).",
+     "line_number": 10, "reason": "Say this first. They run systems that move money."},
+    {"requirement_id": 2, "text": "Strong Go, used at work and not only in side projects",
+     "line": "- Built and ran the settlement service handling 1.2M transactions a day in Go.",
+     "line_number": 9, "reason": "Their language, their kind of system, and a real number."}
+  ],
+  "undersells": [
+    {"requirement_id": 6, "text": "Postgres tuning and replication",
+     "line": "- Helped out with our container setup and deploys.",
+     "line_number": 17,
+     "reason": "\"Helped out with\" does not prove anything. Say what you built or ran."}
+  ]
+}

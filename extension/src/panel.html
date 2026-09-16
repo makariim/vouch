@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="panel.css" />
+    <title>Vouch</title>
+  </head>
+  <body>
+    <!-- The header strip is the only markup that survives every state. The
+         mark is inline rather than an <img> so it inherits `color` and can go
+         quiet with the rest of the panel when the app is not running. It is
+         design/assets/favicon.svg's drawing without the baked tile, because
+         here it has a surface to sit on. -->
+    <header class="bar">
+      <svg class="logo" viewBox="0 0 16 16" role="img" aria-label="Vouch">
+        <path d="M5.5 3 H2.5 V13 H5.5" fill="none" stroke="currentColor" stroke-width="1.5" />
+        <path d="M10.5 3 H13.5 V13 H10.5" fill="none" stroke="currentColor" stroke-width="1.5" />
+        <rect x="7" y="3" width="2" height="10" fill="currentColor" />
+      </svg>
+      <span class="wordmark">Vouch</span>
+      <span class="spacer"></span>
+      <span id="flag" class="flag" hidden>FIXTURES</span>
+      <span id="bar-note" class="bar-note"></span>
+    </header>
+
+    <main id="panel" aria-live="polite">
+      <div class="sec"><p class="quiet pad-0">Looking…</p></div>
+    </main>
+
+    <!-- Never hidden. Fixture mode is a switch a person flips, never an
+         automatic fallback, so which way it is set has to be visible. -->
+    <footer class="devbar">
+      <label class="switch">
+        <input type="checkbox" id="fixture-toggle" />
+        <span>Fixture mode</span>
+      </label>
+      <select id="fixture-case" aria-label="Which fixture to show">
+        <option value="full">the whole answer</option>
+        <option value="no-blockers">nothing missing</option>
+        <option value="quick-match">word match only</option>
+        <option value="no-resume">no resume saved</option>
+      </select>
+    </footer>
+
+    <script type="module" src="panel.js"></script>
+  </body>
+</html>

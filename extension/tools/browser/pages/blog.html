@@ -1,0 +1,8 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Why we stopped writing microservices</title></head>
+<body><article><h1>Why we stopped writing microservices</h1>
+<p>Three years ago we split our monolith into fourteen services. Last spring we put most of it back. This post is about what we learned, what it cost, and the one part of the split we kept.</p>
+<p>The original argument was team autonomy. Each team would own its service, deploy on its own schedule, and stop waiting on the release train. That part worked, briefly. What we did not price in was the cost of every call between two services becoming a network call that can fail, time out, or return something half written.</p>
+<p>Our latency budget went from one database round trip to nine. The tracing bill went up by a factor of four. On a bad afternoon, finding out which of fourteen services was the slow one took longer than the outage itself. We wrote a great deal of retry code, and some of that retry code caused the outages.</p>
+<p>What we kept: the ingestion pipeline stayed separate, because it genuinely has a different scaling shape and a different failure mode. Everything else came home. The monolith deploys in eleven minutes and we have not missed the release train once.</p>
+<p>If you are considering the split, the question we wish we had asked is not whether services are better. It is whether your teams are actually blocked on each other today, measured, rather than in theory.</p>
+</article></body></html>

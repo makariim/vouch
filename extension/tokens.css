@@ -1,0 +1,360 @@
+/* ============================================================================
+   Vouch — design tokens
+   ----------------------------------------------------------------------------
+   Every value the UI uses. If you need one that is not in here, that is a bug
+   in this file — say so. Do not invent one.
+
+   Dark theme. There is no light theme and there is no toggle.
+
+   Decision 0002: nothing leaves the machine. No web fonts, no CDN, no external
+   asset. This file has no @import and no url() that points off disk.
+
+   HOW THIS FILE IS ORGANISED
+   ---------------------------------------------------------------------------
+   Two layers, and you normally only touch the first:
+
+     1. ROLES    --v-ink-2, --v-bg-1, --v-shown. Named for the job they do.
+                 Reach for these. They are what the design is written in.
+
+     2. STEPS    --v-ink-700, --v-bg-212. Named for their own lightness.
+                 There when you are matching an artboard pixel for pixel and
+                 the role you want does not exist yet. Every step below is
+                 one that an artboard in design/canvas/ actually uses.
+
+   A role is an alias for a step. They are never two different colours.
+   ========================================================================= */
+
+:root {
+
+  /* ==========================================================================
+     1 · GROUND AND INK
+     ----------------------------------------------------------------------
+     Cool near-black, hue 250. The contrast is deliberately pulled back:
+     full white on near-black was too hard to read for long. --v-ink stops
+     at 0.915, not 1.0, and the surfaces sit close together.
+
+     Do not push these apart again.
+     ====================================================================== */
+
+  /* --- surfaces, the roles ---------------------------------------------- */
+  --v-bg-0:        oklch(0.180 0.008 250);  /* app ground                    */
+  --v-bg-1:        oklch(0.215 0.008 250);  /* panels, the header, cards     */
+  --v-bg-2:        oklch(0.250 0.008 250);  /* quote blocks, filled fields   */
+  --v-bg-3:        oklch(0.290 0.009 250);  /* hover, pressed                */
+
+  /* --- surfaces, every step the artboards use ---------------------------- */
+  --v-bg-190:      oklch(0.190 0.008 250);  /* a trough a control sits in    */
+  --v-bg-205:      oklch(0.205 0.008 250);  /* an inset well: the drop zone,
+                                               the empty paste box, the
+                                               resume text                   */
+  --v-bg-212:      oklch(0.212 0.008 250);  /* a row in a list, a table cell */
+  --v-bg-225:      oklch(0.225 0.008 250);  /* the footer strip on a card    */
+  --v-bg-232:      oklch(0.232 0.008 250);  /* the "write this" cell         */
+  --v-bg-235:      oklch(0.235 0.008 250);  /* a chip on something waiting   */
+  --v-bg-252:      oklch(0.252 0.008 250);  /* the quote block in the panel  */
+  --v-bg-265:      oklch(0.265 0.008 250);  /* a chip on something settled   */
+
+  /* --- lines ------------------------------------------------------------- */
+  --v-line:        oklch(0.300 0.009 250);  /* dividers on the page          */
+  --v-line-panel:  oklch(0.285 0.009 250);  /* dividers inside the panel.
+                                               One step softer, because the
+                                               panel is small and busy.      */
+  --v-line-strong: oklch(0.400 0.011 250);  /* field borders, dashed drops   */
+  --v-line-270:    oklch(0.270 0.009 250);  /* the border of a dead control  */
+  --v-line-330:    oklch(0.330 0.010 250);  /* a quiet pill button           */
+  --v-line-340:    oklch(0.340 0.010 250);  /* the paste box                 */
+  --v-line-380:    oklch(0.380 0.011 250);  /* a second button in the panel  */
+
+  /* --- ink, the roles ---------------------------------------------------- */
+  --v-ink:         oklch(0.915 0.005 250);  /* primary text                  */
+  --v-ink-2:       oklch(0.760 0.010 250);  /* explanations                  */
+  --v-ink-3:       oklch(0.620 0.010 250);  /* labels, secondary notes       */
+  --v-ink-4:       oklch(0.500 0.010 250);  /* waiting, disabled             */
+  --v-ink-strong:  oklch(0.940 0.005 250);  /* the one sentence under the
+                                               answer, and text on a wash    */
+  --v-ink-on-light:oklch(0.180 0.008 250);  /* text on a --v-ink button.
+                                               Same value as --v-bg-0.       */
+
+  /* --- ink, every step the artboards use --------------------------------- */
+  --v-ink-970:     oklch(0.970 0.004 250);  /* selected text                 */
+  --v-ink-900:     oklch(0.900 0.005 250);  /* a line you are told to fix    */
+  --v-ink-860:     oklch(0.860 0.008 250);  /* a second button's label       */
+  --v-ink-800:     oklch(0.800 0.010 250);  /* the meta beside "Working"     */
+  --v-ink-780:     oklch(0.780 0.010 250);  /* body inside a panel warning   */
+  --v-ink-720:     oklch(0.720 0.010 250);  /* a count's label in the panel  */
+  --v-ink-700:     oklch(0.700 0.010 250);  /* secondary prose on the page   */
+  --v-ink-680:     oklch(0.680 0.010 250);  /* a note under an item          */
+  --v-ink-660:     oklch(0.660 0.010 250);  /* the trace, before and after   */
+  --v-ink-640:     oklch(0.640 0.010 250);  /* the "do not write this" cell  */
+  --v-ink-600:     oklch(0.600 0.010 250);  /* small labels in the panel     */
+  --v-ink-560:     oklch(0.560 0.010 250);  /* small labels on the page      */
+  --v-ink-540:     oklch(0.540 0.010 250);  /* the faintest readable note    */
+  --v-ink-520:     oklch(0.520 0.010 250);  /* the badge when it is asleep   */
+  --v-ink-440:     oklch(0.440 0.010 250);  /* meta on a --v-ink button      */
+  --v-ink-350:     oklch(0.350 0.010 250);  /* the mark on something not yet
+                                               answered. Barely there.       */
+  --v-ink-300:     oklch(0.300 0.010 250);  /* an unlit tick on the meter    */
+
+  /* ==========================================================================
+     2 · THE THREE ANSWERS. NEVER A FOURTH.
+     ----------------------------------------------------------------------
+     The mark carries the meaning: full bracket, half bracket, empty bracket.
+     Colour is the second signal, never the only one. Test it with colour off.
+
+     "Does not show" has no hue ON PURPOSE. Do not make it red. Nothing went
+     wrong — the resume just does not say it.
+     ====================================================================== */
+
+  --v-shown:       oklch(0.790 0.125 160);
+  --v-shown-wash:  oklch(0.238 0.016 160);  /* behind a quoted line          */
+
+  --v-partly:      oklch(0.815 0.125 80);
+  --v-partly-wash: oklch(0.242 0.016 80);
+
+  --v-not:         oklch(0.620 0.010 250);  /* the same value as --v-ink-3   */
+  --v-not-wash:    oklch(0.235 0.008 250);
+
+  /* ==========================================================================
+     3 · THE AGENT ACCENT (rose)
+     ----------------------------------------------------------------------
+     RESERVED. Rose means one thing: the app is working on this right now.
+     When the run finishes, the rose leaves the screen.
+
+     It is never an answer, never a plain button, never decoration.
+     ====================================================================== */
+
+  --v-agent:       oklch(0.760 0.130 330);  /* the bar, the dot, the mark    */
+  --v-agent-bright:oklch(0.840 0.110 330);  /* text on a wash, link hover    */
+  --v-agent-hover: oklch(0.700 0.130 330);  /* a link's underline on hover   */
+  --v-agent-dim:   oklch(0.470 0.080 330);  /* the trace's left edge         */
+  --v-agent-track: oklch(0.320 0.028 330);  /* the groove under the bar      */
+  --v-agent-wash:  oklch(0.265 0.038 330);  /* the "working" callout         */
+  --v-agent-row:   oklch(0.245 0.026 330);  /* the one row being worked on   */
+
+  /* ==========================================================================
+     4 · WHEN SOMETHING GOES WRONG
+     ----------------------------------------------------------------------
+     Red lives here and nowhere else. An answer is never red.
+     ====================================================================== */
+
+  --v-error:       oklch(0.780 0.130 25);   /* the heading, the status word  */
+  --v-error-text:  oklch(0.800 0.020 25);   /* the detail line               */
+  --v-error-line:  oklch(0.440 0.030 25);   /* "Start again" border          */
+  --v-error-wash:  oklch(0.265 0.048 25);   /* the whole callout             */
+  --v-error-code:  oklch(0.225 0.028 25);   /* the detail block, panel       */
+  --v-error-code-page: oklch(0.215 0.022 25); /* the detail block, page.
+                                               Darker: the page's callout
+                                               is already a lighter wash.    */
+  --v-ink-on-error: oklch(0.900 0.010 250); /* "Start again". --v-ink-900
+                                               with a little more chroma, so
+                                               it does not go flat and grey
+                                               against the red wash.         */
+
+  /* ==========================================================================
+     5 · THE ANSWER MARK
+     ----------------------------------------------------------------------
+     Two brackets and a fill bar. Built from three absolutely-positioned
+     pieces inside a square box: a left arm, a right arm, and a fill that
+     rises from the bottom to 100% / 50% / 0%.
+
+     The fill level is what survives greyscale and colour blindness.
+     Three sizes, and each one has its own arm width and stroke. Do not
+     scale one of the others with a transform — the stroke goes wrong.
+     ====================================================================== */
+
+  --v-mark-size:        18px;  /* the page                                   */
+  --v-mark-arm:          5px;  /* width of each bracket arm                  */
+  --v-mark-stroke:       2px;
+  --v-mark-radius:       2px;  /* on the outer corners only                  */
+
+  --v-mark-p-size:      15px;  /* the panel                                  */
+  --v-mark-p-arm:        4px;
+  --v-mark-p-stroke:     2px;
+  --v-mark-p-radius:     2px;
+
+  --v-mark-lg-size:     30px;  /* the foundations board, showing it off      */
+  --v-mark-lg-arm:       9px;
+  --v-mark-lg-stroke:    3px;
+  --v-mark-lg-radius:    3px;
+
+  --v-mark-quiet-opacity: 0.45;  /* an empty bracket used as an empty state  */
+
+  /* ==========================================================================
+     6 · TYPE
+     ----------------------------------------------------------------------
+     Three families. No file is fetched at runtime and none ships today, so
+     every stack below resolves to a face already on the machine. That is
+     what the artboards render with, and it is the intended look.
+
+     To bundle real faces later: drop the .woff2 files in design/assets/fonts/
+     and uncomment the @font-face block at the bottom of this file. Nothing
+     else changes.
+
+     THE MONO RULE, above every other type rule:
+     --v-font-mono is for lines quoted out of the resume and the line-number
+     gutter beside them. Nothing else. Not labels, not buttons, not counts,
+     not filenames, not the agent trace. Mono means "this came out of your
+     resume and we did not touch it."
+     ====================================================================== */
+
+  --v-font-display: "Vouch Slab", Rockwell, "Bookman Old Style", Georgia, serif;
+  --v-font-ui:      "Vouch Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --v-font-mono:    "Vouch Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --v-weight-regular: 400;
+  --v-weight-medium:  500;
+  --v-weight-bold:    700;   /* the display face only. It has no other cut. */
+
+  /* --- the page ---------------------------------------------------------- */
+  --v-text-answer:  38px;  --v-lh-answer:  1.10;  /* "Worth applying."       */
+  --v-text-display: 31px;  --v-lh-display: 1.15;  /* the page's own title    */
+  --v-text-section: 23px;  --v-lh-section: 1.30;  /* section headings        */
+  --v-text-count:   22px;  --v-lh-flat:    1;     /* a count, and the error
+                                                     heading at 1.25         */
+  --v-text-callout: 21px;                          /* a slab line in a card  */
+  --v-text-live:    20px;                          /* the "working" headline */
+  --v-text-lead:    18px;  --v-lh-lead:    1.55;  /* the one-sentence call   */
+  --v-text-item:    17px;  --v-lh-item:    1.40;  /* one-line list items     */
+  --v-text-note:    16px;  --v-lh-note:    1.50;  /* intro prose, the
+                                                     wordmark, a job title   */
+  --v-text-body:    15px;  --v-lh-body:    1.60;  /* explanations, buttons   */
+  --v-text-small:   14px;                          /* a verdict word, a
+                                                     back link, the trace    */
+  --v-text-label:   12px;  --v-lh-label:   1.40;  /* small labels            */
+  --v-text-quote:   13px;  --v-lh-quote:   1.70;  /* mono, word for word     */
+
+  --v-lh-tight:     1.25;  /* the error heading, a two-line slab line        */
+  --v-lh-resume:    1.95;  /* the resume, shown line by line with numbers    */
+
+  /* --- the panel, 380px -------------------------------------------------- */
+  --v-text-p-answer:  28px;
+  --v-text-p-count:   36px;  /* the quick word match. The only big number
+                                in the product, and it is not a score.       */
+  --v-text-p-of:      20px;  /* the "of 9" beside it                         */
+  --v-text-p-section: 17px;
+  --v-text-p-body:    14px;  --v-lh-p-item: 1.45;
+  --v-text-p-note:    13px;
+  --v-text-p-label:   11px;
+  --v-text-p-quote:   12px;  --v-lh-p-quote: 1.65;
+
+  /* ==========================================================================
+     7 · SPACE
+     ----------------------------------------------------------------------
+     A 4px base. This scale governs the gaps BETWEEN things. Padding inside
+     a component is given on the component itself, in section 8 and on the
+     artboards — a card's 22px/24px is a property of that card, not a step
+     on a scale.
+
+     Sections on the page are --v-s-7 apart. Give it room.
+     ====================================================================== */
+
+  --v-s-1:  4px;
+  --v-s-2:  8px;
+  --v-s-3: 12px;
+  --v-s-4: 16px;
+  --v-s-5: 22px;
+  --v-s-6: 34px;
+  --v-s-7: 52px;   /* between sections of the answer                         */
+  --v-s-8: 72px;   /* between sections of the foundations board              */
+
+  /* ==========================================================================
+     8 · LAYOUT
+     ----------------------------------------------------------------------
+     The measurements you cannot derive from the scale.
+     ====================================================================== */
+
+  --v-page-max:      1240px;  /* the whole app                               */
+  --v-answer-max:     760px;  /* the answer column. Prose caps tighter, in
+                                 ch, on the element itself.                  */
+  --v-setup-col:      332px;  /* the left rail where you set the run up      */
+  --v-header-h:        60px;
+  --v-page-pad-x:      44px;  /* the main column's own side padding          */
+  --v-rail-pad-x:      28px;  /* the left rail's                             */
+  --v-quote-edge:       3px;  /* the coloured left edge on a quote block     */
+
+  --v-ext-width:      380px;  /* the panel. Chrome decides this, not us.     */
+  --v-ext-pad-x:       18px;  /* leaves 344px of content. Design to that.    */
+  --v-ext-toolbar-h:   38px;
+
+  --v-badge-size:      16px;  /* the toolbar mark. Its real home.            */
+  --v-badge-dot:        7px;  /* the rose dot that says "a job post is here" */
+
+  /* ==========================================================================
+     9 · RADIUS
+     ----------------------------------------------------------------------
+     Softened on purpose. This is a careful second opinion, not a terminal.
+     ====================================================================== */
+
+  --v-radius-1:    2px;   /* the mark's own corners, a progress bar          */
+  --v-radius-tick: 4px;   /* a tick on the quick-match meter                 */
+  --v-radius-2:    5px;   /* a control inside a control                      */
+  --v-radius-tab:  7px;   /* a group of small buttons                        */
+  --v-radius-3:    8px;   /* buttons, inputs, quote blocks                   */
+  --v-radius-4:   10px;   /* cards, callouts, the browser toolbar strip      */
+  --v-radius-5:   12px;   /* the panel itself                                */
+  --v-radius-lg:   3px;   /* the large mark's corners                        */
+  --v-radius-pill: 999px;
+
+  /* ==========================================================================
+     10 · MOTION
+     ----------------------------------------------------------------------
+     There is almost none, and all of it means the same thing: the app is
+     working on this right now. Nothing animates once the run is finished.
+     ====================================================================== */
+
+  --v-dur-fast:        120ms;
+  --v-dur-base:        200ms;
+  --v-dur-pulse:      1500ms;  /* the mark and the live line, breathing      */
+  --v-dur-sweep:      1700ms;  /* the bar on the page                        */
+  --v-dur-sweep-p:    1200ms;  /* the bar in the panel. Smaller, so faster.  */
+  --v-ease:           cubic-bezier(0.2, 0, 0.2, 1);
+
+  /* ==========================================================================
+     11 · FOCUS
+     ----------------------------------------------------------------------
+     One ring, everywhere, and it is never removed. Rose, because focus is
+     the one other thing on screen that is about what is happening now.
+     ====================================================================== */
+
+  --v-focus-ring:   0 0 0 2px oklch(0.760 0.130 330 / 0.5);
+  --v-focus-offset: 2px;
+  --v-tap-min:      44px;   /* nothing clickable is smaller than this        */
+
+  /* ==========================================================================
+     12 · NOT OURS
+     ----------------------------------------------------------------------
+     These belong to the browser. They appear on the artboards so the panel
+     can be seen in the place it actually lives. Never paint with them.
+     ====================================================================== */
+
+  --v-chrome-toolbar: oklch(0.245 0.006 250);  /* Chrome's toolbar           */
+  --v-chrome-ground:  oklch(0.145 0.006 250);  /* the board behind a panel   */
+}
+
+/* ============================================================================
+   Anyone who has asked their system to stop moving things gets no motion.
+   This is not a preference we override. The rose still marks what is being
+   worked on; it just stops breathing.
+   ========================================================================= */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --v-dur-fast:     0ms;
+    --v-dur-base:     0ms;
+    --v-dur-pulse:    0ms;
+    --v-dur-sweep:    0ms;
+    --v-dur-sweep-p:  0ms;
+  }
+}
+
+/* ============================================================================
+   Bundled faces. No file ships today, so this stays commented and the stacks
+   in section 6 fall through to what is already on the machine.
+
+   To turn it on: put the four .woff2 files in design/assets/fonts/ and
+   uncomment. Never point these at a URL.
+
+@font-face { font-family:"Vouch Slab"; src:url("./assets/fonts/slab-700.woff2") format("woff2"); font-weight:700; font-display:block; }
+@font-face { font-family:"Vouch Sans"; src:url("./assets/fonts/sans-400.woff2") format("woff2"); font-weight:400; font-display:block; }
+@font-face { font-family:"Vouch Sans"; src:url("./assets/fonts/sans-500.woff2") format("woff2"); font-weight:500; font-display:block; }
+@font-face { font-family:"Vouch Mono"; src:url("./assets/fonts/mono-400.woff2") format("woff2"); font-weight:400; font-display:block; }
+   ========================================================================= */

@@ -1,0 +1,34 @@
+{
+  "type": "summary",
+  "known": true,
+  "fit": "worth_applying",
+  "fit_reason": "You can prove the engineering half line by line. The customer-facing half rests on one project.",
+  "blockers": [
+    {"requirement_id": 18, "text": "Master's Degree or Ph.D.",
+     "line": null, "line_number": null,
+     "reason": "Nothing in your resume says this. They will ask."},
+    {"requirement_id": 6, "text": "5+ years in a customer-facing technical role",
+     "line": null, "line_number": null,
+     "reason": "Line 40 comes close, but it covers one project, not five years."}
+  ],
+  "strengths": [
+    {"requirement_id": 17, "text": "Familiarity with at least one agent framework (LangChain, LangGraph, CrewAI)",
+     "line": "- Built a six-node LangGraph agent that audits resumes against job posts,\n  with a retry pass on weak evidence.",
+     "line_number": 5,
+     "reason": "Say this first. It is their framework and a real system."},
+    {"requirement_id": 2, "text": "Experience building and shipping LLM-powered applications",
+     "line": "- Shipped three LLM features to production, the largest serving 40k\n  requests a day.",
+     "line_number": 18,
+     "reason": "Shipped, not tried. A number and a result."},
+    {"requirement_id": 9, "text": "Working knowledge of machine learning evaluation and monitoring",
+     "line": "- Ran the offline eval set and the live quality dashboard for the team.",
+     "line_number": 31,
+     "reason": "They asked for this and most people cannot show it."}
+  ],
+  "undersells": [
+    {"requirement_id": 12, "text": "Comfortable presenting technical material to non-technical stakeholders",
+     "line": "- Helped out with a few client workshops.",
+     "line_number": 77,
+     "reason": "You have done this. \"Helped out with\" proves nothing. Say how many clients, and what they decided afterwards."}
+  ]
+}

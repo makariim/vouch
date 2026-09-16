@@ -22,3 +22,8 @@ one word that matters, not the first four words of every paragraph.
 
 **Short paragraphs.** Two or three lines, then a break. A block longer than
 four lines gets split or becomes a list.
+
+**Teach while you build.** I am learning LangGraph and Langfuse on this project,
+and that is a goal, not a side effect. When you write code using something new
+to me, say in two or three lines what that piece does and why it is shaped that
+way. Not a tutorial. The reason behind the choice.

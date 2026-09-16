@@ -7,6 +7,7 @@ nobody can diff; this way the input is visible in the test that uses it.
 
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 
 import pytest
@@ -14,12 +15,17 @@ import pytest
 from audit.ingest import IngestError, ResumeStore, extract_text, index_resume, slugify
 
 
-def make_pdf(lines: list[str]) -> bytes:
+def make_pdf(lines: list[str], *, malformed: bool = False) -> bytes:
     """A minimal one-page PDF with the given lines of text on it.
 
     Hand-built because the project has no PDF *writer* and does not need one.
     A PDF is a set of numbered objects plus a table of their byte offsets, so
     the offsets have to be computed after the objects are laid out.
+
+    `malformed=True` runs `>>endobj` together with no delimiter, which is the
+    shape real files out of sloppy generators have. pypdf reads it anyway;
+    pdfminer, under pdfplumber, refuses it. That is the fallback's whole
+    reason for existing, so the tests need a file that triggers it.
     """
     content = "BT /F1 11 Tf 40 750 Td 14 TL\n"
     for line in lines:
@@ -41,7 +47,8 @@ def make_pdf(lines: list[str]) -> bytes:
     offsets = []
     for number, body in enumerate(objects, start=1):
         offsets.append(len(out))
-        out += f"{number} 0 obj".encode() + body + b"endobj\n"
+        separator = b"" if malformed else b"\n"
+        out += f"{number} 0 obj".encode() + body + separator + b"endobj\n"
 
     xref_at = len(out)
     out += f"xref\n0 {len(objects) + 1}\n".encode()
@@ -79,6 +86,17 @@ def test_a_pdf_with_no_text_says_so_instead_of_returning_nothing():
     and produce an audit that finds nothing, which reads like a verdict."""
     with pytest.raises(IngestError, match="no extractable text"):
         extract_text(make_pdf([]), "scan.pdf")
+
+
+def test_a_pdf_pdfplumber_refuses_still_comes_out_through_pypdf(caplog):
+    """The fallback. Text in the order the file was written beats no text at
+    all in front of a demo -- but it must never happen quietly, because the
+    order is exactly what this reader promises to have fixed."""
+    pdf = make_pdf(["Dana Okafor", "Platform Engineer"], malformed=True)
+    with caplog.at_level(logging.WARNING, logger="audit.ingest"):
+        text = extract_text(pdf, "dana.pdf")
+    assert "Dana Okafor" in text
+    assert "fell back to pypdf" in caplog.text
 
 
 def test_a_file_that_is_not_a_pdf_fails_cleanly():

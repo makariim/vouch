@@ -8,30 +8,52 @@ is worth more than a sentence in a README.
 
 WHICH PDF LIBRARY, AND WHY
 --------------------------
-`pypdf`. Pure Python, BSD-3, no native build step, no system packages, and it
-is the maintained continuation of PyPDF2 so it is the thing most environments
-already resolve to.
+`pdfplumber`. A PDF holds drawing instructions, not text, so pulling text out
+means choosing an order. `pypdf` uses the order the instructions sit in the
+file -- which is the order the design tool wrote them, and on a resume laid out
+as rows of left-hand title and right-hand dates that is not the order a person
+reads. The author's own resume came out with his name on line 6, underneath two
+employers, and a line beginning with a stray comma. Nothing was missing; it was
+all there in the wrong order.
 
-The two alternatives were both rejected on this project's constraints:
+`pdfplumber` keeps the position of every character on the page, so the text can
+be ordered the way a person reads it: top to bottom, then left to right. That
+ordering is the whole reason it is here. Report 0007 predicted this before any
+PDF existed and called it "the one to revisit".
 
-  pdfplumber  better at tables, because it keeps glyph coordinates and can
-              reconstruct columns. It also pulls in pdfminer.six and is
-              markedly slower. Worth revisiting -- see the report.
-  PyMuPDF     the best extraction of the three, and AGPL. This code goes in a
-              public GitHub repository for an interview. Not worth the licence
-              conversation.
+  pypdf     still declared, and still used -- but only as a fallback, below.
+  PyMuPDF   the best extraction of the three, and AGPL. This code goes in a
+            public GitHub repository for an interview. Not worth the licence
+            conversation.
 
-pypdf gives us damaged text: a word split at a line break stays split, and a
-table row comes out flattened. That damage is exactly what `repair` exists to
-undo, and repairing it mechanically is a thing we can show working. A library
-that hid the problem would have left us nothing to demonstrate.
+WHY pypdf IS STILL HERE
+-----------------------
+pdfminer, underneath pdfplumber, is the stricter parser of the two. It refuses
+files pypdf reads: a PDF whose objects run `>>endobj` together with no
+delimiter is malformed, and pdfminer rejects it outright where pypdf shrugs and
+carries on. This project's own hand-built test PDF was exactly such a file.
+
+So pypdf is the fallback, and only the fallback. In front of a demo, text in
+the wrong order beats no text at all -- but a fallback that fires silently
+would hand back shuffled text while the product claims to have fixed that, so
+it says so in the log when it fires.
+
+Ordering is still only ever positional. Neither reader moves a line on a guess,
+and neither ever changes a word. `repair` runs after this and is unchanged: it
+joins lines broken mid-sentence and splits glued rows, and it still never moves
+a line. The flattened row survives extraction on purpose, because repairing it
+mechanically is a thing we can show working.
 """
 
 from __future__ import annotations
 
+import io
+import logging
 import re
 from dataclasses import dataclass
 from pathlib import Path
+
+import pdfplumber
 
 from .index import LineIndex
 from .repair import Repair, repair
@@ -42,12 +64,42 @@ from .repair import Repair, repair
 _ID_OK = re.compile(r"^[a-z0-9][a-z0-9_-]{0,63}$")
 _SLUG_STRIP = re.compile(r"[^a-z0-9]+")
 
+_log = logging.getLogger(__name__)
+
 DEFAULT_ROOT = Path("resumes")
 DEFAULT_POINTER = "default"
 
 
 class IngestError(Exception):
     """A resume we will not accept. Never a stack trace in front of a demo."""
+
+
+def _pdf_text_in_reading_order(data: bytes) -> str:
+    """Every page's text, ordered by where the characters actually sit.
+
+    pdfplumber hands back each page's characters with their coordinates and
+    orders them top to bottom, then left to right. That is the only ordering
+    rule here, and it comes from the file rather than from a guess about what
+    belongs where.
+
+    The tolerances are left at their defaults on purpose. Tuning them would be
+    tuning against one resume, and the next file would be the one that broke.
+    """
+    with pdfplumber.open(io.BytesIO(data)) as pdf:
+        return "\n".join(page.extract_text() or "" for page in pdf.pages)
+
+
+def _pdf_text_in_file_order(data: bytes) -> str:
+    """The fallback: pypdf, which reads some malformed files pdfminer refuses.
+
+    The order is whatever order the drawing instructions sit in the file, so
+    this can be shuffled. It is still better than a dead end in front of a
+    demo -- but only just, which is why the caller says so in the log.
+    """
+    from pypdf import PdfReader
+
+    reader = PdfReader(io.BytesIO(data))
+    return "\n".join(page.extract_text() or "" for page in reader.pages)
 
 
 def extract_text(data: bytes, filename: str) -> str:
@@ -65,21 +117,37 @@ def extract_text(data: bytes, filename: str) -> str:
     if suffix != ".pdf":
         raise IngestError(f"unsupported file type {suffix or '(none)'}: upload .pdf or .txt")
 
+    # Both readers get a go, and only the four calm messages ever come out.
+    # pdfplumber first because it is the one that gets the order right; pypdf
+    # only if pdfplumber produced nothing at all, whether by raising or by
+    # handing back an empty page.
     try:
-        from pypdf import PdfReader
-    except ImportError as exc:  # pragma: no cover - dependency is declared
-        raise IngestError("pypdf is not installed") from exc
-
-    import io
-
-    try:
-        reader = PdfReader(io.BytesIO(data))
-        pages = [page.extract_text() or "" for page in reader.pages]
+        text = _pdf_text_in_reading_order(data)
+        first_error: Exception | None = None
     except Exception as exc:
-        raise IngestError(f"could not read {filename} as a PDF: {exc}") from exc
+        text, first_error = "", exc
 
-    text = "\n".join(pages)
     if not text.strip():
+        try:
+            fallback = _pdf_text_in_file_order(data)
+        except Exception as exc:
+            raise IngestError(
+                f"could not read {filename} as a PDF: {first_error or exc}"
+            ) from (first_error or exc)
+        if fallback.strip():
+            _log.warning(
+                "%s: pdfplumber read nothing (%s); fell back to pypdf, so the "
+                "line order is the order the file was written in, not reading "
+                "order.",
+                filename,
+                first_error or "no text on any page",
+            )
+            text = fallback
+
+    if not text.strip():
+        # Neither reader found a character. A scanned PDF is images, and
+        # returning "" would look like an empty resume and produce an audit
+        # that finds nothing, which reads like a verdict.
         raise IngestError(
             f"{filename} has no extractable text. A scanned PDF needs OCR, "
             "which this tool does not do -- paste the text instead."

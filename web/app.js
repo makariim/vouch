@@ -97,7 +97,29 @@ var el = {
   listHint:    document.getElementById('list-hint'),
   listMeta:    document.getElementById('list-meta'),
   list:        document.getElementById('list'),
-  errorPreview: document.getElementById('error-preview')
+  errorPreview: document.getElementById('error-preview'),
+
+  // brief 0019: the two places a recording says so
+  recording:   document.getElementById('recording'),
+  auditFlag:   document.getElementById('audit-recording'),
+
+  // brief 0017: the resume as a file
+  drop:        document.getElementById('drop'),
+  file:        document.getElementById('file'),
+  resumeCard:  document.getElementById('resume-card'),
+  resumeName:  document.getElementById('resume-name'),
+  resumeMeta:  document.getElementById('resume-meta'),
+  resumeFixed: document.getElementById('resume-repaired'),
+  resumeOpen:  document.getElementById('resume-open'),
+  resumeDrop:  document.getElementById('resume-drop'),
+  resumeClash: document.getElementById('resume-clash'),
+  resumeBlock: document.getElementById('resume-block'),
+  uploadWrong: document.getElementById('upload-wrong'),
+  resumeView:  document.getElementById('resume-view'),
+  resumeTitle: document.getElementById('resume-view-title'),
+  resumeBack:  document.getElementById('resume-back'),
+  repairs:     document.getElementById('repairs'),
+  resumeLines: document.getElementById('resume-lines')
 };
 
 var rows = {};        // requirement id -> its DOM node
@@ -120,13 +142,30 @@ var listTouched = false;  // has a person opened or closed it themselves
 var startedAt = 0;
 var ticker = null;
 
+/* ---- the stored resume, brief 0017 --------------------------------------
+ * `stored` is what POST /resumes gave back for the file on screen. `ranAgainst`
+ * is the resume the answers below were actually produced from -- the stored id,
+ * or '' for pasted text. They are two different things on purpose: the resume
+ * view may only colour a line if the run it is colouring came from the same
+ * document. Colouring the file's lines with an answer about pasted text would
+ * put two copies of one resume on screen, which is the single thing this brief
+ * could break. */
+var stored = null;
+var ranAgainst = null;
+var reading = false;      // an upload is in flight
+var viewing = false;      // the resume view is open over the answer
+var lastRead = null;      // the last GET /resumes/{id} body, cached by id
+
 // ---------------------------------------------------------------- the frame
 
 function setPhase(next) {
   phase = next;
-  el.intro.hidden = next !== 'empty' && next !== 'ready';
-  el.audit.hidden = next === 'empty' || next === 'ready' || next === 'error';
-  el.banner.hidden = next !== 'error';
+  // The resume view is a screen, not a panel: while it is open it is the only
+  // thing in the column. Everything else keeps its state and comes back.
+  el.resumeView.hidden = !viewing;
+  el.intro.hidden = viewing || (next !== 'empty' && next !== 'ready');
+  el.audit.hidden = viewing || next === 'empty' || next === 'ready' || next === 'error';
+  el.banner.hidden = viewing || next !== 'error';
   el.live.hidden = next !== 'running' && next !== 'again';
   syncRun();
   syncList();
@@ -148,7 +187,7 @@ function syncHeaderNote() {
 
 var RUN_STATES = {
   empty:   { label: 'Check my fit', meta: '',                kind: 'off',
-             note: 'Paste a resume and a job post first.' },
+             note: 'Add a resume and paste a job post first.' },
   ready:   { label: 'Check my fit', meta: 'about 1 minute',  kind: 'primary',
              note: 'You click this every time. It takes about a minute and it costs money.' },
   running: { label: 'Stop',         meta: '',                kind: 'stopping',
@@ -173,7 +212,7 @@ function syncRun() {
 // Nothing is ready to run until there is something to run it on. In recorded
 // mode there always is: the recording is the input.
 function syncReady() {
-  var filled = el.post.value.trim() && el.resume.value.trim();
+  var filled = el.post.value.trim() && (el.resume.value.trim() || (stored && stored.id));
   if (mode() === 'fixture') filled = true;
   if (phase === 'empty' && filled) setPhase('ready');
   else if (phase === 'ready' && !filled) setPhase('empty');
@@ -187,7 +226,8 @@ function syncWells() {
   var lines = el.resume.value.trim() ? el.resume.value.split('\n').length : 0;
   el.resumeFoot.hidden = lines === 0;
   el.resumeFoot.textContent = lines + (lines === 1 ? ' line' : ' lines') +
-                              ' · this is what we quote from';
+                              (stored ? ' pasted' : ' · this is what we quote from');
+  if (el.resumeClash) el.resumeClash.hidden = !(stored && lines > 0);
 }
 
 // ---------------------------------------------------------------- level three
@@ -776,7 +816,7 @@ function renderError(message) {
   stopClock();
   setPhase('error');
   // The answers that survived stay readable underneath.
-  el.audit.hidden = order.length === 0;
+  el.audit.hidden = viewing || order.length === 0;
   el.live.hidden = true;
 }
 
@@ -941,11 +981,14 @@ function lookAgain(id) {
     // Decision 0006 gives this endpoint post, resume and requirement_id, and
     // says it re-emits `summary` when it is done.
     var before = summaryEv;
-    work = stream(RERUN_ENDPOINT, {
-      post: el.post.value.trim(),
-      resume: el.resume.value.trim(),
-      requirement_id: id
-    }).then(function () { sawSummary = summaryEv !== before; });
+    // `ranAgainst`, not whatever is in the rail now: the second pass has to
+    // read the document the first pass read, or its one new verdict would cite
+    // line numbers from a different resume than the rows beside it.
+    var again = { post: el.post.value.trim(), requirement_id: id };
+    if (ranAgainst) again.resume_id = ranAgainst;
+    else again.resume = el.resume.value.trim();
+    work = stream(RERUN_ENDPOINT, again)
+      .then(function () { sawSummary = summaryEv !== before; });
   } else {
     work = againFixture(id).then(function (pass) {
       if (!pass) throw new Error('No second look recorded for number ' + numberOf(id) + '.');
@@ -996,11 +1039,471 @@ function buttonsEnabled(on) {
   }
 }
 
+/* ============================================================================
+   THE RESUME AS A FILE                                        brief 0017
+   ----------------------------------------------------------------------------
+   Nobody has a resume as a .txt. POST /resumes takes the PDF, pypdf pulls the
+   text out, and repair puts back what extraction broke. All of that is the
+   backend's, and none of it is repeated here.
+
+   THIS FILE DOES NOT TOUCH THE TEXT. It does not trim it, join it, split it or
+   clean it. Repair is mechanical and it lives in one place, because the line
+   numbers every verdict cites are the numbers of the text repair produced. A
+   client that also edited the text would be a second, disagreeing copy.
+   ========================================================================= */
+
+// What a refused upload says. The backend's own message decides which row --
+// it is matched, never re-diagnosed -- and anything unrecognised is shown
+// exactly as it arrived rather than dressed up as something we understood.
+var UPLOAD_WRONG = [
+  { match: 'has no extractable text',
+    what:  'That PDF is a picture of your resume, not text.',
+    todo:  'There is nothing in it we can read, so there is nothing we could quote. Paste the text instead.' },
+  { match: 'unsupported file type',
+    what:  'We can only read a PDF or a plain text file.',
+    todo:  'Save your resume as a PDF and drop it here again, or paste the text instead.' },
+  { match: 'could not read',
+    what:  'We could not open that PDF.',
+    todo:  'The file looks damaged. Save it again from the program you wrote it in, or paste the text instead.' },
+  { match: 'is not UTF-8 text',
+    what:  'We could not read the letters in that file.',
+    todo:  'Save it as a PDF and drop that here instead.' },
+  { match: 'is empty',
+    what:  'There is no text in that file.',
+    todo:  'Check you picked the right one, or paste the text instead.' }
+];
+
+// The kinds repair reports, in plain English. Every one of them only joins
+// lines up or splits them apart; none of them changes a character.
+var REPAIR_WORD = {
+  'rejoin-wrap':   'A line ran off the page and carried on below. Joined back up.',
+  'rejoin-hyphen': 'A word was split across a line break. Put back together.',
+  'rejoin-mixed':  'Lines ran off the page and carried on below. Joined back up.',
+  'split-row':     'A row of a table came out as one flat line. Split back into its cells.'
+};
+
+function showUploadWrong(message) {
+  el.uploadWrong.innerHTML = '';
+  if (!message) { el.uploadWrong.hidden = true; return; }
+
+  var row = null;
+  for (var i = 0; i < UPLOAD_WRONG.length; i++) {
+    if (message.indexOf(UPLOAD_WRONG[i].match) !== -1) { row = UPLOAD_WRONG[i]; break; }
+  }
+
+  var what = document.createElement('p');
+  what.className = 'what';
+  what.textContent = row ? row.what : message;
+  el.uploadWrong.appendChild(what);
+
+  var todo = document.createElement('p');
+  todo.className = 'do';
+  todo.textContent = row ? row.todo : 'Paste the text instead.';
+  el.uploadWrong.appendChild(todo);
+
+  el.uploadWrong.hidden = false;
+}
+
+function syncResume() {
+  el.drop.hidden = !!stored;
+  el.resumeCard.hidden = !stored;
+
+  if (stored) {
+    el.resumeName.textContent = stored.name;
+    el.resumeMeta.textContent = stored.lines + (stored.lines === 1 ? ' line' : ' lines') +
+                                (stored.isDefault ? ' · your default' : '');
+    // The repair count. It is free, and it is the only place a person is told
+    // the file arrived damaged at all.
+    el.resumeFixed.textContent = stored.repaired
+      ? stored.repaired + (stored.repaired === 1 ? ' line' : ' lines') +
+        ' came out of the file broken. We put ' +
+        (stored.repaired === 1 ? 'it' : 'them') + ' back.'
+      : 'Nothing came out broken, so we changed nothing.';
+  }
+
+  // Both a file and pasted text is not an error, but only one of them is going
+  // to be checked, so say which.
+  el.resumeClash.hidden = !(stored && el.resume.value.trim());
+}
+
+function setReading(on, name) {
+  reading = on;
+  el.drop.disabled = on;
+  el.drop.classList.toggle('reading', on);
+  el.drop.querySelector('.drop-line').textContent =
+    on ? 'Reading ' + name : 'Drop a PDF here';
+  el.drop.querySelector('.drop-sub').textContent =
+    on ? 'It is not leaving this computer.' : 'Or click to choose one. Nothing is uploaded.';
+}
+
+function uploadResume(file) {
+  if (!file || reading) return;
+  showUploadWrong(null);
+  setReading(true, file.name);
+
+  var form = new FormData();
+  form.append('file', file);
+
+  fetch('/resumes', { method: 'POST', body: form })
+    .then(function (response) {
+      return response.text().then(function (text) {
+        var data = null;
+        try { data = JSON.parse(text); } catch (e) { data = null; }
+        // IngestError comes back as {"error": ...} with a 400. Anything else
+        // is not the resume being wrong, and must not be reported as if it was.
+        if (data && data.error) throw new Error(data.error);
+        if (!response.ok || !data || !data.id) {
+          throw new Error('The backend answered ' + response.status + ' ' +
+                          response.statusText + '. Uploading a file needs the ' +
+                          'Vouch backend serving this page.');
+        }
+        return data;
+      });
+    })
+    .then(function (data) {
+      stored = {
+        id: data.id,
+        name: file.name,
+        lines: data.lines,
+        repaired: data.repaired,
+        isDefault: data['default'] === true
+      };
+      lastRead = null;                 // a different document: forget the old read
+      if (viewing) openResumeView();   // the view is open on the old file
+    })
+    .catch(function (err) {
+      showUploadWrong(err.message);
+    })
+    .then(function () {
+      setReading(false);
+      syncResume();
+      syncReady();
+      el.file.value = '';              // so the same file can be picked twice
+    });
+}
+
+/* Brief 0019: the page forgot the resume on a reload and the backend did not.
+ * The file was still stored, still the default, and still what the next run
+ * would have been checked against -- but the rail was empty, so the page and
+ * the backend disagreed about the single most important input.
+ *
+ * Two calls, and the second one is not a second source of truth. GET /resumes
+ * counts the raw file with LineIndex; POST /resumes counts the repaired text
+ * with index_resume, and so does GET /resumes/{id}. Only the detail call can
+ * fill this card with the same two numbers an upload puts there, so the card
+ * after a reload and the card after an upload cannot say different things
+ * about one file. It also warms `lastRead`, which the resume view wanted next.
+ *
+ * Every failure is silent on purpose. No backend -- the page opened straight
+ * from web/ -- nothing stored, or a store that has no default all end the same
+ * way: the page looks exactly as it did before this brief.
+ */
+function restoreResume() {
+  fetch('/resumes')
+    .then(function (response) { return response.ok ? response.json() : null; })
+    .then(function (data) {
+      var list = (data && data.resumes) || [];
+      var pick = null;
+      for (var i = 0; i < list.length; i++) {
+        if (list[i]['default']) { pick = list[i]; break; }
+      }
+      // No default is not "use the first one". The brief asks for the default
+      // and nothing else, and guessing which resume you meant is the kind of
+      // help that gets you audited against last year's CV.
+      if (!pick || stored) return null;
+      return fetch('/resumes/' + encodeURIComponent(pick.id))
+        .then(function (response) { return response.ok ? response.json() : null; })
+        .then(function (read) {
+          // `stored` again: an upload may have finished while this was in
+          // flight, and the file a person just dropped outranks the default.
+          if (!read || read.error || stored) return;
+          lastRead = read;
+          stored = {
+            id: read.id,
+            name: pick.name,
+            lines: read.lines.length,
+            repaired: read.repairs.length,
+            isDefault: true
+          };
+          syncResume();
+          syncReady();
+        });
+    })
+    .catch(function () {});
+}
+
+function forgetResume() {
+  stored = null;
+  lastRead = null;
+  if (viewing) { viewing = false; setPhase(phase); }
+  showUploadWrong(null);
+  syncResume();
+  syncReady();
+}
+
+// ---- how we read it -----------------------------------------------------
+
+/* Which displayed line each repair produced.
+ *
+ * A change's `source_line` counts lines in the text BEFORE repair ran. It is
+ * not the number shown in this view and it is never printed as one -- printing
+ * it would be exactly the two-sets-of-line-numbers failure this brief is most
+ * able to cause.
+ *
+ * What is safe is the text. `after` holds the line, or the ⏎-separated lines,
+ * that repair produced, so a displayed line whose text matches one of them --
+ * and which is the only line in the document with that text -- is that line.
+ * A text that appears twice identifies nothing, so it is left unmarked. An
+ * unmarked repair is still listed in full above; a repair marked on the wrong
+ * line would be a lie.
+ */
+function repairedLines(lines, repairs) {
+  var where = {};
+  lines.forEach(function (line) {
+    if (where[line.text] === undefined) where[line.text] = line.number;
+    else where[line.text] = null;
+  });
+
+  var fixed = {};
+  repairs.forEach(function (change) {
+    String(change.after).split('⏎').forEach(function (piece) {
+      var at = where[piece.trim()];
+      if (at) fixed[at] = true;
+    });
+  });
+  return fixed;
+}
+
+/* Which lines the answers on screen quoted, and in what colour.
+ *
+ * Only when the run those answers came from was run against THIS document. A
+ * run on pasted text has its own line numbers, and painting them over the
+ * file's lines would put two different resumes on one screen.
+ */
+function quotedLines() {
+  var out = {};
+  if (!stored || ranAgainst !== stored.id) return out;
+  Object.keys(verdicts).forEach(function (id) {
+    var v = verdicts[id];
+    if (v.line && v.line_number) out[v.line_number] = v.verdict;
+  });
+  return out;
+}
+
+function repairBlock(repairs) {
+  el.repairs.innerHTML = '';
+  if (!repairs.length) {
+    el.repairs.hidden = true;
+    return;
+  }
+
+  var open = false;
+  var list = document.createElement('div');
+  list.className = 'repair-list';
+  list.id = 'repair-list';
+  list.hidden = true;
+
+  var toggle = document.createElement('button');
+  toggle.type = 'button';
+  toggle.className = 'list-toggle';
+  toggle.setAttribute('aria-controls', 'repair-list');
+
+  var chev = document.createElement('span');
+  chev.className = 'chev';
+  chev.setAttribute('aria-hidden', 'true');
+
+  var title = document.createElement('span');
+  title.className = 'list-title';
+  title.textContent = 'What we put back';
+
+  var gap = document.createElement('span');
+  gap.className = 'top-gap';
+
+  var meta = document.createElement('span');
+  meta.className = 'list-meta';
+  meta.textContent = repairs.length + (repairs.length === 1 ? ' change' : ' changes');
+
+  [chev, title, gap, meta].forEach(function (part) { toggle.appendChild(part); });
+
+  var hint = document.createElement('p');
+  hint.className = 'repair-hint';
+  hint.textContent = 'Pulling text out of a PDF breaks lines. These are the ' +
+    'ones we put back, and what each one looked like before. Lines were only ' +
+    'joined up or split apart. No word was changed. The ⏎ marks where the ' +
+    'file had a line break.';
+
+  function sync() {
+    list.hidden = !open;
+    chev.textContent = open ? '▾' : '▸';
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+  toggle.addEventListener('click', function () { open = !open; sync(); });
+  sync();
+
+  repairs.forEach(function (change) {
+    var item = document.createElement('div');
+    item.className = 'repair';
+
+    var kind = document.createElement('p');
+    kind.className = 'repair-kind';
+    kind.textContent = REPAIR_WORD[change.kind] || change.kind;
+    item.appendChild(kind);
+
+    // No line number on either block. See repairedLines() for why.
+    item.appendChild(quoteBlock(change.before, null, '', 'out of the PDF'));
+    item.appendChild(quoteBlock(change.after, null, '', 'what we read'));
+    list.appendChild(item);
+  });
+
+  el.repairs.appendChild(toggle);
+  el.repairs.appendChild(hint);
+  el.repairs.appendChild(list);
+  el.repairs.hidden = false;
+}
+
+function drawResume(data) {
+  var lines = data.lines || [];
+  var repairs = data.repairs || [];
+  var fixed = repairedLines(lines, repairs);
+  var quoted = quotedLines();
+
+  repairBlock(repairs);
+
+  el.resumeLines.innerHTML = '';
+
+  var oldLegend = el.resumeView.querySelector('.resume-legend');
+  if (oldLegend) oldLegend.remove();
+
+  if (repairs.length) {
+    var legend = document.createElement('p');
+    legend.className = 'resume-legend';
+    // Not "one ⏎ per change": splitting a flattened table row makes several
+    // lines out of one change, so the glyphs outnumber the changes. Saying
+    // what the glyph means, rather than implying a count, keeps that honest.
+    legend.textContent = '⏎ beside a number means we changed where that line ' +
+      'begins or ends. The words on it are the file’s own.';
+    el.resumeLines.parentNode.insertBefore(legend, el.resumeLines);
+  }
+
+  // GET /resumes/{id} sends the lines that have something on them, keeping
+  // their own numbers, so a gap in the numbering is a blank line in the file.
+  // The gaps are drawn back as blank rows: the numbers stay exactly where the
+  // backend put them, and the resume reads the way it does on paper.
+  var expected = 1;
+  lines.forEach(function (line) {
+    while (expected < line.number) {
+      el.resumeLines.appendChild(resumeRow(expected, '', false, null));
+      expected += 1;
+    }
+    el.resumeLines.appendChild(
+      resumeRow(line.number, line.text, fixed[line.number], quoted[line.number]));
+    expected = line.number + 1;
+  });
+}
+
+function resumeRow(number, text, wasFixed, verdict) {
+  var row = document.createElement('div');
+  row.className = 'rline' + (text ? '' : ' blank') +
+                  (verdict ? ' quoted ' + verdict : '');
+
+  var n = document.createElement('span');
+  n.className = 'n';
+  n.textContent = String(number);
+  row.appendChild(n);
+
+  var glyph = document.createElement('span');
+  glyph.className = 'fixed';
+  glyph.textContent = wasFixed ? '⏎' : '';
+  if (wasFixed) glyph.title = 'We put this line back together.';
+  row.appendChild(glyph);
+
+  var t = document.createElement('span');
+  t.className = 't';
+  t.textContent = text || ' ';
+  row.appendChild(t);
+  return row;
+}
+
+function openResumeView() {
+  if (!stored) return;
+  viewing = true;
+  setPhase(phase);
+  el.resumeTitle.textContent = stored.name;
+
+  if (lastRead && lastRead.id === stored.id) { drawResume(lastRead); return; }
+
+  el.repairs.hidden = true;
+  el.resumeLines.innerHTML = '';
+  var waiting = document.createElement('p');
+  waiting.className = 'nothing-here';
+  waiting.textContent = 'Reading it back.';
+  el.resumeLines.appendChild(waiting);
+
+  fetch('/resumes/' + encodeURIComponent(stored.id))
+    .then(function (response) {
+      return response.json().then(function (data) {
+        if (!response.ok || data.error) {
+          throw new Error(data.error || ('The backend answered ' + response.status + '.'));
+        }
+        return data;
+      });
+    })
+    .then(function (data) {
+      lastRead = data;
+      if (viewing) drawResume(data);
+    })
+    .catch(function (err) {
+      el.resumeLines.innerHTML = '';
+      var wrong = document.createElement('p');
+      wrong.className = 'nothing-here';
+      wrong.textContent = 'We could not read it back. ' + err.message;
+      el.resumeLines.appendChild(wrong);
+    });
+}
+
+function closeResumeView() {
+  viewing = false;
+  setPhase(phase);
+}
+
+// ---- wiring -------------------------------------------------------------
+
+el.drop.addEventListener('click', function () { el.file.click(); });
+el.file.addEventListener('change', function () { uploadResume(el.file.files[0]); });
+el.resumeOpen.addEventListener('click', openResumeView);
+el.resumeDrop.addEventListener('click', forgetResume);
+el.resumeBack.addEventListener('click', closeResumeView);
+
+// Dropping works on the whole block, in both states: once a file is in, the
+// drop zone itself is gone, and there is still an obvious place to drop.
+['dragenter', 'dragover'].forEach(function (name) {
+  el.resumeBlock.addEventListener(name, function (e) {
+    e.preventDefault();
+    if (!reading) el.drop.classList.add('over');
+  });
+});
+['dragleave', 'drop'].forEach(function (name) {
+  el.resumeBlock.addEventListener(name, function (e) {
+    e.preventDefault();
+    el.drop.classList.remove('over');
+  });
+});
+el.resumeBlock.addEventListener('drop', function (e) {
+  var files = e.dataTransfer && e.dataTransfer.files;
+  if (files && files.length) uploadResume(files[0]);
+});
+
+// A file dropped anywhere else would otherwise be opened by the browser, which
+// navigates away from a finished run.
+['dragover', 'drop'].forEach(function (name) {
+  window.addEventListener(name, function (e) { e.preventDefault(); });
+});
+
 // ---------------------------------------------------------------- driving it
 
 function mode() {
   var picked = document.querySelector('input[name="mode"]:checked');
-  return picked ? picked.value : 'fixture';
+  return picked ? picked.value : 'live';
 }
 
 function whichFixture() { return el.fixture ? el.fixture.value : 'summary'; }
@@ -1025,6 +1528,9 @@ function start() {
   };
 
   if (mode() === 'fixture') {
+    // A recording quotes the resume it was recorded against, which is not the
+    // one in the rail. Nothing it says may colour the resume view.
+    ranAgainst = null;
     loadFixture(whichFixture())
       .then(function (events) { return replay(events); })
       .catch(function (err) { renderError(err.message); })
@@ -1034,15 +1540,23 @@ function start() {
 
   var post = el.post.value.trim();
   var resume = el.resume.value.trim();
-  if (!post || !resume) {
+  if (!post || (!resume && !(stored && stored.id))) {
     // The backend checks this too. Saying it here saves a round trip.
-    renderError('Paste both a job post and a resume before running this for real.');
+    renderError('Add a resume and paste a job post before running this for real.');
     running = false;
     stopClock();
     return;
   }
 
-  stream('/audit', { post: post, resume: resume })
+  // Decision 0005 and brief 0017: the id once a resume is stored, the pasted
+  // text otherwise. The backend prefers the id when both arrive, so only one
+  // of the two is ever sent and the rail says which it will be.
+  var payload = { post: post };
+  if (stored && stored.id) payload.resume_id = stored.id;
+  else payload.resume = resume;
+  ranAgainst = payload.resume_id || '';
+
+  stream('/audit', payload)
     .catch(function (err) { renderError(err.message); })
     .then(finish);
 }
@@ -1054,6 +1568,7 @@ function previewError() {
   cancelled = false;
   reset();
   running = true;
+  ranAgainst = null;
   setPhase('running');
   startClock();
   loadFixture(whichFixture())
@@ -1072,7 +1587,23 @@ function syncPicker() {
   var off = mode() === 'live';
   if (el.fixture) el.fixture.disabled = off;
   if (el.errorPreview) el.errorPreview.disabled = off;
+  syncRecording();
   syncReady();
+}
+
+/* Brief 0019. A recorded answer quotes a resume and a post that are not the
+ * ones in the rail, and it has already been read out loud as if it were real.
+ *
+ * It is tied to the switch, not to what is on screen -- exactly as the
+ * extension's FIXTURES flag is. The switch is the statement of intent, and the
+ * brief asks that choosing a real run clear the warning outright. The cost is
+ * the one case in the other direction: flip to a real run with a finished
+ * recording still on screen and the warning goes before the answer does.
+ * Running clears it, and the demo script never flips mid-answer. */
+function syncRecording() {
+  var recorded = mode() === 'fixture';
+  if (el.recording) el.recording.hidden = !recorded;
+  if (el.auditFlag) el.auditFlag.hidden = !recorded;
 }
 
 el.run.addEventListener('click', start);
@@ -1117,11 +1648,13 @@ function readPostFromUrl() {
 
 // ---------------------------------------------------------------- on load
 
+syncResume();
 syncWells();
 syncPicker();
 setPhase('empty');
 syncReady();
 readPostFromUrl();
+restoreResume();   // brief 0019. Asynchronous, and it only ever adds a card.
 window.addEventListener('hashchange', readPostFromUrl);
 
 // Start on load when asked: ?auto=fixture or ?auto=error, and ?fixture=<name>

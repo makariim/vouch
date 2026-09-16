@@ -37,8 +37,8 @@
     <span class="demo-label">Show</span>
 
     <div class="segment" role="radiogroup" aria-label="Where the answers come from">
-      <label><input type="radio" name="mode" value="fixture" checked><span>A recording</span></label>
-      <label><input type="radio" name="mode" value="live"><span>A real run</span></label>
+      <label><input type="radio" name="mode" value="live" checked><span>A real run</span></label>
+      <label><input type="radio" name="mode" value="fixture"><span>A recording</span></label>
     </div>
 
     <label class="offscreen" for="fixture">Which recording</label>
@@ -52,16 +52,52 @@
   </div>
 </header>
 
+<!-- brief 0019. A recording is the default, and a radio button in the corner
+     was the only sign of it. This is the extension's amber FIXTURES flag on the
+     page: while a recording is showing it is across the top, it stays there
+     when the page is scrolled, and switching to a real run removes it. -->
+<div id="recording" class="recording" hidden>
+  <span class="recording-word">A recording</span>
+  <span class="recording-says">This answer was recorded earlier. It has nothing
+    to do with the post in the box.</span>
+</div>
+
 <div class="frame">
 
   <!-- ============================ SET UP THE RUN ============================ -->
   <aside class="rail">
 
-    <section class="rail-block">
-      <label class="rail-label" for="resume">Your resume</label>
+    <!-- A PDF is how a resume actually exists. The paste box stays underneath
+         it: it is the fallback if an upload fails in front of people, and the
+         recordings are driven through it. -->
+    <section id="resume-block" class="rail-block">
+      <p class="rail-label">Your resume</p>
+
+      <button id="drop" class="drop" type="button">
+        <span class="drop-line">Drop a PDF here</span>
+        <span class="drop-sub">Or click to choose one. Nothing is uploaded.</span>
+      </button>
+      <input id="file" class="offscreen" type="file"
+             accept=".pdf,.txt,application/pdf,text/plain">
+
+      <div id="resume-card" class="resume-card" hidden>
+        <p id="resume-name" class="resume-name"></p>
+        <p id="resume-meta" class="resume-meta"></p>
+        <p id="resume-repaired" class="resume-repaired"></p>
+        <div class="resume-actions">
+          <button id="resume-open" class="linky" type="button">See how we read it &rarr;</button>
+          <button id="resume-drop" class="linky" type="button">Stop using this file</button>
+        </div>
+      </div>
+
+      <div id="upload-wrong" class="upload-wrong" hidden></div>
+
+      <label class="rail-sub" for="resume">Or paste it instead</label>
       <textarea id="resume" spellcheck="false"
                 placeholder="Paste your whole resume here."></textarea>
       <p id="resume-foot" class="rail-foot" hidden></p>
+      <p id="resume-clash" class="rail-note" hidden>The file above is what we will
+        check. Stop using it if you want this box checked instead.</p>
     </section>
 
     <section class="rail-block">
@@ -120,11 +156,29 @@
       <p class="intro-tail">Fit comes back as a word, not a score. A number would sound more exact than it is.</p>
     </section>
 
+    <!-- ---------- how we read your resume ---------- -->
+    <section id="resume-view" class="resume-view" hidden>
+      <div class="resume-view-head">
+        <h2 id="resume-view-title"></h2>
+        <button id="resume-back" class="linky" type="button">&larr; Back to the answer</button>
+      </div>
+      <p class="resume-view-lead">This is the text we read, with the line numbers we
+        quote. If a line looks wrong here, that is why an answer looks wrong. The
+        coloured lines were quoted in the last run.</p>
+      <div id="repairs" class="repairs" hidden></div>
+      <div id="resume-lines" class="resume-lines"></div>
+    </section>
+
     <!-- ---------- something went wrong ---------- -->
     <section id="banner" class="wrong" hidden></section>
 
     <!-- ---------- the answer ---------- -->
     <section id="audit" class="audit" hidden>
+
+      <!-- brief 0019. The banner is off the top of a screenshot of the answer,
+           so the answer carries its own mark. Inside #audit and above #live, so
+           it sits over the working and over the finished answer both. -->
+      <p id="audit-recording" class="answer-recording" hidden>A recording &middot; nothing below came from the post in the box</p>
 
       <!-- while it is working -->
       <div id="live" class="live" hidden>

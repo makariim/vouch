@@ -385,6 +385,67 @@ main { padding: var(--v-s-6) var(--v-page-pad-x) var(--v-s-8); min-width: 0; }
 }
 
 /* ============================================================================
+   YOU ARE LOOKING AT A RECORDING                              brief 0019
+   ----------------------------------------------------------------------------
+   Amber, because tokens.css section 2 gives the design exactly one warning
+   hue and this is it -- the same --v-partly the extension's FIXTURES flag
+   uses. It is the SOLID colour, not --v-partly-wash: a wash is 0.242
+   lightness against a 0.180 ground, which is legible at a desk and invisible
+   from two metres, and two metres is the whole requirement.
+
+   Ink on it is --v-ink-on-light. tokens.css has no "ink on the warning
+   colour" role; that one is the only dark-on-bright role there is, and
+   --v-partly sits within 0.1 lightness of --v-ink, which is what it was
+   measured against. Reported in docs/reports/0019.
+   ========================================================================= */
+
+.recording {
+  position: sticky;
+  top: var(--v-header-h);
+  z-index: 19;               /* under the header, over everything else */
+  display: flex;
+  align-items: baseline;
+  gap: var(--v-s-4);
+  flex-wrap: wrap;
+  padding: 12px var(--v-rail-pad-x);
+  background: var(--v-partly);
+  color: var(--v-ink-on-light);
+}
+
+.recording-word {
+  flex: none;
+  font-size: var(--v-text-lead);
+  font-weight: var(--v-weight-medium);
+  line-height: var(--v-lh-tight);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.recording-says {
+  font-size: var(--v-text-note);
+  line-height: var(--v-lh-note);
+  text-wrap: pretty;
+}
+
+/* The same thing again, inside the answer, because the banner is off the top
+   of a screenshot that contains only the answer. Smaller: the banner is the
+   one that has to carry the room, this one only has to travel with the
+   picture. */
+.answer-recording {
+  align-self: flex-start;
+  margin: 0 0 var(--v-s-5);
+  padding: 5px var(--v-s-3);
+  border-radius: var(--v-radius-pill);
+  background: var(--v-partly);
+  color: var(--v-ink-on-light);
+  font-size: var(--v-text-label);
+  font-weight: var(--v-weight-medium);
+  line-height: var(--v-lh-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ============================================================================
    SOMETHING WENT WRONG. Red lives here and nowhere else.
    ========================================================================= */
 
@@ -794,4 +855,248 @@ button.again:disabled { color: var(--v-ink-4); border-color: var(--v-line-270); 
   .top { flex-wrap: wrap; height: auto; padding-block: var(--v-s-3); }
   .demo { flex-wrap: wrap; flex: 1 1 100%; }
   .header-note { flex: 1 1 100%; }
+}
+
+/* ============================================================================
+   THE RESUME AS A FILE
+   ----------------------------------------------------------------------------
+   Brief 0017. A PDF is how a resume actually exists; the paste box under this
+   stays because it is the fallback when an upload fails in front of people.
+
+   Web.dc.html draws the drop zone and the card. --v-bg-205's own comment in
+   tokens.css names the drop zone, so this is the value it was written for.
+   ========================================================================= */
+
+.drop {
+  font: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  width: 100%;
+  padding: 26px 18px;
+  text-align: center;
+  cursor: pointer;
+  color: var(--v-ink);
+  background: var(--v-bg-205);
+  border: 1px dashed var(--v-line-strong);
+  border-radius: var(--v-radius-3);
+}
+.drop-line { font-size: var(--v-text-body); }
+.drop-sub  { font-size: var(--page-note); color: var(--v-ink-560); }
+
+/* Dragging a file over it. Not the rose: nothing is being worked on yet, this
+   is a plain hover. */
+.drop:hover, .drop.over {
+  background: var(--v-bg-2);
+  border-color: var(--v-ink-4);
+}
+
+/* While the file is being read. This one IS the app working, so it is rose. */
+.drop.reading {
+  color: var(--v-agent-bright);
+  border-style: solid;
+  border-color: var(--v-agent-dim);
+  background: var(--v-agent-wash);
+  cursor: default;
+}
+.drop.reading .drop-sub { color: var(--v-ink-800); }
+
+.resume-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--v-s-1);
+  padding: 14px 16px;
+  background: var(--v-bg-2);
+  border-radius: var(--v-radius-3);
+}
+.resume-name {
+  margin: 0;
+  font-size: var(--v-text-body);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.resume-meta { margin: 0; font-size: var(--page-note); color: var(--v-ink-3); }
+
+/* The repair count. It is free, it is the most interesting thing in the rail,
+   and it is the only place a person learns the PDF arrived damaged. */
+.resume-repaired {
+  margin: var(--v-s-2) 0 0;
+  font-size: var(--page-note);
+  line-height: var(--v-lh-body);
+  color: var(--v-ink);
+}
+
+.resume-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* A button that reads as a link. The artboard draws these with no box at all;
+   --v-tap-min is what keeps them clickable. */
+button.linky {
+  font: inherit;
+  font-size: var(--page-note);
+  min-height: var(--v-tap-min);
+  padding: 0;
+  text-align: left;
+  color: var(--v-ink-2);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+button.linky:hover { color: var(--v-ink); }
+
+/* An upload we would not take. Calm, and never a stack trace. */
+.upload-wrong {
+  padding: 14px 16px;
+  background: var(--v-error-code-page);
+  border-radius: var(--v-radius-3);
+}
+.upload-wrong .what {
+  margin: 0;
+  font-size: var(--v-text-body);
+  line-height: var(--v-lh-body);
+  color: var(--v-error);
+  text-wrap: pretty;
+}
+.upload-wrong .do {
+  margin: 7px 0 0;
+  font-size: var(--page-note);
+  line-height: var(--v-lh-body);
+  color: var(--v-error-text);
+  text-wrap: pretty;
+}
+
+.rail-sub {
+  margin: var(--v-s-2) 0 0;
+  font-size: var(--v-text-label);
+  line-height: var(--v-lh-label);
+  color: var(--v-ink-3);
+}
+
+/* ============================================================================
+   HOW WE READ YOUR RESUME
+   ----------------------------------------------------------------------------
+   The numbers here are the numbers a verdict cites -- both come out of
+   index_resume in the backend. This view is where a person checks that.
+
+   Web.dc.html caps this column at 800px. tokens.css has no such step, so this
+   uses --v-answer-max (760px) rather than invent one. Reported.
+   ========================================================================= */
+
+.resume-view { display: flex; flex-direction: column; max-width: var(--v-answer-max); }
+
+.resume-view-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--v-s-4);
+  flex-wrap: wrap;
+}
+.resume-view-head h2 {
+  margin: 0;
+  font-family: var(--v-font-display);
+  font-weight: var(--v-weight-bold);
+  font-size: var(--v-text-section);
+  line-height: var(--v-lh-section);
+  overflow-wrap: anywhere;
+}
+.resume-view-lead {
+  margin: 0 0 var(--v-s-5);
+  max-width: 58ch;
+  font-size: var(--v-text-body);
+  line-height: var(--v-lh-body);
+  color: var(--v-ink-700);
+  text-wrap: pretty;
+}
+
+/* ---- what repair changed ------------------------------------------------ */
+
+.repairs { margin-bottom: var(--v-s-5); }
+
+.repair-hint {
+  margin: var(--v-s-3) 0 0;
+  max-width: 58ch;
+  font-size: var(--page-note);
+  line-height: var(--v-lh-body);
+  color: var(--v-ink-560);
+  text-wrap: pretty;
+}
+
+.repair-list { display: flex; flex-direction: column; gap: var(--v-s-5); margin-top: var(--v-s-5); }
+
+.repair { display: flex; flex-direction: column; gap: var(--v-s-2); }
+.repair-kind {
+  margin: 0;
+  font-size: var(--v-text-body);
+  line-height: var(--v-lh-body);
+  color: var(--v-ink-2);
+  text-wrap: pretty;
+}
+
+/* ---- the lines, numbered ------------------------------------------------ */
+
+.resume-legend {
+  margin: 0 0 var(--v-s-3);
+  max-width: 58ch;
+  font-size: var(--page-note);
+  line-height: var(--v-lh-body);
+  color: var(--v-ink-560);
+  text-wrap: pretty;
+}
+
+.resume-lines {
+  padding: var(--v-s-4) 0;
+  background: var(--v-bg-205);
+  border-radius: var(--v-radius-4);
+  overflow: hidden;
+}
+
+.rline {
+  display: flex;
+  gap: 10px;
+  padding: 1px 18px 1px 0;
+  border-left: var(--v-quote-edge) solid transparent;
+}
+.rline .n,
+.rline .t {
+  font-family: var(--v-font-mono);
+  font-weight: var(--v-weight-regular);
+  line-height: var(--v-lh-resume);
+}
+.rline .n {
+  width: 46px;
+  flex: none;
+  text-align: right;
+  font-size: var(--v-text-label);
+  color: var(--v-ink-4);
+  user-select: none;
+}
+.rline .t {
+  min-width: 0;
+  font-size: var(--v-text-quote);
+  color: var(--v-ink);
+  white-space: pre-wrap;   /* the resume's own spacing, character for character */
+}
+.rline.blank .t { color: var(--v-ink-4); }
+
+/* A line that was quoted in the last run, in that answer's colour. This is the
+   whole point of the view: a verdict says line 77, and here is line 77. */
+.rline.evidenced        { background: var(--v-shown-wash);  border-left-color: var(--v-shown);  }
+.rline.partly_evidenced { background: var(--v-partly-wash); border-left-color: var(--v-partly); }
+.rline.not_evidenced    { background: var(--v-not-wash);    border-left-color: var(--v-not);    }
+.rline.quoted .n { color: var(--v-ink-2); }
+
+/* The mark on a line repair put back together. A glyph, not a colour: the
+   three answer colours are spoken for, and rose means "working right now". */
+.rline .fixed {
+  flex: none;
+  width: 14px;
+  font-family: var(--v-font-mono);
+  font-size: var(--v-text-label);
+  line-height: var(--v-lh-resume);
+  color: var(--v-ink-3);
+  user-select: none;
 }

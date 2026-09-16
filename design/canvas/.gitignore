@@ -1,0 +1,10 @@
+# A seeded canvas is a multi-megabyte build artifact. The .dc.html artboards
+# beside it are the source, and the canvas is rebuilt from them with the
+# `design` skill.
+#
+# support.js is NOT ignored. It is the canvas runtime the artboards load, it is
+# only ~70 KB, and without it none of them opens in a browser.
+#
+# Scoped to this folder on purpose: other sessions share the root .gitignore
+# and file ownership is being kept disjoint.
+*-design-system.html

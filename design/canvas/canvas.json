@@ -1,0 +1,16 @@
+{
+  "artboards": [
+    { "file": "Foundations.dc.html", "x": 0,    "y": 0,    "w": 1000, "h": 1900, "title": "1 — What to build with" },
+    { "file": "Web.dc.html",         "x": 1100, "y": 0,    "w": 1340, "h": 1400, "title": "2 — The page, all seven states" },
+    { "file": "Extension.dc.html",   "x": 1100, "y": 1540, "w": 1340, "h": 1500, "title": "3 — The panel, all six states" }
+  ],
+  "annotations": [
+    { "id": "tokens-note", "x": 0, "y": 2000, "w": 300,
+      "text": "Every value on these artboards is in design/tokens.css.\n\nIf you need a number that is not in that file, the tokens file is wrong — say so rather than inventing one." },
+    { "id": "states-note", "x": 2540, "y": 0, "w": 300,
+      "text": "The page has one control the product will not have: the state switcher in the header. Use it to walk all seven states.\n\nThe panel shows all six of its states side by side instead, each at the real 380px." },
+    { "id": "greyscale-note", "x": 2540, "y": 1540, "w": 300,
+      "text": "Greyscale test: the answer mark is drawn twice on the foundations board, once with the colour taken away.\n\nThe bracket's fill level — full, half, empty — is what carries the answer. Colour is the second signal, never the only one." }
+  ],
+  "launch": { "view": "canvas" }
+}

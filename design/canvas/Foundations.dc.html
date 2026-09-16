@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+  html, body { margin:0; padding:0; background:oklch(0.180 0.008 250); }
+  * { box-sizing:border-box; }
+  a { color:oklch(0.760 0.130 330); text-decoration:none; border-bottom:1px solid oklch(0.470 0.080 330); }
+  a:hover { color:oklch(0.840 0.110 330); }
+</style>
+</helmet>
+
+<div style="min-height:100vh;background:oklch(0.180 0.008 250);color:oklch(0.915 0.005 250);font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:15px;line-height:1.6;padding:60px 44px 130px;-webkit-font-smoothing:antialiased">
+  <div style="max-width:920px;margin:0 auto;display:flex;flex-direction:column;gap:72px">
+
+    <header>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:28px">
+        <svg viewBox="0 0 32 32" width="18" height="18" aria-label="Vouch"><path d="M11 6 H5 V26 H11" fill="none" stroke="oklch(0.915 0.005 250)" stroke-width="3"></path><path d="M21 6 H27 V26 H21" fill="none" stroke="oklch(0.915 0.005 250)" stroke-width="3"></path><rect x="13.5" y="6" width="5" height="20" fill="oklch(0.915 0.005 250)"></rect></svg>
+        <span style="font-size:16px;font-weight:500">Vouch · what to build with</span>
+      </div>
+      <h1 style="font-family:Rockwell,'Bookman Old Style',Georgia,serif;font-weight:700;font-size:31px;line-height:1.15;margin:0 0 16px;max-width:24ch">The whole system, on one screen.</h1>
+      <p style="margin:0;color:oklch(0.760 0.010 250);max-width:56ch;font-size:16px;text-wrap:pretty">Every value here is in <a href="../tokens.css">tokens.css</a>. How to apply it is in <a href="../README.md">README.md</a>. Nothing loads from the internet.</p>
+    </header>
+
+    <!-- ===== THE MARK ===== -->
+    <section>
+      <h2 style="font-family:Rockwell,'Bookman Old Style',Georgia,serif;font-weight:700;font-size:23px;line-height:1.3;margin:0 0 10px">The mark</h2>
+      <p style="margin:0 0 30px;color:oklch(0.760 0.010 250);max-width:58ch;text-wrap:pretty">Two brackets holding a solid bar. A quote with something inside it. Its real home is 16 pixels wide in a browser toolbar, so it is four straight strokes and nothing else.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:34px;align-items:flex-end">
+        <sc-for list="{{ markSizes }}" as="m" hint-placeholder-count="4">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:14px">
+            <div style="width:{{ m.box }};height:{{ m.box }};display:flex;align-items:center;justify-content:center;background:{{ m.bg }};border-radius:10px">
+              <svg viewBox="0 0 32 32" width="{{ m.px }}" height="{{ m.px }}" aria-label="Vouch"><path d="M11 6 H5 V26 H11" fill="none" stroke="{{ m.fg }}" stroke-width="3"></path><path d="M21 6 H27 V26 H21" fill="none" stroke="{{ m.fg }}" stroke-width="3"></path><rect x="13.5" y="6" width="5" height="20" fill="{{ m.fg }}"></rect></svg>
+            </div>
+            <span style="font-size:13px;color:oklch(0.620 0.010 250);text-align:center;white-space:pre-line;line-height:1.5">{{ m.label }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <!-- ===== THE THREE ANSWERS ===== -->
+    <section>
+      <h2 style="font-family:Rockwell,'Bookman Old Style',Georgia,serif;font-weight:700;font-size:23px;line-height:1.3;margin:0 0 10px">Three answers. Never a fourth.</h2>
+      <p style="margin:0 0 32px;color:oklch(0.760 0.010 250);max-width:60ch;text-wrap:pretty">The bracket fills the way the proof does: full, half, empty. Colour is the second signal, never the only one. <strong style="font-weight:500;color:oklch(0.940 0.005 250)">"Does not show" has no colour on purpose.</strong> Nothing went wrong. The resume just does not say it. Do not make it red.</p>
+
+      <div style="display:flex;flex-direction:column;gap:32px">
+        <sc-for list="{{ verdicts }}" as="v" hint-placeholder-count="3">
+          <div style="display:flex;gap:26px;align-items:flex-start;flex-wrap:wrap">
+            <div style="display:flex;gap:18px;flex:none">
+              <div style="width:30px;height:30px;position:relative;flex:none">
+                <div style="position:absolute;left:0;top:0;bottom:0;width:9px;border:3px solid {{ v.color }};border-right:none;border-radius:3px 0 0 3px"></div>
+                <div style="position:absolute;right:0;top:0;bottom:0;width:9px;border:3px solid {{ v.color }};border-left:none;border-radius:0 3px 3px 0"></div>
+                <div style="position:absolute;left:9px;right:9px;bottom:0;height:{{ v.fill }};background:{{ v.color }}"></div>
+              </div>
+              <div style="width:30px;height:30px;position:relative;flex:none;filter:grayscale(1)">
+                <div style="position:absolute;left:0;top:0;bottom:0;width:9px;border:3px solid {{ v.color }};border-right:none;border-radius:3px 0 0 3px"></div>
+                <div style="position:absolute;right:0;top:0;bottom:0;width:9px;border:3px solid {{ v.color }};border-left:none;border-radius:0 3px 3px 0"></div>
+                <div style="position:absolute;left:9px;right:9px;bottom:0;height:{{ v.fill }};background:{{ v.color }}"></div>
+              </div>
+            </div>
+            <div style="min-width:240px;flex:1 1 300px">
+              <div style="font-size:18px;font-weight:500;color:{{ v.color }}">{{ v.label }}</div>
+              <div style="font-size:15px;line-height:1.55;color:oklch(0.760 0.010 250);margin-top:6px;max-width:52ch;text-wrap:pretty">{{ v.rule }}</div>
+              <div style="font-size:13px;color:oklch(0.560 0.010 250);margin-top:7px">{{ v.token }}</div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="font-size:13px;color:oklch(0.560 0.010 250);margin-top:26px">Left: in colour. Right: the same mark with the colour taken away. Both have to be tellable apart.</div>
+    </section>
+
+    <!-- ===== HOW TO WRITE ===== -->
+    <section>
+      <h2 style="font-family:Rockwell,'Bookman Old Style',Georgia,serif;font-weight:700;font-size:23px;line-height:1.3;margin:0 0 10px">How to write the words</h2>
+      <p style="margin:0 0 30px;color:oklch(0.760 0.010 250);max-width:58ch;text-wrap:pretty">This matters as much as the layout. The person reading is tired, is skimming, and may not read English first.</p>
+
+      <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:34px">
+        <sc-for list="{{ writingRules }}" as="w" hint-placeholder-count="6">
+          <div style="display:flex;gap:14px;align-items:flex-start">
+            <div style="width:5px;height:5px;border-radius:999px;background:oklch(0.540 0.010 250);flex:none;margin-top:10px"></div>
+            <div style="font-size:16px;line-height:1.5;max-width:60ch;text-wrap:pretty">{{ w }}</div>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:2px;border-radius:10px;overflow:hidden">
+        <sc-for list="{{ beforeAfter }}" as="b" hint-placeholder-count="4">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:2px">
+            <div style="background:oklch(0.212 0.008 250);padding:16px 18px">
+              <div style="font-size:12px;color:oklch(0.560 0.010 250);margin-bottom:6px">Do not write</div>
+              <div style="font-size:15px;line-height:1.5;color:oklch(0.640 0.010 250);text-wrap:pretty">{{ b.bad }}</div>
+            </div>
+            <div style="background:oklch(0.232 0.008 250);padding:16px 18px">
+              <div style="font-size:12px;color:oklch(0.600 0.010 250);margin-bottom:6px">Write</div>
+              <div style="font-size:15px;line-height:1.5;text-wrap:pretty">{{ b.good }}</div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <!-- ===== THREE LEVELS ===== -->
+    <section>
+      <h2 style="font-family:Rockwell,'Bookman Old Style',Georgia,serif;font-weight:700;font-size:23px;line-height:1.3;margin:0 0 10px">Three levels of reading</h2>
+      <p style="margin:0 0 30px;color:oklch(0.760 0.010 250);max-width:58ch;text-wrap:pretty">The first two must work without reading a full sentence. The third is folded away until asked for.</p>
+      <div style="display:flex;flex-direction:column;gap:26px">
+        <sc-for list="{{ levels }}" as="l" hint-placeholder-count="3">
+          <div style="display:flex;gap:20px;align-items:flex-start">
+            <div style="font-family:Rockwell,'Bookman Old Style',Georgia,serif;font-weight:700;font-size:20px;color:oklch(0.540 0.010 250);width:22px;flex:none;line-height:1.4">{{ l.n }}</div>
+            <div>
+              <div style="font-size:18px;font-weight:500">{{ l.title }}</div>
+              <div style="font-size:15px;line-height:1.55;color:oklch(0.760 0.010 250);margin-top:5px;max-width:56ch;text-wrap:pretty">{{ l.body }}</div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <!-- ===== COLOUR ===== -->
+    <section>
+      <h2 style="font-family:Rockwell,'Bookman Old Style',Georgia,serif;font-weight:700;font-size:23px;line-height:1.3;margin:0 0 30px">Colour</h2>
+      <div style="display:flex;flex-direction:column;gap:30px">
+        <sc-for list="{{ ramps }}" as="ramp" hint-placeholder-count="3">
+          <div>
+            <div style="font-size:16px;font-weight:500;margin-bottom:4px">{{ ramp.name }}</div>
+            <div style="font-size:14px;line-height:1.55;color:oklch(0.660 0.010 250);margin-bottom:14px;max-width:62ch;text-wrap:pretty">{{ ramp.note }}</div>
+            <div style="display:flex;flex-wrap:wrap;gap:2px;border-radius:10px;overflow:hidden">
+              <sc-for list="{{ ramp.swatches }}" as="s" hint-placeholder-count="5">
+                <div style="flex:1 1 128px;min-width:128px;background:{{ s.bg }};padding:18px 14px 14px;display:flex;flex-direction:column;gap:30px">
+                  <div style="font-size:13px;color:{{ s.fg }}">Aa</div>
+                  <div>
+                    <div style="font-size:12px;color:{{ s.fg }}">{{ s.token }}</div>
+                    <div style="font-size:11px;color:{{ s.fg }};opacity:0.62;margin-top:3px">{{ s.val }}</div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <!-- ===== TYPE ===== -->
+    <section>
+      <h2 style="font-family:Rockwell,'Bookman Old Style',Georgia,serif;font-weight:700;font-size:23px;line-height:1.3;margin:0 0 10px">Type</h2>
+      <p style="margin:0 0 32px;color:oklch(0.760 0.010 250);max-width:60ch;text-wrap:pretty">Three families, bundled with the app. One rule above all the others: <strong style="font-weight:500;color:oklch(0.940 0.005 250)">monospace is only for lines quoted out of the resume</strong>, and the line numbers beside them. Headings, labels, buttons and counts are all normal type.</p>
+      <div style="display:flex;flex-direction:column;gap:2px;border-radius:10px;overflow:hidden">
+        <sc-for list="{{ typeRows }}" as="t" hint-placeholder-count="7">
+          <div style="background:oklch(0.212 0.008 250);padding:22px">
+            <div style="font-family:{{ t.family }};font-size:{{ t.size }};line-height:{{ t.lh }};font-weight:{{ t.weight }};color:oklch(0.915 0.005 250);white-space:pre-wrap">{{ t.sample }}</div>
+            <div style="font-size:13px;color:oklch(0.600 0.010 250);margin-top:12px">{{ t.meta }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <!-- ===== ROSE ===== -->
+    <section>
+      <h2 style="font-family:Rockwell,'Bookman Old Style',Georgia,serif;font-weight:700;font-size:23px;line-height:1.3;margin:0 0 24px">The one accent</h2>
+      <div style="border-radius:10px;background:oklch(0.265 0.038 330);padding:28px 30px;max-width:620px">
+        <div style="font-size:13px;color:oklch(0.840 0.110 330);margin-bottom:12px">--v-agent</div>
+        <div style="font-family:Rockwell,'Bookman Old Style',Georgia,serif;font-weight:700;font-size:21px;line-height:1.3;margin-bottom:12px">Rose means one thing: the app is working on this right now.</div>
+        <p style="margin:0;color:oklch(0.940 0.005 250);max-width:54ch;font-size:16px;line-height:1.55;text-wrap:pretty">The words it searched for, the line it is reading, the moment it throws away its own answer and tries again. When the run finishes, the rose leaves the screen. It is never an answer, never a button, never decoration.</p>
+      </div>
+    </section>
+
+    <!-- ===== THE FOUR RULES ===== -->
+    <section style="border-top:1px solid oklch(0.300 0.009 250);padding-top:44px">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:34px">
+        <sc-for list="{{ laws }}" as="l" hint-placeholder-count="4">
+          <div>
+            <div style="font-size:13px;color:oklch(0.540 0.010 250);margin-bottom:9px">{{ l.n }}</div>
+            <div style="font-family:Rockwell,'Bookman Old Style',Georgia,serif;font-weight:700;font-size:18px;line-height:1.3;margin-bottom:9px">{{ l.title }}</div>
+            <div style="font-size:15px;line-height:1.55;color:oklch(0.760 0.010 250);text-wrap:pretty">{{ l.body }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{}">
+const INK = 'oklch(0.915 0.005 250)';
+const DARK = 'oklch(0.180 0.008 250)';
+const MONO = "ui-monospace,'SF Mono',Menlo,Consolas,monospace";
+const SLAB = "Rockwell,'Bookman Old Style',Georgia,serif";
+const SANS = "'Helvetica Neue',Helvetica,Arial,sans-serif";
+
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      markSizes: [
+        { px:'64', box:'108px', bg:'oklch(0.215 0.008 250)', fg:INK,  label:'64 px\nin the app header' },
+        { px:'32', box:'76px',  bg:'oklch(0.215 0.008 250)', fg:INK,  label:'32 px\nmark.svg' },
+        { px:'16', box:'58px',  bg:'oklch(0.215 0.008 250)', fg:INK,  label:'16 px\nthe toolbar. its real home' },
+        { px:'32', box:'76px',  bg:'oklch(0.915 0.005 250)', fg:DARK, label:'32 px\non a light page' }
+      ],
+
+      verdicts: [
+        { label:'Your resume shows this', color:'oklch(0.790 0.125 160)', fill:'100%',
+          token:'--v-shown · bracket filled all the way',
+          rule:'One line in the resume proves it. Quote that line word for word and give its number.' },
+        { label:'Your resume shows part of this', color:'oklch(0.815 0.125 80)', fill:'50%',
+          token:'--v-partly · bracket half filled',
+          rule:'Part of it is proved and part is not. Say out loud which part is missing.' },
+        { label:'Your resume does not show this', color:'oklch(0.620 0.010 250)', fill:'0%',
+          token:'--v-not · empty bracket, no colour',
+          rule:'Nothing in the resume proves it, so quote nothing. Draw no quote block at all. That silence is the product.' }
+      ],
+
+      writingRules: [
+        'Short sentences. One idea each.',
+        'Common words. If a word has a simpler twin, use the twin.',
+        'Never use "evidence" as a verb. "You can evidence this" is not plain English.',
+        'No invented words. Not "undersells", not "blockers". Say what the section does.',
+        'Write "line 22", not "L22".',
+        'Every sentence says what to do, not what state something is in.'
+      ],
+
+      beforeAfter: [
+        { bad:'BLOCKERS · 2', good:'They need two things you cannot show' },
+        { bad:'LEAD WITH THESE', good:'This is what proves you fit' },
+        { bad:'UNDERSELLS · 3', good:'Fix these lines in your resume' },
+        { bad:'Required. The closest line is L22, and it is written too vaguely to count.', good:'They need this. Line 22 comes close, but it is too vague.' },
+        { bad:'Words matching words. Not a verdict.', good:'This is only a word match. Nothing has been read or judged yet.' }
+      ],
+
+      levels: [
+        { n:'1', title:'One glance — should I apply',
+          body:'The word, one sentence, three counts. Nothing else competes with it.' },
+        { n:'2', title:'Five seconds — the few things that decide it',
+          body:'What they need that you cannot show. What proves you fit. Which lines to fix. One line per item, never more than three items.' },
+        { n:'3', title:'Only if I ask — the working',
+          body:'The reasoning, the words it searched for, and the full list of everything they asked for. Folded away by default. It opens by itself only while the app is working, because that minute is the interesting part.' }
+      ],
+
+      ramps: [
+        { name:'Ground and ink', note:'Cool near-black. The contrast is deliberately not at full strength: the ink stops at 0.915, not white. Explanations sit at ink-2, labels at ink-3.',
+          swatches:[
+            { token:'--v-bg-0', val:'oklch(0.180 0.008 250)', bg:'oklch(0.180 0.008 250)', fg:INK },
+            { token:'--v-bg-1', val:'oklch(0.215 0.008 250)', bg:'oklch(0.215 0.008 250)', fg:INK },
+            { token:'--v-bg-2', val:'oklch(0.250 0.008 250)', bg:'oklch(0.250 0.008 250)', fg:INK },
+            { token:'--v-line', val:'oklch(0.300 0.009 250)', bg:'oklch(0.300 0.009 250)', fg:INK },
+            { token:'--v-ink-4', val:'oklch(0.500 0.010 250)', bg:'oklch(0.500 0.010 250)', fg:DARK },
+            { token:'--v-ink-3', val:'oklch(0.620 0.010 250)', bg:'oklch(0.620 0.010 250)', fg:DARK },
+            { token:'--v-ink-2', val:'oklch(0.760 0.010 250)', bg:'oklch(0.760 0.010 250)', fg:DARK },
+            { token:'--v-ink', val:'oklch(0.915 0.005 250)', bg:'oklch(0.915 0.005 250)', fg:DARK }
+          ] },
+        { name:'The three answers', note:'Each one comes with a wash for the quote block behind it. "Does not show" is grey, and stays grey.',
+          swatches:[
+            { token:'--v-shown', val:'oklch(0.790 0.125 160)', bg:'oklch(0.790 0.125 160)', fg:DARK },
+            { token:'--v-partly', val:'oklch(0.815 0.125 80)', bg:'oklch(0.815 0.125 80)', fg:DARK },
+            { token:'--v-not', val:'oklch(0.620 0.010 250)', bg:'oklch(0.620 0.010 250)', fg:DARK },
+            { token:'--v-error', val:'oklch(0.780 0.130 25)', bg:'oklch(0.780 0.130 25)', fg:DARK }
+          ] },
+        { name:'Working', note:'Held back for one job: showing that the app is busy on something right now.',
+          swatches:[
+            { token:'--v-agent', val:'oklch(0.760 0.130 330)', bg:'oklch(0.760 0.130 330)', fg:DARK },
+            { token:'--v-agent-dim', val:'oklch(0.470 0.080 330)', bg:'oklch(0.470 0.080 330)', fg:INK },
+            { token:'--v-agent-wash', val:'oklch(0.265 0.038 330)', bg:'oklch(0.265 0.038 330)', fg:INK }
+          ] }
+      ],
+
+      typeRows: [
+        { family:SLAB, size:'38px', lh:'1.1', weight:'700',
+          sample:'Worth applying.', meta:'--v-text-answer · slab 700 · the answer, and nothing else at this size' },
+        { family:SLAB, size:'23px', lh:'1.3', weight:'700',
+          sample:'They need two things you cannot show', meta:'--v-text-section · slab 700 · section headings' },
+        { family:SANS, size:'18px', lh:'1.55', weight:'400',
+          sample:'You can prove the two things this team does every day. You cannot prove Kubernetes at all.', meta:'--v-text-lead · sans 400 · the one sentence under the answer' },
+        { family:SANS, size:'17px', lh:'1.4', weight:'400',
+          sample:'Kubernetes in production, including writing operators', meta:'--v-text-item · sans 400 · one-line list items' },
+        { family:SANS, size:'15px', lh:'1.6', weight:'400',
+          sample:'Tuning is there, with a number. Replication is not in your resume anywhere, so half of this is missing.', meta:'--v-text-body · sans 400 · explanations, notes, buttons, the trace' },
+        { family:MONO, size:'13px', lh:'1.7', weight:'400',
+          sample:'- Primary on-call for settlement for 2.5 years, including the\n  Black Friday 2023 incident (4h, full write-up, 0 lost payments).', meta:'--v-text-quote · mono 400 · ONLY lines quoted from the resume. pre-wrap, never italic, never trimmed' },
+        { family:SANS, size:'12px', lh:'1.4', weight:'500',
+          sample:'Your resume', meta:'--v-text-label · sans 500 · small labels. sentence case, no tracking, no capitals' }
+      ],
+
+      laws: [
+        { n:'One', title:'Three answers, never a fourth.', body:'No "likely", no "unclear", no "might transfer". If the proof does not settle it, it shows part of it, and you say which part is missing.' },
+        { n:'Two', title:'Fit is a word, not a number.', body:'Strong, worth applying, or weak, plus one sentence. No score out of a hundred, no percentage, no ring. A number would sound more exact than it is.' },
+        { n:'Three', title:'Quotes are word for word.', body:'Straight from the resume, with the line number. Never reworded, never tidied, never cut short with three dots.' },
+        { n:'Four', title:'Nothing comes from the internet.', body:'No hosted fonts, no remote files, no account. It works with the wifi off, because that is the only way the promise holds.' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

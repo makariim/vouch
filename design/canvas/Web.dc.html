@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+  html, body { margin:0; padding:0; background:oklch(0.180 0.008 250); }
+  * { box-sizing:border-box; }
+  a { color:oklch(0.760 0.130 330); text-decoration:none; border-bottom:1px solid oklch(0.470 0.080 330); }
+  a:hover { color:oklch(0.840 0.110 330); border-bottom-color:oklch(0.700 0.130 330); }
+  button { font:inherit; }
+  ::selection { background:oklch(0.470 0.080 330); color:oklch(0.970 0.004 250); }
+  @keyframes vpulse { 0%,100% { opacity:0.45; } 50% { opacity:1; } }
+  @keyframes vsweep { 0% { transform:translateX(-100%); } 100% { transform:translateX(320%); } }
+</style>
+</helmet>
+
+<div style="min-height:100vh;background:oklch(0.180 0.008 250);color:oklch(0.915 0.005 250);font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased">
+
+  <header style="display:flex;align-items:center;gap:18px;padding:0 28px;height:60px;background:oklch(0.215 0.008 250);border-bottom:1px solid oklch(0.300 0.009 250);position:sticky;top:0;z-index:20">
+    <div style="display:flex;align-items:center;gap:10px;flex:none">
+      <svg viewBox="0 0 32 32" width="20" height="20" aria-label="Vouch"><path d="M11 6 H5 V26 H11" fill="none" stroke="oklch(0.915 0.005 250)" stroke-width="3"></path><path d="M21 6 H27 V26 H21" fill="none" stroke="oklch(0.915 0.005 250)" stroke-width="3"></path><rect x="13.5" y="6" width="5" height="20" fill="oklch(0.915 0.005 250)"></rect></svg>
+      <span style="font-size:16px;font-weight:500;letter-spacing:0.01em">Vouch</span>
+    </div>
+    <div style="font-size:13px;color:oklch(0.620 0.010 250);flex:none">{{ headerNote }}</div>
+    <div style="flex:1"></div>
+    <div style="display:flex;align-items:center;gap:9px;flex:none">
+      <span style="font-size:12px;color:oklch(0.500 0.010 250)">Show state</span>
+      <div style="display:flex;gap:3px;background:oklch(0.190 0.008 250);padding:3px;border:1px solid oklch(0.300 0.009 250);border-radius:7px">
+        <sc-for list="{{ stateTabs }}" as="t" hint-placeholder-count="7">
+          <button onClick="{{ t.go }}" style="font-size:12px;padding:5px 10px;border:none;border-radius:5px;cursor:pointer;background:{{ t.bg }};color:{{ t.fg }}">{{ t.label }}</button>
+        </sc-for>
+      </div>
+    </div>
+  </header>
+
+  <div style="display:grid;grid-template-columns:332px minmax(0,1fr);align-items:start;max-width:1240px;margin:0 auto">
+
+    <!-- ======================= LEFT: SET UP THE RUN ======================= -->
+    <aside style="border-right:1px solid oklch(0.300 0.009 250);padding:34px 28px 72px;display:flex;flex-direction:column;gap:34px;min-height:calc(100vh - 60px)">
+
+      <section style="display:flex;flex-direction:column;gap:14px">
+        <div style="font-size:12px;font-weight:500;color:oklch(0.620 0.010 250)">Your resume</div>
+
+        <div style="display:{{ dNoResume }};border:1px dashed oklch(0.400 0.011 250);border-radius:8px;padding:26px 18px;text-align:center;background:oklch(0.205 0.008 250)">
+          <div style="font-size:15px;color:oklch(0.915 0.005 250)">Drop a PDF here</div>
+          <div style="font-size:13px;color:oklch(0.560 0.010 250);margin-top:7px">No resume saved yet.</div>
+        </div>
+
+        <div style="display:{{ dResume }};flex-direction:column;gap:10px">
+          <div style="background:oklch(0.250 0.008 250);border-radius:8px;padding:14px 16px">
+            <div style="font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">maya-okonkwo-2026.pdf</div>
+            <div style="font-size:13px;color:oklch(0.620 0.010 250);margin-top:4px">2 pages · 28 lines · your default</div>
+            <button onClick="{{ viewResume }}" style="margin-top:12px;background:none;border:none;padding:0;cursor:pointer;font-size:13px;color:oklch(0.760 0.010 250);text-align:left">See how we read it →</button>
+          </div>
+          <div style="font-size:13px;color:oklch(0.560 0.010 250)">One more saved: maya-2024-archive.pdf</div>
+        </div>
+      </section>
+
+      <section style="display:flex;flex-direction:column;gap:14px">
+        <div style="font-size:12px;font-weight:500;color:oklch(0.620 0.010 250)">The job post</div>
+
+        <div style="display:{{ dNoPost }};border:1px solid oklch(0.340 0.010 250);border-radius:8px;background:oklch(0.205 0.008 250);padding:16px;min-height:140px;font-size:14px;line-height:1.6;color:oklch(0.500 0.010 250)">Paste the whole post here.<br>Including the parts you would rather skip.</div>
+
+        <div style="display:{{ dPost }};flex-direction:column;background:oklch(0.250 0.008 250);border-radius:8px;overflow:hidden">
+          <div style="padding:14px 16px">
+            <div style="font-family:Rockwell,'Bookman Old Style',Georgia,serif;font-weight:700;font-size:16px;line-height:1.3">Senior Platform Engineer</div>
+            <div style="font-size:13px;color:oklch(0.620 0.010 250);margin-top:4px">Halberd · remote in the EU</div>
+          </div>
+          <div style="padding:0 16px 14px;font-size:13px;line-height:1.65;color:oklch(0.620 0.010 250);max-height:92px;overflow:hidden;position:relative">We run settlement and ledger systems for freight marketplaces. You will own services that move real money. We want someone who has done this before, at volume.<div style="position:absolute;inset:auto 0 0 0;height:40px;background:linear-gradient(oklch(0.250 0.008 250 / 0), oklch(0.250 0.008 250))"></div></div>
+          <div style="padding:11px 16px;background:oklch(0.225 0.008 250);font-size:13px;color:oklch(0.620 0.010 250)">9 things they ask for · 5 required, 4 nice to have</div>
+        </div>
+      </section>
+
+      <section style="display:flex;flex-direction:column;gap:11px">
+        <button onClick="{{ primaryAction }}" style="width:100%;padding:14px 16px;border:1px solid {{ runBorder }};border-radius:8px;background:{{ runBg }};color:{{ runFg }};cursor:{{ runCursor }};font-size:15px;font-weight:500;text-align:left;display:flex;align-items:center;justify-content:space-between;gap:10px">
+          <span>{{ runLabel }}</span>
+          <span style="color:{{ runMetaFg }};font-weight:400;font-size:13px">{{ runMeta }}</span>
+        </button>
+        <div style="font-size:13px;line-height:1.55;color:oklch(0.560 0.010 250)">{{ runFootnote }}</div>
+      </section>
+
+      <div style="flex:1"></div>
+
+      <div style="font-size:13px;line-height:1.7;color:oklch(0.540 0.010 250);border-top:1px solid oklch(0.300 0.009 250);padding-top:18px">Everything runs on this computer. Nothing is uploaded. There is no account.</div>
+    </aside>
+
+    <!-- ======================= RIGHT ======================= -->
+    <main style="padding:42px 44px 110px;min-width:0">
+
+      <!-- ---------- NOTHING LOADED ---------- -->
+      <div style="display:{{ dEmpty }};max-width:620px;flex-direction:column">
+        <h1 style="font-family:Rockwell,'Bookman Old Style',Georgia,serif;font-weight:700;font-size:31px;line-height:1.15;margin:0 0 20px">We check every thing the job asks for against one line of your resume.</h1>
+        <p style="margin:0 0 42px;color:oklch(0.760 0.010 250);max-width:50ch;font-size:16px;text-wrap:pretty">If your resume does not show it, we say so and quote nothing. No paragraph telling you that you are still a great fit.</p>
+
+        <div style="font-size:12px;font-weight:500;color:oklch(0.620 0.010 250);margin-bottom:18px">Three answers. Never a fourth.</div>
+        <div style="display:flex;flex-direction:column;gap:26px">
+          <sc-for list="{{ legend }}" as="l" hint-placeholder-count="3">
+            <div style="display:flex;align-items:flex-start;gap:16px">
+              <div style="width:18px;height:18px;position:relative;flex:none;margin-top:4px">
+                <div style="position:absolute;left:0;top:0;bottom:0;width:5px;border:2px solid {{ l.color }};border-right:none;border-radius:2px 0 0 2px"></div>
+                <div style="position:absolute;right:0;top:0;bottom:0;width:5px;border:2px solid {{ l.color }};border-left:none;border-radius:0 2px 2px 0"></div>
+                <div style="position:absolute;left:5px;right:5px;bottom:0;height:{{ l.fill }};background:{{ l.color }}"></div>
+              </div>
+              <div style="min-width:0">
+                <div style="font-size:16px;font-weight:500;color:{{ l.color }}">{{ l.label }}</div>
+                <div style="font-size:15px;color:oklch(0.760 0.010 250);margin-top:5px;max-width:46ch;text-wrap:pretty">{{ l.desc }}</div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+        <p style="margin:42px 0 0;font-size:15px;line-height:1.7;color:oklch(0.620 0.010 250);max-width:44ch">Fit comes back as a word, not a score. A number would sound more exact than it is.</p>
+      </div>
+
+      <!-- ---------- SOMETHING WENT WRONG ---------- -->
+      <div style="display:{{ dError }};max-width:600px;flex-direction:column;border-radius:10px;background:oklch(0.265 0.048 25);padding:28px 30px">
+        <div style="font-size:13px;color:oklch(0.780 0.130 25);margin-bottom:14px">The run stopped · 6 of 9 done</div>
+        <h2 style="font-family:Rockwell,'Bookman Old Style',Georgia,serif;font-weight:700;font-size:22px;line-height:1.25;margin:0 0 14px">The model stopped answering on the seventh thing.</h2>
+        <p style="margin:0;color:oklch(0.940 0.005 250);font-size:16px;text-wrap:pretty">The six answers already on screen are finished. They will not change. Nothing was guessed to fill the gap.</p>
+        <div style="font-size:13px;line-height:1.6;color:oklch(0.800 0.020 25);background:oklch(0.215 0.022 25);border-radius:8px;padding:14px 16px;margin:22px 0 0">The connection closed after 41 seconds, part way through number 7.</div>
+        <div style="display:flex;gap:10px;margin-top:24px;flex-wrap:wrap">
+          <button onClick="{{ primaryAction }}" style="padding:12px 18px;border:none;border-radius:8px;background:oklch(0.915 0.005 250);color:oklch(0.180 0.008 250);cursor:pointer;font-size:15px;font-weight:500">Carry on from number 7</button>
+          <button onClick="{{ goEmpty }}" style="padding:12px 18px;border:1px solid oklch(0.440 0.030 25);border-radius:8px;background:none;color:oklch(0.900 0.010 250);cursor:pointer;font-size:15px">Start again</button>
+        </div>
+      </div>
+
+      <!-- ---------- HOW WE READ YOUR RESUME ---------- -->
+      <div style="display:{{ dResumeView }};max-width:800px;flex-direction:column">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:10px">
+          <h2 style="font-family:Rockwell,'Bookman Old Style',Georgia,serif;font-weight:700;font-size:22px;line-height:1.25;margin:0">maya-okonkwo-2026.pdf</h2>
+          <button onClick="{{ backToRun }}" style="background:none;border:none;padding:0;cursor:pointer;font-size:14px;color:oklch(0.760 0.010 250)">← Back to the answer</button>
+        </div>
+        <p style="margin:0 0 28px;color:oklch(0.700 0.010 250);font-size:15px;max-width:58ch;text-wrap:pretty">This is the text we read, with the line numbers we quote. If a line looks wrong here, that is why an answer looks wrong. The coloured lines were quoted in the last run.</p>
+        <div style="border-radius:10px;background:oklch(0.205 0.008 250);overflow:hidden;padding:16px 0">
+          <sc-for list="{{ resumeLines }}" as="ln" hint-placeholder-count="14">
+            <div style="display:flex;gap:18px;padding:1px 18px 1px 0;background:{{ ln.bg }};border-left:3px solid {{ ln.edge }}">
+              <div style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;line-height:1.95;color:{{ ln.numFg }};width:46px;text-align:right;flex:none;user-select:none">{{ ln.n }}</div>
+              <div style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:13px;line-height:1.95;color:{{ ln.fg }};white-space:pre-wrap;min-width:0">{{ ln.t }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <!-- ---------- THE ANSWER ---------- -->
+      <div style="display:{{ dAudit }};max-width:760px;flex-direction:column">
+
+        <!-- working -->
+        <div style="display:{{ dLive }};flex-direction:column;border-radius:10px;background:oklch(0.265 0.038 330);padding:22px 24px;margin-bottom:34px">
+          <div style="display:flex;align-items:baseline;gap:14px;flex-wrap:wrap">
+            <div style="font-size:13px;color:oklch(0.840 0.110 330)">{{ liveTitle }}</div>
+            <div style="flex:1"></div>
+            <div style="font-size:13px;color:oklch(0.800 0.010 250)">{{ liveMeta }}</div>
+          </div>
+          <div style="font-family:Rockwell,'Bookman Old Style',Georgia,serif;font-weight:700;font-size:20px;line-height:1.3;margin-top:10px">{{ liveHeadline }}</div>
+          <div style="margin-top:18px;height:3px;background:oklch(0.320 0.028 330);overflow:hidden;border-radius:2px">
+            <div style="height:3px;width:26%;background:oklch(0.760 0.130 330);border-radius:2px;animation:vsweep 1.7s linear infinite"></div>
+          </div>
+        </div>
+
+        <!-- ===== LEVEL ONE: the call ===== -->
+        <div style="display:{{ dSummary }};flex-direction:column;opacity:{{ summaryOpacity }}">
+
+          <div style="font-size:12px;font-weight:500;color:oklch(0.620 0.010 250);margin-bottom:12px">Our answer</div>
+          <div style="font-family:Rockwell,'Bookman Old Style',Georgia,serif;font-weight:700;font-size:38px;line-height:1.1;margin-bottom:16px">Worth applying.</div>
+          <p style="margin:0 0 30px;color:oklch(0.940 0.005 250);max-width:52ch;font-size:18px;line-height:1.55;text-wrap:pretty">You can prove the two things this team does every day: Go in production, and being on call for a system that moves money. You cannot prove Kubernetes at all.</p>
+
+          <div style="display:flex;gap:32px;flex-wrap:wrap;padding:20px 0;border-top:1px solid oklch(0.300 0.009 250);border-bottom:1px solid oklch(0.300 0.009 250);margin-bottom:52px">
+            <sc-for list="{{ counts }}" as="c" hint-placeholder-count="3">
+              <div style="display:flex;align-items:center;gap:12px">
+                <div style="width:18px;height:18px;position:relative;flex:none">
+                  <div style="position:absolute;left:0;top:0;bottom:0;width:5px;border:2px solid {{ c.color }};border-right:none;border-radius:2px 0 0 2px"></div>
+                  <div style="position:absolute;right:0;top:0;bottom:0;width:5px;border:2px solid {{ c.color }};border-left:none;border-radius:0 2px 2px 0"></div>
+                  <div style="position:absolute;left:5px;right:5px;bottom:0;height:{{ c.fill }};background:{{ c.color }}"></div>
+                </div>
+                <span style="font-size:22px;color:{{ c.color }}">{{ c.n }}</span>
+                <span style="font-size:15px;color:oklch(0.700 0.010 250)">{{ c.label }}</span>
+              </div>
+            </sc-for>
+          </div>
+
+          <!-- ===== LEVEL TWO: the few things that decide it ===== -->
+          <section style="margin-bottom:52px">
+            <h2 style="font-family:Rockwell,'Bookman Old Style',Georgia,serif;font-weight:700;font-size:23px;line-height:1.3;margin:0 0 6px">They need two things you cannot show</h2>
+            <p style="margin:0 0 22px;color:oklch(0.700 0.010 250);font-size:15px;max-width:54ch">These are the ones that will lose you the job.</p>
+            <div style="display:flex;flex-direction:column;gap:20px">
+              <sc-for list="{{ blockers }}" as="b" hint-placeholder-count="2">
+                <div style="display:flex;gap:16px;align-items:flex-start">
+                  <div style="width:18px;height:18px;position:relative;flex:none;margin-top:4px">
+                    <div style="position:absolute;left:0;top:0;bottom:0;width:5px;border:2px solid oklch(0.620 0.010 250);border-right:none;border-radius:2px 0 0 2px"></div>
+                    <div style="position:absolute;right:0;top:0;bottom:0;width:5px;border:2px solid oklch(0.620 0.010 250);border-left:none;border-radius:0 2px 2px 0"></div>
+                  </div>
+                  <div style="min-width:0">
+                    <div style="font-size:17px;line-height:1.4;text-wrap:pretty">{{ b.text }}</div>
+                    <div style="font-size:15px;color:oklch(0.700 0.010 250);margin-top:5px;max-width:52ch;text-wrap:pretty">{{ b.note }}</div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </section>
+
+          <section style="margin-bottom:52px">
+            <h2 style="font-family:Rockwell,'Bookman Old Style',Georgia,serif;font-weight:700;font-size:23px;line-height:1.3;margin:0 0 6px">This is what proves you fit</h2>
+            <p style="margin:0 0 22px;color:oklch(0.700 0.010 250);font-size:15px;max-width:54ch">Put these near the top of your letter.</p>
+            <div style="display:flex;flex-direction:column;gap:18px">
+              <sc-for list="{{ strengths }}" as="s" hint-placeholder-count="3">
+                <div>
+                  <div style="background:oklch(0.250 0.008 250);border-left:3px solid oklch(0.790 0.125 160);border-radius:0 8px 8px 0;padding:14px 16px">
+                    <div style="font-size:12px;color:oklch(0.620 0.010 250);margin-bottom:7px">{{ s.line }}, word for word</div>
+                    <div style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:13px;line-height:1.7;white-space:pre-wrap">{{ s.quote }}</div>
+                  </div>
+                  <div style="font-size:15px;color:oklch(0.760 0.010 250);margin-top:9px;max-width:52ch;text-wrap:pretty">{{ s.why }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </section>
+
+          <section style="margin-bottom:52px">
+            <h2 style="font-family:Rockwell,'Bookman Old Style',Georgia,serif;font-weight:700;font-size:23px;line-height:1.3;margin:0 0 6px">Fix these lines in your resume</h2>
+            <p style="margin:0 0 22px;color:oklch(0.700 0.010 250);font-size:15px;max-width:56ch;text-wrap:pretty">You have done these things. Your resume says them so quietly that nobody will notice.</p>
+            <div style="display:flex;flex-direction:column;gap:18px">
+              <sc-for list="{{ undersells }}" as="u" hint-placeholder-count="3">
+                <div>
+                  <div style="background:oklch(0.250 0.008 250);border-left:3px solid oklch(0.815 0.125 80);border-radius:0 8px 8px 0;padding:14px 16px">
+                    <div style="font-size:12px;color:oklch(0.620 0.010 250);margin-bottom:7px">{{ u.line }}, as it stands</div>
+                    <div style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:13px;line-height:1.7;white-space:pre-wrap">{{ u.quote }}</div>
+                  </div>
+                  <div style="font-size:15px;color:oklch(0.900 0.005 250);margin-top:9px;max-width:54ch;text-wrap:pretty">{{ u.why }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </section>
+        </div>
+
+        <!-- ===== LEVEL THREE: the working, folded away ===== -->
+        <div style="border-top:1px solid oklch(0.300 0.009 250);padding-top:22px">
+          <button onClick="{{ toggleList }}" style="display:flex;align-items:center;gap:10px;width:100%;background:none;border:none;padding:0;cursor:pointer;color:oklch(0.915 0.005 250);text-align:left">
+            <span style="font-size:13px;color:oklch(0.620 0.010 250);width:14px;flex:none">{{ listChevron }}</span>
+            <span style="font-size:17px;font-weight:500">{{ listTitle }}</span>
+            <span style="flex:1"></span>
+            <span style="font-size:13px;color:oklch(0.620 0.010 250)">{{ streamMeta }}</span>
+          </button>
+          <p style="display:{{ dListHint }};margin:12px 0 0 24px;font-size:14px;color:oklch(0.560 0.010 250);max-width:52ch">Open this when you want to see the working: every thing they asked for, the line we matched it to, and why.</p>
+
+          <div style="display:{{ dList }};flex-direction:column;margin-top:24px">
+            <sc-for list="{{ reqs }}" as="r" hint-placeholder-count="9">
+              <div style="border-radius:10px;background:{{ r.rowBg }};opacity:{{ r.rowOpacity }};padding:20px 22px;margin-bottom:10px">
+                <div style="display:grid;grid-template-columns:18px minmax(0,1fr);gap:0 16px">
+
+                  <div style="width:18px;height:18px;position:relative;flex:none;margin-top:4px;animation:{{ r.markAnim }}">
+                    <div style="position:absolute;left:0;top:0;bottom:0;width:5px;border:2px solid {{ r.color }};border-right:none;border-radius:2px 0 0 2px"></div>
+                    <div style="position:absolute;right:0;top:0;bottom:0;width:5px;border:2px solid {{ r.color }};border-left:none;border-radius:0 2px 2px 0"></div>
+                    <div style="position:absolute;left:5px;right:5px;bottom:0;height:{{ r.fill }};background:{{ r.color }}"></div>
+                  </div>
+
+                  <div style="min-width:0">
+                    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+                      <div style="font-size:17px;line-height:1.4;color:{{ r.textFg }};flex:1 1 auto;min-width:200px;text-wrap:pretty">{{ r.text }}</div>
+                      <div style="font-size:12px;padding:3px 10px;border-radius:999px;background:{{ r.kindBg }};color:{{ r.kindFg }};flex:none">{{ r.kind }}</div>
+                    </div>
+
+                    <div style="display:{{ r.dVerdict }};font-size:14px;font-weight:500;color:{{ r.color }};margin-top:10px">{{ r.verdictLabel }}</div>
+
+                    <div style="display:{{ r.dQuote }};flex-direction:column;background:oklch(0.250 0.008 250);border-left:3px solid {{ r.color }};border-radius:0 8px 8px 0;padding:13px 16px;margin-top:12px">
+                      <div style="font-size:12px;color:oklch(0.620 0.010 250);margin-bottom:7px">{{ r.lineNo }}, word for word</div>
+                      <div style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:13px;line-height:1.7;white-space:pre-wrap;min-width:0">{{ r.quote }}</div>
+                    </div>
+
+                    <div style="display:{{ r.dReason }};font-size:15px;line-height:1.55;color:oklch(0.760 0.010 250);margin-top:12px;max-width:58ch;text-wrap:pretty">{{ r.reason }}</div>
+
+                    <div style="display:{{ r.dTrace }};flex-direction:column;gap:9px;margin-top:14px;border-left:3px solid oklch(0.470 0.080 330);border-radius:2px;padding:2px 0 2px 16px">
+                      <div style="display:{{ r.dTraceBefore }};font-size:14px;line-height:1.65;color:oklch(0.660 0.010 250);white-space:pre-wrap">{{ r.traceBefore }}</div>
+                      <div style="display:{{ r.dTraceDecision }};font-size:15px;line-height:1.55;color:oklch(0.840 0.110 330);white-space:pre-wrap;max-width:50ch">{{ r.traceDecision }}</div>
+                      <div style="display:{{ r.dTraceAfter }};font-size:14px;line-height:1.65;color:oklch(0.660 0.010 250);white-space:pre-wrap">{{ r.traceAfter }}</div>
+                      <div style="display:{{ r.dTrace }};font-size:15px;line-height:1.55;color:oklch(0.940 0.005 250);white-space:pre-wrap;animation:vpulse 1500ms ease-in-out infinite">{{ r.traceActive }}</div>
+                    </div>
+
+                    <div style="display:{{ r.dRerun }};margin-top:14px">
+                      <button onClick="{{ r.rerun }}" style="background:none;border:1px solid oklch(0.330 0.010 250);border-radius:999px;padding:7px 14px;cursor:pointer;font-size:13px;color:oklch(0.700 0.010 250)">Look again at this one</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;state&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;empty&quot;,&quot;ready&quot;,&quot;running&quot;,&quot;done&quot;,&quot;rerun&quot;,&quot;error&quot;,&quot;resume&quot;],&quot;default&quot;:&quot;done&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Which state to show&quot;}}">
+const C = {
+  bg0:'oklch(0.180 0.008 250)', bg1:'oklch(0.215 0.008 250)', bg2:'oklch(0.250 0.008 250)',
+  line:'oklch(0.300 0.009 250)', lineStrong:'oklch(0.400 0.011 250)',
+  ink:'oklch(0.915 0.005 250)', ink2:'oklch(0.760 0.010 250)', ink3:'oklch(0.620 0.010 250)', ink4:'oklch(0.500 0.010 250)',
+  agent:'oklch(0.760 0.130 330)',
+  ev:'oklch(0.790 0.125 160)', pt:'oklch(0.815 0.125 80)', no:'oklch(0.620 0.010 250)'
+};
+
+const V = {
+  shown:  { label:'Your resume shows this', color:C.ev, fill:'100%' },
+  partly: { label:'Your resume shows part of this', color:C.pt, fill:'50%' },
+  not:    { label:'Your resume does not show this', color:C.no, fill:'0%' },
+  queued: { label:'', color:'oklch(0.350 0.010 250)', fill:'0%' }
+};
+
+const REQS = [
+  { text:'Five years or more building backend services that ran in production', kind:'Required', v:'shown',
+    lineNo:'Line 7', quote:'Senior Backend Engineer, Lumen Freight — 2021–present',
+    reason:'Two jobs in a row since 2018. Both backend. Both live systems. Line 19 covers the earlier one.' },
+  { text:'Strong Go, used at work and not only in side projects', kind:'Required', v:'shown',
+    lineNo:'Lines 9 and 10', quote:'- Built and ran the settlement service handling 1.2M\n  transactions a day in Go; owned it end to end for three years.',
+    reason:'It names the language, the system, how big it was and how long you ran it. This is your best line.' },
+  { text:'Kubernetes in production, including writing operators', kind:'Required', v:'not',
+    lineNo:'', quote:'',
+    reason:'Docker is in your skills list on line 25. Kubernetes is not in your resume at all. Nor is Helm, or operators.' },
+  { text:'Were on call for a service the business could not lose', kind:'Required', v:'shown',
+    lineNo:'Lines 11 and 12', quote:'- Primary on-call for settlement for 2.5 years, including the\n  Black Friday 2023 incident (4h, full write-up, 0 lost payments).',
+    reason:'You were the first person called. You name the service, how long, and one bad night with a result.' },
+  { text:'Built and ran a streaming pipeline, such as Kafka or Kinesis', kind:'Required', v:'not',
+    lineNo:'', quote:'',
+    reason:'Line 22 says you moved event handling off cron. It does not say which tool, how much traffic, or what got better. That is not enough.' },
+  { text:'Postgres at scale: tuning queries and running replication', kind:'Nice to have', v:'partly',
+    lineNo:'Lines 13 and 14', quote:'- Led the Postgres 11 to 14 upgrade across 6 services, cut p99\n  read latency 38% by reworking the settlement index strategy.',
+    reason:'Tuning is there, with a number. Replication is not in your resume anywhere, so half of this is missing.' },
+  { text:'Led a move from one big system to smaller services', kind:'Nice to have', v:'shown',
+    lineNo:'Lines 15 and 16', quote:'- Split the billing monolith into three services; the first two\n  shipped, the third is still in progress.',
+    reason:'You led it and you name the system. But the wording works against you. See the lines to fix.' },
+  { text:'Terraform, or another tool that builds infrastructure from code', kind:'Nice to have', v:'not',
+    lineNo:'', quote:'',
+    reason:'AWS and CI/CD are in your skills list on line 25. No tool of this kind is named.' },
+  { text:'Helped other engineers grow', kind:'Nice to have', v:'shown',
+    lineNo:'Line 17', quote:'- Mentored 4 engineers, 2 to senior. Ran the backend onboarding.',
+    reason:'A number and a result, plus you ran something. Keep this line as it is.' }
+];
+
+const RESUME = [
+  'MAYA OKONKWO',
+  'Backend / Platform Engineer — Lisbon',
+  'maya.okonkwo@fastmail.com · github.com/mokonkwo',
+  '',
+  'EXPERIENCE',
+  '',
+  'Senior Backend Engineer, Lumen Freight — 2021–present',
+  'Payments and settlement platform, 40-person engineering org.',
+  '- Built and ran the settlement service handling 1.2M',
+  '  transactions a day in Go; owned it end to end for three years.',
+  '- Primary on-call for settlement for 2.5 years, including the',
+  '  Black Friday 2023 incident (4h, full write-up, 0 lost payments).',
+  '- Led the Postgres 11 to 14 upgrade across 6 services, cut p99',
+  '  read latency 38% by reworking the settlement index strategy.',
+  '- Split the billing monolith into three services; the first two',
+  '  shipped, the third is still in progress.',
+  '- Mentored 4 engineers, 2 to senior. Ran the backend onboarding.',
+  '',
+  'Backend Engineer, Corvid Health — 2018–2021',
+  '- Python/Django services for clinical scheduling.',
+  '- Helped out with our container setup and deploys.',
+  '- Assisted on a project moving event handling off cron.',
+  '',
+  'SKILLS',
+  'Go, Python, SQL, Postgres, Redis, gRPC, Docker, AWS, CI/CD',
+  '',
+  'EDUCATION',
+  'BSc Computer Science, University of Porto, 2018'
+];
+
+const QUOTED = { 7:'ev', 9:'ev', 10:'ev', 11:'ev', 12:'ev', 13:'pt', 14:'pt', 15:'ev', 16:'ev', 17:'ev', 21:'pt', 22:'pt' };
+
+const TABS = [
+  ['empty','Nothing loaded'], ['ready','Ready'], ['running','Working'], ['done','Finished'],
+  ['rerun','Looking again'], ['error','Went wrong'], ['resume','Your resume']
+];
+
+class Component extends DCLogic {
+  state = { view: null, listOpen: null };
+
+  go = (v) => () => this.setState({ view: v, listOpen: null });
+
+  componentDidUpdate(prev) {
+    if (prev.state !== this.props.state) this.setState({ view: null, listOpen: null });
+  }
+
+  renderVals() {
+    const view = this.state.view || this.props.state || 'done';
+    const isEmpty = view === 'empty', isReady = view === 'ready', isRunning = view === 'running',
+          isDone = view === 'done', isRerun = view === 'rerun', isError = view === 'error',
+          isResumeView = view === 'resume';
+    const isAudit = isReady || isRunning || isDone || isRerun;
+
+    const autoOpen = isReady || isRunning || isRerun;
+    const listOpen = this.state.listOpen === null ? autoOpen : this.state.listOpen;
+
+    const runningIdx = isRunning ? 4 : -1;
+    const rerunIdx = isRerun ? 2 : -1;
+
+    const runTrace = {
+      before: 'It searched your resume for: kafka, kinesis, pub/sub, event stream.\nIt found one line that might match: line 22.',
+      decision: '',
+      after: '',
+      active: 'Now reading line 22 to see if it really answers this.'
+    };
+    const rerunTrace = {
+      before: 'First answer: not shown. Only the word "Docker" on line 25 matched.',
+      decision: 'One word is not enough for something they require. It is searching again, with different words.',
+      after: 'It searched again for: k8s, helm, EKS, container orchestration, cluster.\nIt found three lines that might match: 20, 21 and 25.',
+      active: 'Now reading line 21: "Helped out with our container setup and deploys."'
+    };
+
+    const reqs = REQS.map((r, i) => {
+      let vkey = r.v, status = 'done';
+      if (isReady) { vkey = 'queued'; status = 'waiting'; }
+      else if (isRunning) {
+        if (i > runningIdx) { vkey = 'queued'; status = 'waiting'; }
+        else if (i === runningIdx) { vkey = 'queued'; status = 'working'; }
+      } else if (isRerun && i === rerunIdx) { vkey = 'queued'; status = 'working'; }
+
+      const vd = V[vkey];
+      const working = status === 'working';
+      const waiting = status === 'waiting';
+      const tr = isRerun ? rerunTrace : runTrace;
+      const none = (s) => (s ? 'block' : 'none');
+
+      return {
+        text: r.text,
+        kind: r.kind,
+        kindBg: waiting ? 'oklch(0.235 0.008 250)' : 'oklch(0.265 0.008 250)',
+        kindFg: waiting ? 'oklch(0.660 0.010 250)' : C.ink3,
+        color: working ? C.agent : vd.color,
+        fill: working ? '0%' : vd.fill,
+        markAnim: working ? 'vpulse 1500ms ease-in-out infinite' : 'none',
+        textFg: waiting ? 'oklch(0.700 0.010 250)' : C.ink,
+        rowBg: working ? 'oklch(0.245 0.026 330)' : 'oklch(0.212 0.008 250)',
+        rowOpacity: (isRerun && i !== rerunIdx) ? 0.5 : 1,
+        verdictLabel: vd.label,
+        quote: r.quote || ' ',
+        lineNo: r.lineNo || ' ',
+        reason: r.reason,
+        dVerdict: status === 'done' ? 'block' : 'none',
+        dQuote: (status === 'done' && r.quote) ? 'flex' : 'none',
+        dReason: status === 'done' ? 'block' : 'none',
+        dTrace: working ? 'flex' : 'none',
+        dTraceBefore: working ? none(tr.before) : 'none',
+        dTraceDecision: working ? none(tr.decision) : 'none',
+        dTraceAfter: working ? none(tr.after) : 'none',
+        traceBefore: tr.before || ' ',
+        traceDecision: tr.decision || ' ',
+        traceAfter: tr.after || ' ',
+        traceActive: tr.active,
+        dRerun: (status === 'done' && (isDone || isRerun)) ? 'block' : 'none',
+        rerun: this.go('rerun')
+      };
+    });
+
+    const resumeLines = RESUME.map((t, i) => {
+      const n = i + 1, q = QUOTED[n];
+      return {
+        n: String(n),
+        t: t === '' ? ' ' : t,
+        bg: q ? (q === 'ev' ? 'oklch(0.238 0.016 160)' : 'oklch(0.242 0.016 80)') : 'transparent',
+        edge: q ? (q === 'ev' ? C.ev : C.pt) : 'transparent',
+        fg: t === '' ? C.ink4 : C.ink,
+        numFg: q ? C.ink2 : C.ink4
+      };
+    });
+
+    const runCfg = {
+      empty:   { label:'Check my fit', meta:'', bg:'transparent', fg:C.ink4, border:'oklch(0.270 0.009 250)', cursor:'not-allowed', foot:'Add a resume and paste a job post first.' },
+      ready:   { label:'Check my fit', meta:'about 1 minute', bg:C.ink, fg:C.bg0, border:C.ink, cursor:'pointer', foot:'You click this every time. It takes about a minute and it costs money.' },
+      running: { label:'Stop', meta:'41 seconds so far', bg:'transparent', fg:C.agent, border:'oklch(0.470 0.080 330)', cursor:'pointer', foot:'Answers already on screen will stay.' },
+      done:    { label:'Check it again', meta:'about 1 minute', bg:'transparent', fg:C.ink2, border:C.lineStrong, cursor:'pointer', foot:'Or look again at one single thing, further down.' },
+      rerun:   { label:'Check it again', meta:'', bg:'transparent', fg:C.ink4, border:'oklch(0.270 0.009 250)', cursor:'not-allowed', foot:'One thing is being looked at again. The other eight answers do not change.' },
+      error:   { label:'Check my fit', meta:'about 1 minute', bg:C.ink, fg:C.bg0, border:C.ink, cursor:'pointer', foot:'Six answers survived the failure.' },
+      resume:  { label:'Check my fit', meta:'about 1 minute', bg:C.ink, fg:C.bg0, border:C.ink, cursor:'pointer', foot:'Reading your resume here changes nothing.' }
+    }[view];
+
+    const headerNote = {
+      empty:'Nothing loaded yet', ready:'Ready. Nothing sent anywhere yet', running:'Working · 5 of 9',
+      done:'Finished · 9 of 9', rerun:'Looking again at Kubernetes', error:'Stopped at 6 of 9',
+      resume:'How we read your resume'
+    }[view];
+
+    return {
+      stateTabs: TABS.map(([v, label]) => ({
+        label, go: this.go(v),
+        bg: v === view ? C.ink : 'transparent',
+        fg: v === view ? C.bg0 : C.ink3
+      })),
+      headerNote,
+      dEmpty: isEmpty ? 'flex' : 'none',
+      dError: isError ? 'flex' : 'none',
+      dResumeView: isResumeView ? 'flex' : 'none',
+      dAudit: isAudit ? 'flex' : 'none',
+      dNoResume: isEmpty ? 'block' : 'none',
+      dResume: isEmpty ? 'none' : 'flex',
+      dNoPost: isEmpty ? 'block' : 'none',
+      dPost: isEmpty ? 'none' : 'flex',
+      viewResume: this.go('resume'),
+      backToRun: this.go('done'),
+      goEmpty: this.go('empty'),
+      primaryAction: () => this.setState({ view: isRunning ? 'done' : 'running', listOpen: null }),
+      runLabel: runCfg.label, runMeta: runCfg.meta, runBg: runCfg.bg, runFg: runCfg.fg,
+      runBorder: runCfg.border, runCursor: runCfg.cursor, runFootnote: runCfg.foot,
+      runMetaFg: runCfg.bg === C.ink ? 'oklch(0.440 0.010 250)' : C.ink4,
+
+      dLive: (isRunning || isRerun) ? 'flex' : 'none',
+      liveTitle: isRerun ? 'It changed its mind' : 'Working',
+      liveMeta: isRerun ? 'Second try' : '41 seconds · 4 of 9 done',
+      liveHeadline: isRerun
+        ? 'It threw away its own answer on Kubernetes and is searching again.'
+        : 'Looking for anything about streaming pipelines.',
+
+      dSummary: (isDone || isRerun) ? 'flex' : 'none',
+      summaryOpacity: isRerun ? 0.45 : 1,
+
+      toggleList: () => this.setState({ listOpen: !listOpen }),
+      listOpen,
+      dList: listOpen ? 'flex' : 'none',
+      dListHint: listOpen ? 'none' : 'block',
+      listChevron: listOpen ? '▾' : '▸',
+      listTitle: 'All nine things they asked for',
+      streamMeta: isReady ? 'none checked yet'
+        : isRunning ? '4 done · 1 in hand · 4 waiting'
+        : isRerun ? '8 settled · 1 being looked at again'
+        : '9 of 9 checked',
+
+      counts: [
+        { n:'5', label:'your resume shows', color:C.ev, fill:'100%' },
+        { n:'1', label:'shows part of it', color:C.pt, fill:'50%' },
+        { n:'3', label:'does not show', color:C.no, fill:'0%' }
+      ],
+
+      blockers: [
+        { text:'Kubernetes in production, including writing operators',
+          note:'Nothing in your resume touches this. Do not talk around it. They will ask.' },
+        { text:'Built and ran a streaming pipeline',
+          note:'Line 22 comes close, but it is too vague. You can fix that line.' }
+      ],
+
+      strengths: [
+        { line:'Lines 11 and 12', quote:'- Primary on-call for settlement for 2.5 years, including the\n  Black Friday 2023 incident (4h, full write-up, 0 lost payments).',
+          why:'Say this first. They run systems that move money, and you have been the person called at night.' },
+        { line:'Lines 9 and 10', quote:'- Built and ran the settlement service handling 1.2M\n  transactions a day in Go; owned it end to end for three years.',
+          why:'Their language, their kind of system, and a real number. Say it in your first paragraph.' },
+        { line:'Lines 13 and 14', quote:'- Led the Postgres 11 to 14 upgrade across 6 services, cut p99\n  read latency 38% by reworking the settlement index strategy.',
+          why:'A change you made and a number that got better. Good for the question about hard problems.' }
+      ],
+
+      undersells: [
+        { line:'Line 22', quote:'- Assisted on a project moving event handling off cron.',
+          why:'This is the closest you get to what they asked for. It says almost nothing. Add: which queue, how much traffic, what got better.' },
+        { line:'Line 21', quote:'- Helped out with our container setup and deploys.',
+          why:'"Helped out with" does not prove anything. Say what you built or ran, and what ran on it.' },
+        { line:'Line 16', quote:'  shipped, the third is still in progress.',
+          why:'"Still in progress" sounds unfinished. You shipped two of three. Say that instead.' }
+      ],
+
+      legend: [
+        { label:'Your resume shows this', color:C.ev, fill:'100%',
+          desc:'One line proves it. We quote that line and give its number.' },
+        { label:'Your resume shows part of this', color:C.pt, fill:'50%',
+          desc:'Part of it is proved. We tell you which part is missing.' },
+        { label:'Your resume does not show this', color:C.no, fill:'0%',
+          desc:'Nothing in your resume proves it, so we quote nothing. That is an answer, not a gap to fill.' }
+      ],
+
+      reqs,
+      resumeLines
+    };
+  }
+}
+</script>
+</body>
+</html>

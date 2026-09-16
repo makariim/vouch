@@ -1,0 +1,21 @@
+<!--
+  Vouch — the 16px cut.
+
+  Its real home is a browser toolbar, so it is four straight strokes and
+  nothing else, drawn on its own dark tile. Stroke weights are its own: this
+  is not mark.svg scaled down, and scaling mark.svg down instead will blur it.
+
+  Colours are baked rather than inherited because a toolbar and a browser tab
+  give it no colour to inherit. They are --v-bg-1 and --v-ink, flattened to
+  hex for the same reason.
+
+  When a job post is on the page, the extension draws a 7px --v-agent dot over
+  the bottom-right corner. That dot is drawn by the extension, not by this
+  file. When Vouch is asleep the whole mark goes to --v-ink-520.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" role="img" aria-label="Vouch">
+  <rect width="16" height="16" fill="#22262e"/>
+  <path d="M5.5 3 H2.5 V13 H5.5" fill="none" stroke="#f4f5f7" stroke-width="1.5"/>
+  <path d="M10.5 3 H13.5 V13 H10.5" fill="none" stroke="#f4f5f7" stroke-width="1.5"/>
+  <rect x="7" y="3" width="2" height="10" fill="#f4f5f7"/>
+</svg>

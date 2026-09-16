@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+  html, body { margin:0; padding:0; background:oklch(0.145 0.006 250); }
+  * { box-sizing:border-box; }
+  a { color:oklch(0.760 0.130 330); text-decoration:none; }
+  button { font:inherit; }
+  @keyframes vpulse { 0%,100% { opacity:0.45; } 50% { opacity:1; } }
+  @keyframes vsweep { 0% { transform:translateX(-100%); } 100% { transform:translateX(320%); } }
+</style>
+</helmet>
+
+<div style="min-height:100vh;background:oklch(0.145 0.006 250);color:oklch(0.915 0.005 250);font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:15px;line-height:1.6;padding:48px 40px 110px;-webkit-font-smoothing:antialiased">
+
+  <div style="max-width:1340px;margin:0 auto">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+      <svg viewBox="0 0 32 32" width="18" height="18" aria-label="Vouch"><path d="M11 6 H5 V26 H11" fill="none" stroke="oklch(0.915 0.005 250)" stroke-width="3"></path><path d="M21 6 H27 V26 H21" fill="none" stroke="oklch(0.915 0.005 250)" stroke-width="3"></path><rect x="13.5" y="6" width="5" height="20" fill="oklch(0.915 0.005 250)"></rect></svg>
+      <span style="font-size:16px;font-weight:500">Vouch · the panel</span>
+    </div>
+    <p style="margin:0 0 44px;font-size:15px;line-height:1.65;color:oklch(0.660 0.010 250);max-width:64ch;text-wrap:pretty">380 pixels wide. Chrome decides that, not us. This is where most people will read the answer, so the panel carries all of it. The full page is only for when you want to see the working.</p>
+
+    <div style="display:flex;flex-wrap:wrap;gap:52px 40px;align-items:flex-start">
+
+      <!-- ============ 04 · THE WHOLE ANSWER (the main one) ============ -->
+      <div style="width:380px;flex:none">
+        <div style="margin-bottom:14px">
+          <div style="font-size:15px;font-weight:500">The answer, in the panel</div>
+          <div style="font-size:13px;color:oklch(0.560 0.010 250);margin-top:2px">Everything you need to decide and to write. It scrolls in Chrome.</div>
+        </div>
+        <div style="background:oklch(0.215 0.008 250);border-radius:12px;overflow:hidden">
+
+          <div style="padding:15px 18px;display:flex;align-items:center;gap:10px;border-bottom:1px solid oklch(0.285 0.009 250)">
+            <svg viewBox="0 0 32 32" width="15" height="15" aria-label="Vouch"><path d="M11 6 H5 V26 H11" fill="none" stroke="oklch(0.915 0.005 250)" stroke-width="3"></path><path d="M21 6 H27 V26 H21" fill="none" stroke="oklch(0.915 0.005 250)" stroke-width="3"></path><rect x="13.5" y="6" width="5" height="20" fill="oklch(0.915 0.005 250)"></rect></svg>
+            <span style="font-size:14px;font-weight:500">Vouch</span>
+            <div style="flex:1"></div>
+            <span style="font-size:12px;color:oklch(0.560 0.010 250)">Checked in 58 seconds</span>
+          </div>
+
+          <!-- level one -->
+          <div style="padding:22px 18px 20px">
+            <div style="font-family:Rockwell,'Bookman Old Style',Georgia,serif;font-weight:700;font-size:28px;line-height:1.1">Worth applying.</div>
+            <p style="margin:11px 0 0;font-size:15px;line-height:1.5;color:oklch(0.940 0.005 250);text-wrap:pretty">You can prove the two things they do every day. You cannot prove Kubernetes at all.</p>
+            <div style="display:flex;flex-direction:column;gap:11px;margin-top:20px;padding-top:18px;border-top:1px solid oklch(0.285 0.009 250)">
+              <sc-for list="{{ counts }}" as="c" hint-placeholder-count="3">
+                <div style="display:flex;align-items:center;gap:11px">
+                  <div style="width:15px;height:15px;position:relative;flex:none">
+                    <div style="position:absolute;left:0;top:0;bottom:0;width:4px;border:2px solid {{ c.color }};border-right:none;border-radius:2px 0 0 2px"></div>
+                    <div style="position:absolute;right:0;top:0;bottom:0;width:4px;border:2px solid {{ c.color }};border-left:none;border-radius:0 2px 2px 0"></div>
+                    <div style="position:absolute;left:4px;right:4px;bottom:0;height:{{ c.fill }};background:{{ c.color }}"></div>
+                  </div>
+                  <span style="font-size:16px;color:{{ c.color }};width:14px;flex:none">{{ c.n }}</span>
+                  <span style="font-size:14px;color:oklch(0.720 0.010 250)">{{ c.label }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <!-- level two: cannot show -->
+          <div style="padding:20px 18px;border-top:1px solid oklch(0.285 0.009 250)">
+            <div style="font-family:Rockwell,'Bookman Old Style',Georgia,serif;font-weight:700;font-size:17px;line-height:1.3;margin-bottom:14px">They need two things you cannot show</div>
+            <div style="display:flex;flex-direction:column;gap:14px">
+              <sc-for list="{{ blockers }}" as="b" hint-placeholder-count="2">
+                <div style="display:flex;gap:12px;align-items:flex-start">
+                  <div style="width:15px;height:15px;position:relative;flex:none;margin-top:3px">
+                    <div style="position:absolute;left:0;top:0;bottom:0;width:4px;border:2px solid oklch(0.620 0.010 250);border-right:none;border-radius:2px 0 0 2px"></div>
+                    <div style="position:absolute;right:0;top:0;bottom:0;width:4px;border:2px solid oklch(0.620 0.010 250);border-left:none;border-radius:0 2px 2px 0"></div>
+                  </div>
+                  <div style="min-width:0">
+                    <div style="font-size:14px;line-height:1.45;text-wrap:pretty">{{ b.text }}</div>
+                    <div style="font-size:13px;line-height:1.5;color:oklch(0.680 0.010 250);margin-top:3px;text-wrap:pretty">{{ b.note }}</div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <!-- level two: proves you fit -->
+          <div style="padding:20px 18px;border-top:1px solid oklch(0.285 0.009 250)">
+            <div style="font-family:Rockwell,'Bookman Old Style',Georgia,serif;font-weight:700;font-size:17px;line-height:1.3;margin-bottom:14px">This is what proves you fit</div>
+            <div style="display:flex;flex-direction:column;gap:16px">
+              <sc-for list="{{ strengths }}" as="s" hint-placeholder-count="3">
+                <div>
+                  <div style="background:oklch(0.252 0.008 250);border-left:3px solid oklch(0.790 0.125 160);border-radius:0 8px 8px 0;padding:11px 13px">
+                    <div style="font-size:11px;color:oklch(0.600 0.010 250);margin-bottom:5px">{{ s.line }}, word for word</div>
+                    <div style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;line-height:1.65;white-space:pre-wrap">{{ s.quote }}</div>
+                  </div>
+                  <div style="font-size:13px;line-height:1.5;color:oklch(0.720 0.010 250);margin-top:7px;text-wrap:pretty">{{ s.why }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <!-- level two: lines to fix -->
+          <div style="padding:20px 18px;border-top:1px solid oklch(0.285 0.009 250)">
+            <div style="font-family:Rockwell,'Bookman Old Style',Georgia,serif;font-weight:700;font-size:17px;line-height:1.3">Fix these lines in your resume</div>
+            <p style="margin:6px 0 14px;font-size:13px;line-height:1.5;color:oklch(0.680 0.010 250);text-wrap:pretty">You have done these things. Your resume says them so quietly that nobody will notice.</p>
+            <div style="display:flex;flex-direction:column;gap:16px">
+              <sc-for list="{{ undersells }}" as="u" hint-placeholder-count="3">
+                <div>
+                  <div style="background:oklch(0.252 0.008 250);border-left:3px solid oklch(0.815 0.125 80);border-radius:0 8px 8px 0;padding:11px 13px">
+                    <div style="font-size:11px;color:oklch(0.600 0.010 250);margin-bottom:5px">{{ u.line }}, as it stands</div>
+                    <div style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;line-height:1.65;white-space:pre-wrap">{{ u.quote }}</div>
+                  </div>
+                  <div style="font-size:13px;line-height:1.5;color:oklch(0.900 0.005 250);margin-top:7px;text-wrap:pretty">{{ u.why }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <!-- level three, folded away, opens here -->
+          <div style="padding:16px 18px;border-top:1px solid oklch(0.285 0.009 250)">
+            <button onClick="{{ toggleAll }}" style="display:flex;align-items:center;gap:9px;width:100%;background:none;border:none;padding:0;cursor:pointer;color:oklch(0.915 0.005 250);text-align:left">
+              <span style="font-size:12px;color:oklch(0.600 0.010 250);width:12px;flex:none">{{ chevron }}</span>
+              <span style="font-size:14px;font-weight:500">All nine things they asked for</span>
+            </button>
+            <div style="display:{{ dAll }};flex-direction:column;gap:12px;margin-top:16px">
+              <sc-for list="{{ allReqs }}" as="r" hint-placeholder-count="9">
+                <div style="display:flex;gap:11px;align-items:flex-start">
+                  <div style="width:15px;height:15px;position:relative;flex:none;margin-top:3px">
+                    <div style="position:absolute;left:0;top:0;bottom:0;width:4px;border:2px solid {{ r.color }};border-right:none;border-radius:2px 0 0 2px"></div>
+                    <div style="position:absolute;right:0;top:0;bottom:0;width:4px;border:2px solid {{ r.color }};border-left:none;border-radius:0 2px 2px 0"></div>
+                    <div style="position:absolute;left:4px;right:4px;bottom:0;height:{{ r.fill }};background:{{ r.color }}"></div>
+                  </div>
+                  <div style="min-width:0">
+                    <div style="font-size:14px;line-height:1.45;text-wrap:pretty">{{ r.text }}</div>
+                    <div style="font-size:12px;color:oklch(0.600 0.010 250);margin-top:2px">{{ r.meta }}</div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="padding:16px 18px;border-top:1px solid oklch(0.285 0.009 250)">
+            <a href="#" style="font-size:13px;color:oklch(0.660 0.010 250)">See the working in the full app →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ 03 · QUICK CHECK ============ -->
+      <div style="width:380px;flex:none">
+        <div style="margin-bottom:14px">
+          <div style="font-size:15px;font-weight:500">Before you spend a minute</div>
+          <div style="font-size:13px;color:oklch(0.560 0.010 250);margin-top:2px">Free, instant, on your own computer.</div>
+        </div>
+        <div style="background:oklch(0.215 0.008 250);border-radius:12px;overflow:hidden">
+          <div style="padding:15px 18px;display:flex;align-items:center;gap:10px;border-bottom:1px solid oklch(0.285 0.009 250)">
+            <svg viewBox="0 0 32 32" width="15" height="15" aria-label="Vouch"><path d="M11 6 H5 V26 H11" fill="none" stroke="oklch(0.915 0.005 250)" stroke-width="3"></path><path d="M21 6 H27 V26 H21" fill="none" stroke="oklch(0.915 0.005 250)" stroke-width="3"></path><rect x="13.5" y="6" width="5" height="20" fill="oklch(0.915 0.005 250)"></rect></svg>
+            <span style="font-size:14px;font-weight:500">Vouch</span>
+            <div style="flex:1"></div>
+            <span style="font-size:12px;color:oklch(0.560 0.010 250);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:150px">maya-okonkwo-2026.pdf</span>
+          </div>
+          <div style="padding:22px 18px 20px">
+            <div style="font-size:13px;color:oklch(0.660 0.010 250)">Quick word match, on this computer</div>
+            <div style="display:flex;align-items:baseline;gap:9px;margin-top:8px">
+              <span style="font-size:36px;line-height:1;font-weight:500">6</span>
+              <span style="font-size:20px;line-height:1;color:oklch(0.540 0.010 250)">of 9</span>
+            </div>
+            <div style="font-size:15px;color:oklch(0.900 0.005 250);margin-top:8px">things they ask for look possible</div>
+            <div style="display:flex;gap:4px;margin-top:18px">
+              <sc-for list="{{ signalTicks }}" as="s" hint-placeholder-count="9">
+                <div style="flex:1;height:7px;border-radius:4px;background:{{ s.bg }}"></div>
+              </sc-for>
+            </div>
+            <div style="font-size:13px;line-height:1.5;color:oklch(0.620 0.010 250);margin-top:14px">This is only a word match. Nothing has been read or judged yet.</div>
+          </div>
+          <div style="padding:0 18px 20px">
+            <button style="width:100%;padding:14px 16px;background:oklch(0.915 0.005 250);color:oklch(0.180 0.008 250);border:none;border-radius:8px;cursor:pointer;font-size:15px;font-weight:500;display:flex;justify-content:space-between;align-items:center;gap:8px">
+              <span>Check my fit properly</span>
+              <span style="font-weight:400;font-size:13px;color:oklch(0.440 0.010 250)">about 1 minute</span>
+            </button>
+            <div style="font-size:13px;line-height:1.5;color:oklch(0.620 0.010 250);margin-top:11px">It reads every line and quotes what it finds. It costs money, so it never starts on its own.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ 02 · FOUND A JOB POST ============ -->
+      <div style="width:380px;flex:none">
+        <div style="margin-bottom:14px">
+          <div style="font-size:15px;font-weight:500">It found a job post</div>
+          <div style="font-size:13px;color:oklch(0.560 0.010 250);margin-top:2px">Nobody clicked anything.</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;height:38px;padding:0 14px;background:oklch(0.245 0.006 250);border-radius:10px 10px 0 0">
+          <div style="position:relative;width:16px;height:16px;flex:none">
+            <svg viewBox="0 0 16 16" width="16" height="16" aria-label="Vouch"><path d="M5.5 3 H2.5 V13 H5.5" fill="none" stroke="oklch(0.915 0.005 250)" stroke-width="1.5"></path><path d="M10.5 3 H13.5 V13 H10.5" fill="none" stroke="oklch(0.915 0.005 250)" stroke-width="1.5"></path><rect x="7" y="3" width="2" height="10" fill="oklch(0.915 0.005 250)"></rect></svg>
+            <div style="position:absolute;right:-2px;bottom:-2px;width:7px;height:7px;border-radius:999px;background:oklch(0.760 0.130 330);border:1.5px solid oklch(0.245 0.006 250)"></div>
+          </div>
+          <span style="font-size:12px;color:oklch(0.720 0.010 250)">The toolbar icon lights up. One dot. No pop-up.</span>
+        </div>
+        <div style="background:oklch(0.215 0.008 250);border-radius:0 0 12px 12px;overflow:hidden">
+          <div style="padding:18px;border-bottom:1px solid oklch(0.285 0.009 250)">
+            <div style="font-size:13px;color:oklch(0.620 0.010 250);margin-bottom:6px">On this page</div>
+            <div style="font-family:Rockwell,'Bookman Old Style',Georgia,serif;font-weight:700;font-size:18px;line-height:1.3">Senior Platform Engineer</div>
+            <div style="font-size:13px;color:oklch(0.660 0.010 250);margin-top:4px">Halberd · 9 things they ask for</div>
+          </div>
+          <div style="padding:20px 18px">
+            <div style="font-size:15px;color:oklch(0.840 0.110 330);animation:vpulse 1500ms ease-in-out infinite">Checking your resume on this computer…</div>
+            <div style="margin-top:14px;height:3px;border-radius:2px;background:oklch(0.320 0.028 330);overflow:hidden">
+              <div style="height:3px;width:30%;border-radius:2px;background:oklch(0.760 0.130 330);animation:vsweep 1.2s linear infinite"></div>
+            </div>
+            <div style="font-size:13px;line-height:1.5;color:oklch(0.620 0.010 250);margin-top:14px">Nothing was sent anywhere. This part is free and takes no time.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ 01 · NO JOB POST ============ -->
+      <div style="width:380px;flex:none">
+        <div style="margin-bottom:14px">
+          <div style="font-size:15px;font-weight:500">No job post on this page</div>
+          <div style="font-size:13px;color:oklch(0.560 0.010 250);margin-top:2px">The icon stays quiet.</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;height:38px;padding:0 14px;background:oklch(0.245 0.006 250);border-radius:10px 10px 0 0">
+          <svg viewBox="0 0 16 16" width="16" height="16" aria-label="Vouch"><path d="M5.5 3 H2.5 V13 H5.5" fill="none" stroke="oklch(0.520 0.010 250)" stroke-width="1.5"></path><path d="M10.5 3 H13.5 V13 H10.5" fill="none" stroke="oklch(0.520 0.010 250)" stroke-width="1.5"></path><rect x="7" y="3" width="2" height="10" fill="oklch(0.520 0.010 250)"></rect></svg>
+          <span style="font-size:12px;color:oklch(0.540 0.010 250)">Grey. No dot.</span>
+        </div>
+        <div style="background:oklch(0.215 0.008 250);border-radius:0 0 12px 12px;padding:34px 18px 26px">
+          <div style="display:flex;justify-content:center;margin-bottom:20px">
+            <div style="width:18px;height:18px;position:relative;opacity:0.45">
+              <div style="position:absolute;left:0;top:0;bottom:0;width:5px;border:2px solid oklch(0.500 0.010 250);border-right:none;border-radius:2px 0 0 2px"></div>
+              <div style="position:absolute;right:0;top:0;bottom:0;width:5px;border:2px solid oklch(0.500 0.010 250);border-left:none;border-radius:0 2px 2px 0"></div>
+            </div>
+          </div>
+          <div style="text-align:center;font-size:15px;color:oklch(0.900 0.005 250)">No job post on this page.</div>
+          <div style="text-align:center;font-size:13px;line-height:1.55;color:oklch(0.600 0.010 250);margin-top:8px">We watch for one. We will tell you without being asked.</div>
+          <div style="margin-top:28px;padding-top:16px;border-top:1px solid oklch(0.285 0.009 250);display:flex;justify-content:space-between;align-items:baseline;gap:10px">
+            <span style="font-size:12px;color:oklch(0.560 0.010 250);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">maya-okonkwo-2026.pdf</span>
+            <a href="#" style="font-size:12px;color:oklch(0.640 0.010 250);flex:none">Open the app</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ 05 · NO RESUME SAVED ============ -->
+      <div style="width:380px;flex:none">
+        <div style="margin-bottom:14px">
+          <div style="font-size:15px;font-weight:500">No resume saved yet</div>
+          <div style="font-size:13px;color:oklch(0.560 0.010 250);margin-top:2px">First run, or the file was removed.</div>
+        </div>
+        <div style="background:oklch(0.215 0.008 250);border-radius:12px;overflow:hidden">
+          <div style="padding:15px 18px;display:flex;align-items:center;gap:10px;border-bottom:1px solid oklch(0.285 0.009 250)">
+            <svg viewBox="0 0 32 32" width="15" height="15" aria-label="Vouch"><path d="M11 6 H5 V26 H11" fill="none" stroke="oklch(0.915 0.005 250)" stroke-width="3"></path><path d="M21 6 H27 V26 H21" fill="none" stroke="oklch(0.915 0.005 250)" stroke-width="3"></path><rect x="13.5" y="6" width="5" height="20" fill="oklch(0.915 0.005 250)"></rect></svg>
+            <span style="font-size:14px;font-weight:500">Vouch</span>
+            <div style="flex:1"></div>
+            <span style="font-size:12px;color:oklch(0.600 0.010 250)">No resume</span>
+          </div>
+          <div style="padding:18px;border-bottom:1px solid oklch(0.285 0.009 250)">
+            <div style="font-size:13px;color:oklch(0.620 0.010 250);margin-bottom:6px">On this page</div>
+            <div style="font-family:Rockwell,'Bookman Old Style',Georgia,serif;font-weight:700;font-size:18px;line-height:1.3">Senior Platform Engineer</div>
+            <div style="font-size:13px;color:oklch(0.660 0.010 250);margin-top:4px">Halberd · 9 things they ask for</div>
+          </div>
+          <div style="padding:22px 18px">
+            <div style="border:1px dashed oklch(0.400 0.011 250);border-radius:10px;padding:24px 16px;text-align:center;background:oklch(0.205 0.008 250)">
+              <div style="font-size:15px;line-height:1.5;color:oklch(0.915 0.005 250)">There is nothing to check the job against.</div>
+              <div style="font-size:13px;line-height:1.55;color:oklch(0.600 0.010 250);margin-top:8px">Save one resume and this panel works on every job board.</div>
+            </div>
+            <button style="width:100%;margin-top:14px;padding:14px 16px;background:oklch(0.915 0.005 250);border:none;border-radius:8px;color:oklch(0.180 0.008 250);cursor:pointer;font-size:15px;font-weight:500">Choose a resume</button>
+            <div style="font-size:13px;line-height:1.5;color:oklch(0.620 0.010 250);margin-top:11px">Saved on this computer only. There is no account to make.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ 06 · APP NOT RUNNING ============ -->
+      <div style="width:380px;flex:none">
+        <div style="margin-bottom:14px">
+          <div style="font-size:15px;font-weight:500">Vouch is not running</div>
+          <div style="font-size:13px;color:oklch(0.560 0.010 250);margin-top:2px">The panel has no brain without the app.</div>
+        </div>
+        <div style="background:oklch(0.215 0.008 250);border-radius:12px;overflow:hidden">
+          <div style="padding:15px 18px;display:flex;align-items:center;gap:10px;border-bottom:1px solid oklch(0.285 0.009 250)">
+            <svg viewBox="0 0 32 32" width="15" height="15" aria-label="Vouch"><path d="M11 6 H5 V26 H11" fill="none" stroke="oklch(0.600 0.010 250)" stroke-width="3"></path><path d="M21 6 H27 V26 H21" fill="none" stroke="oklch(0.600 0.010 250)" stroke-width="3"></path><rect x="13.5" y="6" width="5" height="20" fill="oklch(0.600 0.010 250)"></rect></svg>
+            <span style="font-size:14px;font-weight:500;color:oklch(0.600 0.010 250)">Vouch</span>
+            <div style="flex:1"></div>
+            <span style="font-size:12px;color:oklch(0.780 0.130 25)">Not connected</span>
+          </div>
+          <div style="padding:24px 18px">
+            <div style="font-family:Rockwell,'Bookman Old Style',Georgia,serif;font-weight:700;font-size:18px;line-height:1.3">Vouch is not running on this computer.</div>
+            <p style="margin:11px 0 0;font-size:15px;line-height:1.5;color:oklch(0.780 0.010 250);text-wrap:pretty">The panel cannot judge anything without it. Everything happens on your computer, so there is no server to fall back on.</p>
+            <div style="font-size:13px;line-height:1.55;color:oklch(0.800 0.020 25);background:oklch(0.225 0.028 25);border-radius:8px;padding:12px 14px;margin:18px 0 0">We tried to reach the app and got nothing. Last seen two days ago.</div>
+            <div style="display:flex;gap:9px;margin-top:16px;flex-wrap:wrap">
+              <button style="flex:1 1 auto;padding:13px 14px;background:oklch(0.915 0.005 250);border:none;border-radius:8px;color:oklch(0.180 0.008 250);cursor:pointer;font-size:14px;font-weight:500">Open Vouch</button>
+              <button style="flex:1 1 auto;padding:13px 14px;background:none;border:1px solid oklch(0.380 0.011 250);border-radius:8px;color:oklch(0.860 0.008 250);cursor:pointer;font-size:14px">Try again</button>
+            </div>
+            <div style="font-size:13px;line-height:1.5;color:oklch(0.620 0.010 250);margin-top:13px">We can still spot job posts while it is off. We cannot judge them.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;signalMatched&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:6,&quot;min&quot;:0,&quot;max&quot;:9,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Quick check&quot;}}">
+const EV = 'oklch(0.790 0.125 160)';
+const PT = 'oklch(0.815 0.125 80)';
+const NO = 'oklch(0.620 0.010 250)';
+
+const ALL = [
+  ['Five years or more of production backend work', 'ev', 'line 7'],
+  ['Strong Go, used at work', 'ev', 'lines 9 and 10'],
+  ['Kubernetes, including operators', 'no', 'nothing in your resume'],
+  ['On call for a critical service', 'ev', 'lines 11 and 12'],
+  ['Built and ran a streaming pipeline', 'no', 'nothing clear enough'],
+  ['Postgres tuning and replication', 'pt', 'tuning yes, replication no'],
+  ['Led a move to smaller services', 'ev', 'lines 15 and 16'],
+  ['Terraform or similar', 'no', 'nothing in your resume'],
+  ['Helped other engineers grow', 'ev', 'line 17']
+];
+
+class Component extends DCLogic {
+  state = { allOpen: false };
+
+  renderVals() {
+    const matched = this.props.signalMatched ?? 6;
+    const open = this.state.allOpen;
+    const map = { ev:{ color:EV, fill:'100%' }, pt:{ color:PT, fill:'50%' }, no:{ color:NO, fill:'0%' } };
+    return {
+      signalTicks: Array.from({ length: 9 }, (_, i) => ({
+        bg: i < matched ? 'oklch(0.900 0.005 250)' : 'oklch(0.300 0.010 250)'
+      })),
+      counts: [
+        { n:'5', label:'your resume shows', color:EV, fill:'100%' },
+        { n:'1', label:'shows part of it', color:PT, fill:'50%' },
+        { n:'3', label:'does not show', color:NO, fill:'0%' }
+      ],
+      blockers: [
+        { text:'Kubernetes in production, including writing operators',
+          note:'Nothing in your resume touches this. They will ask.' },
+        { text:'Built and ran a streaming pipeline',
+          note:'Line 22 comes close, but it is too vague.' }
+      ],
+      strengths: [
+        { line:'Lines 11 and 12', quote:'- Primary on-call for settlement for 2.5 years, including the\n  Black Friday 2023 incident (4h, 0 lost payments).',
+          why:'Say this first. They run systems that move money.' },
+        { line:'Lines 9 and 10', quote:'- Built and ran the settlement service handling 1.2M\n  transactions a day in Go.',
+          why:'Their language, their kind of system, and a real number.' },
+        { line:'Line 17', quote:'- Mentored 4 engineers, 2 to senior.',
+          why:'A number and a result. Good for a senior role.' }
+      ],
+      undersells: [
+        { line:'Line 22', quote:'- Assisted on a project moving event handling off cron.',
+          why:'This is the closest you get to what they asked for. It says almost nothing. Add: which queue, how much traffic, what got better.' },
+        { line:'Line 21', quote:'- Helped out with our container setup and deploys.',
+          why:'"Helped out with" does not prove anything. Say what you built or ran.' },
+        { line:'Line 16', quote:'  shipped, the third is still in progress.',
+          why:'"Still in progress" sounds unfinished. You shipped two of three. Say that instead.' }
+      ],
+      toggleAll: () => this.setState({ allOpen: !open }),
+      chevron: open ? '▾' : '▸',
+      dAll: open ? 'flex' : 'none',
+      allReqs: ALL.map(([text, k, meta]) => ({ text, meta, color: map[k].color, fill: map[k].fill }))
+    };
+  }
+}
+</script>
+</body>
+</html>

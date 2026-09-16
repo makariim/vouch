@@ -25,7 +25,7 @@ quotes and the human's own reading all agree.
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 
 # A wrapped line is a line that ran out of page, so it ends near the page's
 # right margin. A SHORT line ending without punctuation is something else -- a
@@ -69,6 +69,17 @@ _CONNECTORS = frozenset(
 # A run of column labels is mostly capitals -- that is what makes it a run of
 # headings. Prose is mostly lower case with the odd proper noun in it.
 MIN_CAPITAL_SHARE = 0.6
+
+# pypdf does not separate words with spaces -- it separates them with TAB
+# characters, so a line out of a real PDF reads
+# `Riyadh,\tSaudi\tArabia\t\t|\t\tAug\t2025`. That is the extractor's artefact,
+# not something the document says, and every quote we publish is sliced out of
+# the text this module returns -- so the tabs have to go here, before indexing,
+# or they end up on screen inside every quote.
+#
+# Collapsing a run of whitespace to one space changes no word and invents no
+# character, which is the only kind of edit this file is allowed to make.
+_WHITESPACE_RUN = re.compile(r"\s+")
 
 _ENDS_SENTENCE = ".?!:;•"
 _HYPHEN_TAIL = re.compile(r"[A-Za-z0-9]-$")
@@ -327,17 +338,45 @@ def _unflatten(lines: list[str]) -> tuple[list[str], list[Change]]:
     return out, changes
 
 
+def _normalise(line: str) -> str:
+    """One space between words, and nothing hanging off either end.
+
+    Whitespace only: no word is touched, nothing is invented, nothing is
+    dropped. An all-whitespace line becomes empty, which `LineIndex` already
+    skips without renumbering, so the line numbers do not move.
+    """
+    return _WHITESPACE_RUN.sub(" ", line).strip()
+
+
 def repair(text: str) -> Repair:
     """Repair extraction damage, and record every change made.
 
-    Two passes, in this order. Rejoining first, because a table row whose first
-    cell wrapped onto the next line is not fully present until the wrap is
-    pulled up -- splitting it before that would cut a row we had only half of.
+    Three passes, and the ORDER is the whole of it.
+
+    Rejoining first, because a table row whose first cell wrapped onto the next
+    line is not fully present until the wrap is pulled up -- splitting it
+    before that would cut a row we had only half of.
+
+    Normalising LAST, and never before the other two. `_ALREADY_DELIMITED`
+    recognises a column separator the extractor managed to keep, and a tab is
+    one of the separators it looks for. Collapse the whitespace first and that
+    signal is gone, `_split_row` stops seeing rows that are already intact, and
+    it goes back to cutting up the Title Case job titles that brief 0007 took
+    three attempts to protect. Row work first, whitespace second.
+
+    The recorded changes are normalised too, so the before/after a person reads
+    in "see how we read it" is the whitespace the text actually ended up with,
+    rather than a third version of the line that exists nowhere.
     """
     lines = text.splitlines()
     joined, join_changes = _rejoin(lines, text)
     split, split_changes = _unflatten(joined)
+    tidied = [_normalise(line) for line in split]
+    changes = [
+        replace(change, before=_normalise(change.before), after=_normalise(change.after))
+        for change in join_changes + split_changes
+    ]
     return Repair(
-        text="\n".join(split) + ("\n" if text.endswith("\n") else ""),
-        changes=join_changes + split_changes,
+        text="\n".join(tidied) + ("\n" if text.endswith("\n") else ""),
+        changes=changes,
     )

@@ -16,6 +16,8 @@ from audit.repair import page_measure, repair
 DATA = Path(__file__).parent / "data"
 DAMAGED = (DATA / "resume_damaged.txt").read_text(encoding="utf-8")
 CLEAN = (DATA / "resume.txt").read_text(encoding="utf-8")
+UNRELATED = (DATA / "resume_unrelated.txt").read_text(encoding="utf-8")
+POST = (DATA / "post.txt").read_text(encoding="utf-8")
 
 
 def repaired_lines(text: str) -> list[str]:
@@ -159,3 +161,64 @@ def test_line_numbers_of_untouched_lines_do_not_move():
 def test_page_measure_ignores_one_freak_long_line():
     lines = ["x" * 40] * 20 + ["y" * 400]
     assert page_measure(lines) < 100
+
+
+# --- the whitespace a PDF extractor leaves behind -------------------------
+
+
+def test_tabs_out_of_a_pdf_do_not_survive_into_a_quote():
+    """`pypdf` separates words with tabs, and a quote is sliced out of the
+    text this module returns -- so a tab here is a tab on screen."""
+    text = (
+        "Muhammad\tAbdulkariim\n"
+        "AI\tENGINEER\n"
+        "Riyadh,\tSaudi\tArabia\t\t|\t\tAug\t2025\tto\tPresent\n"
+    )
+    repaired = repair(text).text
+    assert "\t" not in repaired
+    assert "Muhammad Abdulkariim" in repaired
+    assert "Riyadh, Saudi Arabia | Aug 2025 to Present" in repaired
+
+
+def test_a_run_of_spaces_collapses_and_the_line_does_not_end_in_one():
+    text = "Languages     Python,   Go\nInfrastructure   Docker   \n"
+    lines = repair(text).text.splitlines()
+    assert lines[0] == "Languages Python, Go"
+    assert lines[1] == "Infrastructure Docker"
+
+
+def test_the_recorded_change_shows_the_whitespace_the_text_kept():
+    """A person comparing before and after must be reading the line we
+    actually kept, not a third version of it."""
+    text = "a" * 70 + "\nsomething\twith\ta multi-\nregion\tsetup in it\n"
+    change = repair(text).changes[0]
+    assert "\t" not in change.before
+    assert "\t" not in change.after
+
+
+# --- the trap: normalising must not blind the row guard -------------------
+
+
+def test_a_tab_delimited_row_is_still_recognised_and_left_alone():
+    """The tab is how `_ALREADY_DELIMITED` knows the columns survived. If
+    whitespace were collapsed first that signal would be gone and these Title
+    Case job titles would be cut into single words -- the failure of 0007."""
+    line = (
+        "Software Tech Lead\t(Dec 2024 to Aug 2025)\tSoftware Engineer II\t"
+        "(Sep 2023 to Dec 2024)\tSoftware Engineer\t(May 2022 to Sep 2023)"
+    )
+    result = repair(line + "\n")
+    assert result.changes == []
+    assert result.text.strip() == (
+        "Software Tech Lead (Dec 2024 to Aug 2025) Software Engineer II "
+        "(Sep 2023 to Dec 2024) Software Engineer (May 2022 to Sep 2023)"
+    )
+
+
+def test_every_clean_document_is_still_untouched():
+    """Three documents that were never damaged. Repair must have nothing to
+    say about any of them, whitespace pass included."""
+    for name, document in (("resume", CLEAN), ("unrelated", UNRELATED), ("post", POST)):
+        result = repair(document)
+        assert result.changes == [], name
+        assert result.text.strip() == document.strip(), name

@@ -46,10 +46,28 @@ OPTIONAL_MARKERS = (
     "would be great",
 )
 
-# A heading is short and ends in a colon. `Preferred Qualifications:` makes
-# everything under it optional, and the requirement sentences beneath will not
-# repeat the word, so the heading has to be consulted.
+# A heading is short. `Preferred Qualifications:` makes everything under it
+# optional, and the requirement sentences beneath will not repeat the word, so
+# the heading has to be consulted.
 _HEADING_MAX = 90
+
+# A colon settles it. But real posts write `Nice to Have`, `Bonus points` and
+# `Preferred Qualifications` with no colon at all, and then a whole section of
+# optional items is read as required -- which is the expensive direction of
+# this mistake, because it tells somebody they fall short of something the post
+# never insisted on.
+#
+# So a heading is also recognised by its shape, and every number below is
+# holding something back rather than reaching for cases. A heading is SHORTER
+# than a wrapped line of prose, is a handful of words, does not end the way a
+# sentence ends, and is mostly capitalised -- which is precisely what an
+# ordinary short sentence is not. Loosen any one of them and a line like
+# `Remote work is preferred here` becomes a heading, and one stray marker in it
+# marks a whole section optional.
+_BARE_HEADING_MAX = 60
+_BARE_HEADING_MAX_WORDS = 6
+_BARE_HEADING_CAPITAL_SHARE = 0.5
+_ENDS_SENTENCE = ".,;!?"
 
 # What makes a supporting line WEAK rather than absent. A resume that lists a
 # skill among twenty others states it; a resume that shows the work proves it.
@@ -66,6 +84,30 @@ STRONG_EVIDENCED_SHARE = 0.5
 WEAK_EVIDENCED_SHARE = 0.25
 
 
+def _is_heading(line: str) -> bool:
+    """Is this line a section heading, with or without its colon?"""
+    if len(line) > _HEADING_MAX:
+        return False
+    if line.endswith(":"):
+        return True
+
+    # No colon, so the line has to look like a heading on its own.
+    if len(line) > _BARE_HEADING_MAX:
+        return False
+    words = line.split()
+    if not words or len(words) > _BARE_HEADING_MAX_WORDS:
+        return False
+    if line[-1] in _ENDS_SENTENCE:
+        return False
+    if not line[:1].isupper():
+        return False
+    lettered = [word for word in words if word[:1].isalpha()]
+    if not lettered:
+        return False
+    capitals = sum(1 for word in lettered if word[:1].isupper())
+    return capitals / len(lettered) >= _BARE_HEADING_CAPITAL_SHARE
+
+
 def _heading_above(post_index: LineIndex, text: str) -> str:
     """The nearest section heading above where this requirement sits."""
     at = post_index.source.find(text)
@@ -76,7 +118,7 @@ def _heading_above(post_index: LineIndex, text: str) -> str:
         line = raw.strip()
         if not line:
             continue
-        if line.endswith(":") and len(line) <= _HEADING_MAX:
+        if _is_heading(line):
             return line
         if len(line) > _HEADING_MAX:
             break  # a paragraph, not a heading: stop looking

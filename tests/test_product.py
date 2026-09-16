@@ -64,6 +64,63 @@ def test_a_heading_above_does_not_leak_onto_earlier_requirements():
     assert is_required("A Master's Degree or Ph.D. in Computer Science", index) is True
 
 
+# A real post, hard-wrapped the way a pasted one is, whose optional section is
+# headed `Nice to Have` with no colon anywhere on the line.
+BARE_HEADING_POST = """What You Will Do
+
+Own the delivery of customer projects from first call to production.
+
+Nice to Have
+
+Experience in a forward-deployed, solutions engineering, consulting, or
+customer-facing technical role.
+
+Experience building AI agents, workflow automation, or conversational systems.
+
+Familiarity with LLM evaluation, observability, and reliability in production.
+
+Experience deploying and improving systems in complex enterprise environments.
+"""
+
+# A short line that is an ordinary sentence, not a heading, sitting directly
+# above a required item and carrying an optional marker inside it.
+SHORT_LINE_POST = """Requirements:
+
+We work remotely and travel is preferred
+
+Experience with Apache Kafka or similar streaming systems.
+"""
+
+
+def test_a_heading_without_a_colon_is_still_a_heading():
+    """`Nice to Have` is how real posts write it. Without this the whole
+    section is reported as required."""
+    index = LineIndex(BARE_HEADING_POST)
+    text = "Experience building AI agents, workflow automation, or conversational systems."
+    assert is_required(text, index) is False
+
+
+def test_every_item_under_a_bare_heading_is_optional():
+    """Not just the first one. The items above the heading stay required."""
+    index = LineIndex(BARE_HEADING_POST)
+    optional = [
+        "Experience in a forward-deployed, solutions engineering, consulting, or\ncustomer-facing technical role.",
+        "Experience building AI agents, workflow automation, or conversational systems.",
+        "Familiarity with LLM evaluation, observability, and reliability in production.",
+        "Experience deploying and improving systems in complex enterprise environments.",
+    ]
+    assert [is_required(text, index) for text in optional] == [False, False, False, False]
+    assert is_required("Own the delivery of customer projects from first call to production.", index)
+
+
+def test_a_short_ordinary_line_above_a_requirement_is_not_a_heading():
+    """The trap in loosening the rule: a short sentence with `preferred` in it
+    must not make the item below it optional."""
+    index = LineIndex(SHORT_LINE_POST)
+    text = "Experience with Apache Kafka or similar streaming systems."
+    assert is_required(text, index) is True
+
+
 # --- weakly stated -------------------------------------------------------
 
 

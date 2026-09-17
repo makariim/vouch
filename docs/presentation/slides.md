@@ -1,7 +1,7 @@
 ---
 status: draft
 date: 2026-09-17
-brief: 0024-the-vision-and-the-tools
+brief: 0026-the-deck-tells-a-story
 ---
 
 # Slides — Vouch
@@ -12,6 +12,26 @@ Fifteen minutes, DataRobot Professional Services.
 read out; the words to say are in
 [`demo-script.md`](demo-script.md). If a line here cannot be read from
 the back of the room, it is too long — cut it, do not shrink it.
+
+**The headlines are the argument.** Read every `#` line in this file, in order,
+and you get the whole talk. If a headline does not follow from the one before
+it, that is a bug in the deck, not in the reading.
+
+**How a slide is written.**
+
+| In this file | On the slide |
+|---|---|
+| `## Slide N — Title` | the eyebrow, small and quiet above the headline |
+| `## Slide N` alone | no eyebrow |
+| `# …` | the headline. The argument, read in one second |
+| `LABEL :: text` | a labelled block. A run of them is one stack |
+| `==text==` | the accent. **One per slide**, on the line that matters |
+| `> …` | the footnote — a source, a date, a caveat |
+
+**How to write a sentence here.** Short. One idea each. Common words. Nothing
+the listener has to decode. Read it out loud; if you stumble, it is wrong. The
+room includes people reading English as a second language, and so does the
+author.
 
 **Two rules that override everything below.**
 
@@ -25,23 +45,21 @@ the back of the room, it is too long — cut it, do not shrink it.
 
 | Part | Slides | Minutes |
 |---|---|---|
-| The problem, and why the obvious build is wrong | 1–3 | 1 |
-| The live demo | 4 | 5 |
-| How it works | 5–9 | 2½ |
-| Why these libraries | 10 | ½ |
-| What it got wrong | 11–13 | 1½ |
-| What I learned | 14 | ½ |
-| How it was built | 15 | 1½ |
-| Where this goes | 16–17 | 2 |
+| What it is, and why the obvious build is wrong | 1–4 | 1½ |
+| The live demo | 5 | 5 |
+| Why it behaves the way it does | 6–8 | 2 |
+| What it got wrong | 9–11 | 1½ |
+| What I learned, and how it was built | 12–13 | 2 |
+| What this really is, and where it goes | 14–16 | 2½ |
 
 **Fourteen and a half minutes. Questions are after the fifteen, not inside it.**
 
 If the panel wants questions inside the fifteen there is half a minute, which is
-nothing. In that case cut slide 10 — its argument becomes one spoken sentence
-over slide 8 — and fold slide 14 into slide 16. That buys a minute and a half.
+nothing. In that case cut slide 8 — its argument becomes one spoken sentence
+over slide 7 — and fold slide 12 into slide 14. That buys a minute and a half.
 
-**Do not buy time from the demo, and do not buy it from slides 11 to 13.** The
-honesty is why the last two slides are believable.
+**Do not buy time from the demo, and do not buy it from slides 9 to 11.** The
+honesty is why the last three slides are believable.
 
 **This clock is a budget, not a measurement.** Nothing here has been spoken
 against a stopwatch. That is still item 1 of `docs/standing.md`.
@@ -50,9 +68,10 @@ against a stopwatch. That is still item 1 of `docs/standing.md`.
 
 ## Slide 1
 
-# Checking a resume against a job post
+# Vouch checks a resume against a job post, one requirement at a time.
 
-Every requirement. One line of evidence. Or nothing.
+For each thing the post asks for, it finds the line of the resume that proves
+it. If there is no such line, it says so.
 
 > Muhammad Abdulkariim · DataRobot Professional Services
 
@@ -60,243 +79,198 @@ Every requirement. One line of evidence. Or nothing.
 
 ## Slide 2 — The problem
 
-A job post asks for twenty-odd things.
+THE POST :: A job post asks for twenty-odd separate things.
+THE READER :: A person reads it once and forms an impression.
+THE ANSWER :: "I think I am a good fit." Nothing was checked item by item.
 
-A person reads it once and guesses.
+# Nobody checks a job post. They read it once and guess.
 
-# The guess is the product.
-
-Not the writing — the checking.
-
-I built this because I am job hunting. **The demo runs on your job post.**
+I built this because I am job hunting. ==The demo runs on your job post.==
 
 ---
 
 ## Slide 3 — Why the obvious build is wrong
 
-The obvious build: one model call, over the post and the resume together.
+THE BUILD :: One model call. The post and the resume go in together.
+WHAT IT SAYS :: "Yes. Strong match on Kubernetes."
+THE PROBLEM :: The resume may not say Kubernetes anywhere.
 
-Then it says "yes, strong match on Kubernetes".
+# One model call answers. Nothing shows where it came from.
 
-# And you cannot tell whether the resume said it or the model wanted it to.
-
-That is the whole problem. Everything else here is a consequence.
+==You cannot tell if the resume said it, or the model made it up.==
+Everything else in this project follows from that one sentence.
 
 ---
 
-## Slide 4
+## Slide 4 — How the answer is made
+
+THE RESUME :: Never pasted into the prompt. It is split into numbered lines, and the agent searches it.
+THE MODEL :: Sees the six lines it asked for. Not a document it can drift over.
+WHAT IT RETURNS :: A line number and a verdict. No text of its own.
+THE QUOTE :: Read back out of the file at that number, after the model is finished.
+
+# So the model never writes the answer. It returns a line number.
+
+==The model has no way to write a quote. So it cannot invent one.==
+
+> Decided before the code was written: decision `0001`.
+
+---
+
+## Slide 5
 
 # DEMO
 
-(blank slide, or the app itself)
+FIRST :: The extension, on a real job post. 45 seconds.
+THEN :: The page, for the rest of the five minutes.
 
-Five minutes, in two parts: **the extension on a real job post, 45 seconds**,
-then the page for the rest. The clicks are in `demo-script.md`.
-
-**Nothing is read from this slide.**
+Nothing on this slide is read out. The clicks are in `demo-script.md`.
 
 ---
 
-## Slide 5 — The resume is a tool, not a prompt argument
+## Slide 6 — Reading the file
 
-# The resume is never pasted into the prompt.
-
-It is indexed by line number, and the agent **searches** it.
-
-So the model sees six lines it asked for, not a document it can drift over.
-
----
-
-## Slide 6 — The model returns a number, never text
-
-The judge returns a **line number** and a verdict.
-
-The quote you see is read back out of the file at that number.
-
-# A fabricated quote is therefore impossible.
-
-Not unlikely. Impossible.
-
----
-
-## Slide 7 — How the file is cut into lines decides the answer
-
-Slide 6 says the quote has to be a real line. So the line breaks are not a
-detail — they are the answer. Two readers, same PDF: file order, versus
-position on the page.
+A quote has to be a real line. So where the lines break is not a detail. It is
+the answer. Two readers, same PDF: file order, or position on the page.
 
 | 16 September | lines | evidenced | partly | the call |
 |---|---|---|---|---|
 | `pypdf` | 160 | 3 | 17 | **weak** |
 | `pdfplumber` | **51** | **6** | **13** | **worth applying** |
 
-> Same resume, same post, same model. Runs minutes apart.
+# So how the file is cut into lines decides the answer.
 
-# The verdict changed and nothing about the model did.
+==The verdict changed. Nothing about the model did.==
+
+> Same resume, same post, same model. Runs minutes apart. Report `0020`.
 
 ---
 
-## Slide 8 — The graph
+## Slide 7 — Why this is an agent
+
+# It is an agent for three reasons. Calling a model is not one of them.
+
+IT HAS TOOLS :: It writes its own search terms, one requirement at a time.
+IT TAKES STEPS :: It keeps state between them. The loop counts requirements, not model turns, so nothing stops early.
+IT GOES BACK :: Up to three searches, and ==it chooses when the first one found nothing.==
+
+---
+
+## Slide 8 — Why LangGraph, and not the other four
+
+# LangGraph, because the audit goes back.
 
 ```
-extract → search → judge → verify ─┬→ (retry) → search
-                                   └→ advance → next requirement
-                                                      ↓
-                                                    report
+extract → search → judge → verify ─┬→ retry ──→ search
+                                   └→ advance → next requirement → report
 ```
 
-# `verify` always runs.
+THE DECISION :: An edge in the graph, not an `if` inside a node.
+THE CHECK :: `verify` always runs. It is not the model's call.
+THE TRACE :: LangGraph streams state node by node. ==The trace is the demo.==
+THE REST :: FastAPI, `rank_bm25`, Groq — libraries. **Not my code.**
 
-It is not the model's decision.
-
-The retry is a **conditional edge**, not an `if` inside a node. That is why I
-can point at where the agent decides anything.
-
----
-
-## Slide 9 — Why this is an agent
-
-# Not because it calls a model.
-
-Three reasons, and each one is on slide 8.
-
-**It has tools and picks how to use them.** It writes its own search terms, per
-requirement.
-
-**It takes several steps with state between them.** The loop counts
-requirements, not model turns — so nothing stops early and nothing decides it
-has done enough.
-
-**It goes back on its own.** Up to three searches, and it chooses when a first
-look found nothing.
+> Over LangChain, CrewAI, Pydantic AI, LlamaIndex — and DSPy ReAct. Decision `0001`.
 
 ---
 
-## Slide 10 — Why these libraries, and not the other four
+## Slide 9 — What it got wrong
 
-# LangGraph.
+THE OLD TRIGGER :: Go round again when the model reports its own evidence as weak.
+WHAT HAPPENED :: Nothing. 0 of 21, 0 of 23, 0 of 21.
+THE BAD PART :: It stayed silent on verdicts that were wrong — where the model's own written reason said "does not mention".
 
-Over LangChain, CrewAI, Pydantic AI and LlamaIndex — and over
-DSPy ReAct, which I know best and which is not on their list anyway.
+# The old retry asked the model to grade itself. It never fired.
 
-Because the audit is a **cyclic graph with a real decision in it**, and a
-framework that hides control flow cannot show you where.
-
-Because **the trace is the demo** — LangGraph streams state node by node.
-
-The rest is libraries too: FastAPI, `rank_bm25`, Groq. **None of it is my code.**
-
-> Written down before I built it: `docs/decisions/0001`.
+> Three real runs, 15 September. Decision `0007`.
 
 ---
 
-## Slide 11 — What it got wrong: the trigger nobody could check
-
-The retry used to fire on the model reporting its own evidence as weak.
-
-**It fired zero times. 0 of 21, 0 of 23, 0 of 21** — including on verdicts that
-were wrong, where the model's own written reason said "does not mention".
-
-# A self-report nobody can check is not a trigger.
-
----
-
-## Slide 12 — The fix, and the number it moved
-
-It now triggers on something observable: a first pass that **found nothing**,
-and a quote that **failed verification**.
+## Slide 10 — The fix
 
 # It fired three times. Nobody pressed anything.
 
-> Same post, 15 September.
+THE NEW TRIGGER :: A first pass that found nothing, or a quote that failed its check. ==Both are things I can see in the data.==
+WHAT IT MOVED :: One answer went from not evidenced to evidenced, on a line that was checked.
+WHAT I WATCHED FOR :: No second pass talked itself into a match. Three stayed negative.
 
-One of those flipped an answer from not-evidenced to evidenced, on a verified
-line.
-
-**And no second pass talked itself into a match.** Three stayed negative.
+> Same post, 15 September. Report `0005`.
 
 ---
 
-## Slide 13 — Three more things that are wrong
+## Slide 11 — Three more things that are wrong
 
-**Retrieval used to rank by word count.** So `python` outranked `fastapi`, and
-it reported a gap that was not a gap. Fixed with BM25 — `rank_bm25`, **a
-library, not my code**.
-
-**About 60% land in the middle verdict.** "Partly evidenced" absorbs both ends.
-Known, not solved.
-
-**Nothing budgets retries across a run.** Three searches per requirement is
-capped. How many requirements retry is not. One resume retried on 6 of 6.
+RANKING :: Retrieval used to rank by word count, so `python` beat `fastapi`. It reported a gap that was not a gap. Fixed with BM25 — `rank_bm25`, **a library, not my code**.
+THE MIDDLE :: About 60% of answers land in "partly evidenced". It absorbs both ends. Known, not solved.
+NO BUDGET :: Three searches per requirement is capped. How many requirements retry is not. One resume retried on 6 of 6.
 
 # All three were found by running it, not by reading it.
 
----
-
-## Slide 14 — What I learned
-
-Almost everything that looked like a model problem was a **data problem**.
-
-How the PDF was read moved the verdict from weak to worth applying — slide 7.
-Retrieval closed a gap that was not a gap. Repaired line breaks removed a false
-finding.
-
-# The model never changed. Not once.
-
-That is the thing I would carry into a customer deployment.
+> Reports `0004`, `0021` and `0012`.
 
 ---
 
-## Slide 15 — How it was built
+## Slide 12 — What I learned
 
-# I built this by directing agents.
+# Almost every model problem turned out to be a data problem.
+
+THE PDF :: How the file was read moved the verdict from weak to worth applying. Slide 6.
+RETRIEVAL :: Better ranking closed a gap that was not a gap.
+LINE BREAKS :: Repairing them removed a false finding.
+
+==The model never changed. Not once.== That is the thing I would carry into a
+customer deployment.
+
+---
+
+## Slide 13 — How it was built
+
+# I built this by directing agents, under a method I wrote first.
+
+THE LOOP :: Brief, work, check, report, stop. Every piece, every time.
+THE GUARDRAILS :: They refuse, not advise. A turn cannot end on a red check.
+WHAT IT CAUGHT :: 18 of 22 reports name something the brief got wrong.
+WHAT IT MISSED :: The planning role offered to build, four times. ==I caught it, not the kit.==
+
+I briefed it, I read every report, I rejected work. `docs/` is the handover:
+26 briefs, 8 decisions, 24 reports.
 
 > `FORMWORK.md`, at the root.
 
-Every piece was **briefed before it started** and **reported when it finished** —
-including what the brief got wrong. The guardrails refuse rather than advise: a
-turn cannot end on a red check.
-
-**What it caught.** 18 of 22 reports name something the brief got wrong. The
-planning role offered to start building four times — **I** caught that, not the
-kit.
-
-I briefed it, I read every report, I rejected work. **`docs/` is the handover
-artifact**: 24 briefs, 8 decisions, 23 reports.
-
 ---
 
-## Slide 16 — What this actually is
+## Slide 14 — What this really is
 
-# Not a resume tool.
+# This is not a resume tool. It audits a document against a rulebook.
 
-**It audits a document against a rulebook and returns a
-per-item verdict with cited evidence — and refuses to cite what is not there.**
+THE RULEBOOK :: A job post. Or a policy, a tender, a regulation.
+THE DOCUMENT :: A resume. Or a contract, a filing, a submission.
+THE OUTPUT :: One verdict per item, each carrying the line it came from — ==or it says there is none.==
 
-A job post is a rulebook. So is a policy, a tender, a regulation.
-
-Every pilot dies on one sentence: *"how do I know it didn't make that up?"*
-Prompting answers it with a probability. **This answers it with architecture:
-the model has no channel to emit text.**
-
-I have shipped this shape before — a bilingual compliance engine auditing
+I have shipped this shape before: a bilingual compliance engine, auditing
 documents against an uploaded rulebook, for regulated customers.
 
 ---
 
-## Slide 17 — Scaling it, honestly
+## Slide 15 — Why that is commercial
 
-**Parallel by construction.** One document, one graph run, nothing shared.
+THE QUESTION :: Every pilot dies on one sentence. "How do I know it did not make that up?"
+PROMPTING ANSWERS IT :: With a probability. The model is told to behave, and usually does.
+THIS ANSWERS IT :: With architecture. The model cannot write text at all.
 
-**The two speeds are the business case.** A free local screen decides whether a
-paid call is worth making. At a customer's ten thousand documents, that is the
-whole argument for productizing it.
+# "It cannot invent a citation" is what makes a model usable in a regulated industry.
 
-**What it would need, and has none of yet:** an evaluation set with gold
-answers. Measured token usage. Durable orchestration. A human review gate.
-Per-tenant isolation.
+==A guarantee you can point at beats a number you have to trust.==
 
-Vouch refuses to claim what it cannot evidence. The method refuses to let a turn
-end on a red gate.
+---
+
+## Slide 16 — Scaling it, honestly
+
+WHAT ALREADY WORKS :: One document, one graph run, nothing shared. It is parallel by construction.
+THE BUSINESS CASE :: A free local screen decides whether a paid call is worth making. At ten thousand documents, that is the whole argument.
+WHAT IT DOES NOT HAVE :: An evaluation set with gold answers. Measured token cost. Durable orchestration. A human review gate. Per-tenant isolation.
 
 # Make the guarantee structural, not a promise.
+
+Vouch refuses to claim what it cannot evidence. The method refuses to let a turn
+end on a red check.

@@ -214,10 +214,10 @@ that would actually cost you the interview.
 | "What if the model lies about the line number?" | Then verification fails, and that is itself a retry trigger |
 | "Why not just one big prompt?" | Slide 3 — you cannot tell the resume from the model |
 | "How much does a run cost?" | 47 calls, ~17,000 tokens, **under half a cent** on Groq. Say it is a calculation from token counts, not a metered bill — nothing records usage |
-| "Is this production ready?" | No, and slide 17 is the list of what it would need. Do not soften it and do not apologise for it |
-| "Where would this go beyond resumes?" | Slide 16. A document against a rulebook. **Lead with the guarantee, not with a list of industries** |
+| "Is this production ready?" | No, and slide 16 is the list of what it would need. Do not soften it and do not apologise for it |
+| "Where would this go beyond resumes?" | Slide 14. A document against a rulebook. **Lead with the guarantee, not with a list of industries** |
 | "Have you done this for a customer?" | The bilingual compliance engine on the resume — same shape, regulated customers. **Do not invent a second one** |
-| "How would it scale?" | Slide 17. Parallel by construction, and the free local screen is what makes the paid call affordable |
-| "Why LangGraph and not X?" | Slide 10, and `docs/decisions/0001` is the written argument with the options that lost |
-| "Did you write this, or did the agents?" | Slide 15. I briefed it, read every report and rejected work — and the repository is the evidence. One example worth having ready: two sessions found the same hole in the API contract independently, and both reports say so |
-| "What did you learn?" | Slide 14. Almost every model problem was a data problem |
+| "How would it scale?" | Slide 16. Parallel by construction, and the free local screen is what makes the paid call affordable |
+| "Why LangGraph and not X?" | Slide 8, and `docs/decisions/0001` is the written argument with the options that lost |
+| "Did you write this, or did the agents?" | Slide 13. I briefed it, read every report and rejected work — and the repository is the evidence. One example worth having ready: two sessions found the same hole in the API contract independently, and both reports say so |
+| "What did you learn?" | Slide 12. Almost every model problem was a data problem |

@@ -63,9 +63,11 @@ def split_source(text: str) -> tuple[str, list[str]]:
 # ---------------------------------------------------------------------------
 
 def inline(text: str) -> str:
-    """Bold, inline code and links. Everything else is left as written."""
+    """Bold, the accent mark, inline code and links. The rest is as written."""
     out = html.escape(text)
     out = re.sub(r"`([^`]+)`", lambda m: f"<code>{m.group(1)}</code>", out)
+    # ==like this== is the accent. One per slide, on the line that matters.
+    out = re.sub(r"==([^=]+)==", lambda m: f'<span class="hi">{m.group(1)}</span>', out)
     out = re.sub(r"\*\*([^*]+)\*\*", lambda m: f"<strong>{m.group(1)}</strong>", out)
     out = re.sub(r"\[([^\]]+)\]\(([^)]+)\)", lambda m: m.group(1), out)
     return out
@@ -75,6 +77,12 @@ def inline(text: str) -> str:
 # product's own language, so it keeps the product's own colour (brief 0025).
 VERDICT = {"evidenced": "shown", "partly": "partly",
            "partly evidenced": "partly", "not evidenced": "not"}
+
+
+# A labelled block: a short label, `::`, then the text. The label is a name,
+# not a sentence, so it is capped short — a line with a `::` in prose is a
+# paragraph and must stay one.
+ROW = re.compile(r"^([A-Z0-9][^:\n]{0,38}?)\s*::\s+(\S.*)$")
 
 
 def render_table(rows: list[str]) -> str:
@@ -138,6 +146,21 @@ def render_blocks(lines: list[str]) -> str:
             i = j
             continue
 
+        # `LABEL :: text` — a labelled block. A run of them is one stack.
+        # Most slides are two to four parts and each part has a name; naming
+        # them beats a paragraph the room has to parse.
+        if ROW.match(line):
+            j = i
+            rows: list[str] = []
+            while j < len(lines) and ROW.match(lines[j]):
+                m = ROW.match(lines[j])
+                rows.append(f'<div class="row"><span class="t">{inline(m.group(1))}'
+                            f'</span><span>{inline(m.group(2))}</span></div>')
+                j += 1
+            out.append('<div class="stack">' + "".join(rows) + "</div>")
+            i = j
+            continue
+
         if line.lstrip().startswith(("- ", "* ")):
             j = i
             items: list[str] = []
@@ -149,7 +172,9 @@ def render_blocks(lines: list[str]) -> str:
             continue
 
         para: list[str] = []
-        while i < len(lines) and lines[i].strip() and not lines[i].startswith(("|", "```", "# ", ">")):
+        while (i < len(lines) and lines[i].strip()
+               and not lines[i].startswith(("|", "```", "# ", ">"))
+               and not ROW.match(lines[i])):
             para.append(lines[i].strip())
             i += 1
         out.append(f"<p>{inline(' '.join(para))}</p>")
@@ -213,7 +238,20 @@ DECK_CSS = """
   --d-code:    27px;  /* the graph on slide 8. Mono, because it is drawn     */
   --d-foot:    24px;  /* a source, a date, a caveat. Never the argument      */
   --d-eyebrow: 20px;  /* which section this is. Not read out                 */
+  --d-label:   19px;  /* the name of a block. A label, never a sentence      */
   --d-stage:  1240px; /* --v-page-max: the column the product uses           */
+
+  /* ---- the accent. DECK ONLY. Never in the product, never in tokens.css --
+     Every hue in tokens.css is spoken for: 160 and 80 are two of the three
+     answers, 25 means something broke, 330 means the app is working on this
+     right now. Borrowing any of them would teach the room a meaning twenty
+     minutes before the demo uses it for real. So the deck takes the one
+     direction none of them occupy — violet, 285 — and takes it nowhere else.
+     It marks three things: the eyebrow, a block label, and the one line on
+     a slide that matters. Nothing else in the deck carries a hue except the
+     three answer colours, where they mean the three answers.              */
+  --d-accent:      oklch(0.800 0.115 285);  /* the line that matters        */
+  --d-accent-dim:  oklch(0.660 0.075 285);  /* eyebrow, block label         */
 }
 
 * { box-sizing: border-box; }
@@ -255,12 +293,12 @@ html, body {
   font-size: var(--d-eyebrow);
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--v-ink-3);
+  color: var(--d-accent-dim);
 }
 
 h1 {
   margin: 0 0 var(--v-s-5);
-  max-width: 34 58ch;
+  max-width: 40ch;      /* 40, not 34: a ruling headline sets the measure */
   font-family: var(--v-font-display);
   font-weight: var(--v-weight-bold);
   font-size: var(--d-head);
@@ -272,10 +310,39 @@ h1 {
    air above it so the eye lands on it last and hardest. */
 :not(h1) + h1 { margin-top: var(--v-s-6); }
 
-p, ul { margin: 0 0 var(--v-s-5); max-width: ch; color: var(--v-ink-2); }
+p, ul { margin: 0 0 var(--v-s-5); max-width: 62ch; color: var(--v-ink-2); }
 .body > :last-child { margin-bottom: 0; }
 li { margin-bottom: var(--v-s-2); }
 strong { color: var(--v-ink-strong); font-weight: var(--v-weight-medium); }
+
+/* ---- labelled blocks ----------------------------------------------------
+   Two to four parts, each with a name. The name is the accent, small and
+   in caps; the text beside it is ordinary body. A room reads the names down
+   the left and knows the shape of the slide before hearing a word of it.
+   ------------------------------------------------------------------------ */
+
+.stack { margin: 0 0 var(--v-s-6); }
+.row {
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  gap: var(--v-s-5);
+  align-items: baseline;
+  padding: var(--v-s-3) 0;
+  border-bottom: 1px solid var(--v-line);
+  color: var(--v-ink-2);
+  line-height: var(--v-lh-body);
+}
+.row:first-child { border-top: 1px solid var(--v-line); }
+.row .t {
+  font-size: var(--d-label);
+  font-weight: var(--v-weight-medium);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--d-accent-dim);
+}
+
+/* The one line on a slide that matters, when it is not the headline. */
+.hi { color: var(--d-accent); }
 
 .foot {
   max-width: 62ch;
@@ -283,7 +350,36 @@ strong { color: var(--v-ink-strong); font-weight: var(--v-weight-medium); }
   line-height: var(--v-lh-body);
   color: var(--v-ink-4);
 }
-h1 + .foot { margin-top: calc(var(--v-s-5) * -1 + var(--v-s-3)); }
+h1 + /* ---- labelled blocks ----------------------------------------------------
+   Two to four parts, each with a name. The name is the accent, small and
+   in caps; the text beside it is ordinary body. A room reads the names down
+   the left and knows the shape of the slide before hearing a word of it.
+   ------------------------------------------------------------------------ */
+
+.stack { margin: 0 0 var(--v-s-6); }
+.row {
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  gap: var(--v-s-5);
+  align-items: baseline;
+  padding: var(--v-s-3) 0;
+  border-bottom: 1px solid var(--v-line);
+  color: var(--v-ink-2);
+  line-height: var(--v-lh-body);
+}
+.row:first-child { border-top: 1px solid var(--v-line); }
+.row .t {
+  font-size: var(--d-label);
+  font-weight: var(--v-weight-medium);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--d-accent-dim);
+}
+
+/* The one line on a slide that matters, when it is not the headline. */
+.hi { color: var(--d-accent); }
+
+.foot { margin-top: calc(var(--v-s-5) * -1 + var(--v-s-3)); }
 
 /* Inline code stays in the UI face on purpose. tokens.css reserves mono for
    lines quoted out of a resume, and a library name is not one. */

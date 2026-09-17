@@ -269,6 +269,7 @@ THIS ANSWERS IT :: With architecture. The model cannot write text at all.
 WHAT ALREADY WORKS :: One document, one graph run, nothing shared. It is parallel by construction.
 THE BUSINESS CASE :: A free local screen decides whether a paid call is worth making. At ten thousand documents, that is the whole argument.
 WHAT IT DOES NOT HAVE :: An evaluation set with gold answers. Measured token cost. Durable orchestration. A human review gate. Per-tenant isolation.
+WHAT THE CUSTOMER KEEPS :: A Professional Services engagement is judged by what the team can run after you leave. The briefs, the decisions and the reports are that handover — written as the work happened, because the method demanded it.
 
 # Make the guarantee structural, not a promise.
 

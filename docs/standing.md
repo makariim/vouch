@@ -66,6 +66,12 @@ screen (1,130 in the file, 0 in the index); a "Nice to Have" heading without a
 colon is now found; the page shows a loud amber banner while a recording is on;
 and a reload no longer loses the uploaded resume.
 
+**One real finding from the handover session, worth a brief later:** the stored
+audit marks requirement 22 as a blocker, but that post says "a strong plus".
+The run predates the code that reads the post's own words for optional, so the
+current code would leave **one** blocker there, not two. The stored answer is
+stale, not wrong at the time.
+
 **Two things to say carefully, both found by measuring:**
 
 - **Do not promise a nice-to-have count.** The heading fix is real, but on that
@@ -115,14 +121,29 @@ All four accepted 2026-09-15. The records hold the reasoning.
 
 ## What is next
 
-**Rehearse. Nothing else.**
+**Nothing is left to build. Three things remain and all three are the human's.**
 
-The slides and the demo script are in `docs/presentation/`. The script has the
-clicks, the words, the fallback and the questions. It has never been read aloud
-against a clock.
+**1. The repo page.** Add the description and topics beside *About*. Thirty
+seconds. Suggested text is in the session transcript; any honest one-liner does.
 
-The presentation carries four of the five scoring criteria and it is the only
-part of the deliverable that has never been tested.
+**2. The handover session, brief `0010`. Paused at step 8 of 17.**
+
+Say `next` in a fresh session running that brief and it resumes at **step 9,
+`extract`**. Steps 1–8 are done: the problem, what Vouch does, why one big model
+call fails, the two ways in, why the extension is not a scraper, what is on
+screen, the two speeds, and the shape of the graph.
+
+The running example throughout is **requirement 13, "Proficiency with
+containerization using Docker"**. It never switches.
+
+**Steps 12 and 14 are the two that matter most and are still ahead** — `verify`
+(why a fabricated quote is impossible) and where the agent decides for itself.
+
+**3. Rehearse the presentation twice, against a clock.** Never done. The only
+untested part of the deliverable, and it carries four of the five scoring
+criteria.
+
+**Do 3 before 2 if there is only time for one.**
 
 ## What we tried and stopped
 

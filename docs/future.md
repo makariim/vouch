@@ -38,17 +38,19 @@ you stand; the tailor is what you send.
 trustworthy before anything was allowed to write from it, and that ordering is
 recorded in `decisions/0003-the-audit-governs-the-tailor.md`.
 
-## 3. A retry that does not trust the model
+## 3. A cap on the retry
 
-Today the loop goes round again when the model flags its own evidence as thin.
-**It never has — not once in three runs, including when it was wrong.**
+**This one was built.** Decision `0007` replaced the old trigger — the model
+flagging its own evidence as thin, which fired 0 of 21, 0 of 23 and 0 of 21,
+including where it was wrong. It now goes round again when a first pass finds
+nothing, and it fired three times on the real post, unprompted.
 
-**The fix:** stop asking a model to grade itself. Trigger on something
-observable — a first-pass verdict of not evidenced, a retrieval score below a
-floor, a query that matched nothing.
+**What is left is the cap.** On a resume in the wrong field it fired on 6 of 6
+and the run took twice as long. Decision `0007` names a cap as the fix and says
+the number should come from a real run rather than be picked in advance.
 
-**Why not yet:** it changes how the agent behaves, and it was found hours before
-a demo. Changing agent behaviour under that clock is how demos break.
+**Why not yet:** there is now one such run to take the number from, and nobody
+has taken it.
 
 ## 4. Several resumes, and picking between them
 

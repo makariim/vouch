@@ -3,13 +3,23 @@
 
     python3 docs/presentation/build.py
 
-Standard library only. Nothing is fetched, at build time or at run time:
-the design tokens are inlined from design/tokens.css, because a <link> to it
-is a fetch and a fetch fails on file:// with the wifi off (decision 0002).
+Standard library only. Nothing is fetched when the deck is opened: the design
+tokens are inlined from design/tokens.css and the two typefaces are inlined as
+base64 data URIs, because a <link> or a url(https://…) is a fetch and a fetch
+fails on file:// with the wifi off (decision 0002).
+
+The faces are Archivo and Source Serif 4, both open licence. They are
+downloaded once into docs/presentation/fonts/ and cached there. Only this
+script ever goes to the network, and only when that cache is empty:
+
+    python3 docs/presentation/build.py --fonts     refresh the cache
+
+If the cache is empty and the download fails, the build still succeeds and
+says so — the deck falls back to a system stack rather than shipping a <link>.
 
 slides.md is the source. Never hand-edit slides.html.
 
-To check that every slide fits on screen, and that opening the file requests
+To check that every slide fits on the stage, and that opening the file requests
 nothing, run with a Chrome on the machine:
 
     python3 docs/presentation/build.py --check
@@ -17,6 +27,7 @@ nothing, run with a Chrome on the machine:
 
 from __future__ import annotations
 
+import base64
 import html
 import json
 import re
@@ -31,10 +42,117 @@ ROOT = HERE.parent.parent
 SOURCE = HERE / "slides.md"
 TARGET = HERE / "slides.html"
 TOKENS = ROOT / "design" / "tokens.css"
+FONTS = HERE / "fonts"
 
-# The deck is laid out against this. 16:9, and the size the fit check uses.
-STAGE_W = 1440
-STAGE_H = 810
+# The stage is a fixed rectangle, scaled to fit whatever window it is opened
+# in. Laying out against a fixed size is the only way a deck can be checked:
+# "does it fit" has no answer until the box has a size.
+STAGE_W = 1600
+STAGE_H = 900
+PAD_T, PAD_B = 94, 74          # the stage's own padding, top and bottom
+
+
+# ---------------------------------------------------------------------------
+# the two faces
+# ---------------------------------------------------------------------------
+
+# Google Fonts serves each family cut into unicode subsets. Only `latin` is
+# kept: this deck is English, and latin already carries the punctuation it
+# uses — the en dash, the middot, the curly quotes.
+#
+# Both families are variable fonts, so all the weights of one style arrive in
+# a single file. One @font-face per file, with a weight *range*, is what keeps
+# the base64 from being repeated once per weight.
+GOOGLE = (
+    "https://fonts.googleapis.com/css2"
+    "?family=Archivo:wght@400;600;700;800"
+    "&family=Source+Serif+4:ital,wght@0,400;0,600;1,400"
+    "&display=block"
+)
+# Without it Google serves .ttf, which is roughly three times the size.
+UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
+      "(KHTML, like Gecko) Chrome/126.0 Safari/537.36")
+
+MANIFEST = FONTS / "faces.json"
+
+
+def _curl(url: str) -> bytes:
+    """Fetch, with curl rather than urllib.
+
+    The python.org build on this machine carries no root certificates, so
+    urllib cannot open an https connection at all. curl uses the system trust
+    store and is already here.
+    """
+    out = subprocess.run(["curl", "-fsS", "-A", UA, url],
+                         capture_output=True, timeout=60)
+    if out.returncode != 0:
+        raise RuntimeError(out.stderr.decode(errors="replace").strip())
+    return out.stdout
+
+
+def fetch_fonts() -> list[dict]:
+    """Download the latin faces into the cache. Returns the manifest."""
+    css = _curl(GOOGLE).decode()
+    faces: dict[tuple[str, str, str], list[int]] = {}
+    for subset, block in re.findall(r"/\* (\S+) \*/\s*(@font-face \{.*?\})",
+                                    css, re.DOTALL):
+        if subset != "latin":
+            continue
+        fam = re.search(r"font-family: '([^']+)'", block).group(1)
+        style = re.search(r"font-style: (\S+);", block).group(1)
+        weight = int(re.search(r"font-weight: (\S+);", block).group(1))
+        url = re.search(r"src: url\((\S+)\)", block).group(1)
+        faces.setdefault((fam, style, url), []).append(weight)
+    if not faces:
+        raise RuntimeError("no latin @font-face in the Google Fonts reply")
+
+    FONTS.mkdir(exist_ok=True)
+    manifest = []
+    for (fam, style, url) in faces:
+        weights = faces[(fam, style, url)]
+        name = f"{fam.lower().replace(' ', '-')}-{style}.woff2"
+        (FONTS / name).write_bytes(_curl(url))
+        manifest.append({"family": fam, "style": style, "file": name,
+                         "weights": [min(weights), max(weights)]})
+    manifest.sort(key=lambda f: (f["family"], f["style"]))
+    MANIFEST.write_text(json.dumps(manifest, indent=2) + "\n")
+    return manifest
+
+
+def font_css(refresh: bool) -> tuple[str, list[str]]:
+    """Return (the @font-face rules, a line per face for the build report).
+
+    An empty rule set is not a failure. It means the faces could not be had,
+    and the stacks below fall through to what is on the machine. Shipping a
+    <link> instead is the one thing that is not allowed.
+    """
+    manifest = None
+    if not refresh and MANIFEST.exists():
+        manifest = json.loads(MANIFEST.read_text())
+        if any(not (FONTS / f["file"]).exists() for f in manifest):
+            manifest = None
+    if manifest is None:
+        try:
+            manifest = fetch_fonts()
+        except Exception as exc:                      # offline, or blocked
+            return "", [f"fonts NOT embedded ({exc}); "
+                        f"falling back to the system stack"]
+
+    rules, said = [], []
+    for f in manifest:
+        raw = (FONTS / f["file"]).read_bytes()
+        b64 = base64.b64encode(raw).decode()
+        lo, hi = f["weights"]
+        rules.append(
+            f'@font-face{{font-family:"{f["family"]}";'
+            f'font-style:{f["style"]};'
+            f'font-weight:{lo}{"" if lo == hi else f" {hi}"};'
+            f'font-stretch:100%;font-display:block;'
+            f'src:url("data:font/woff2;base64,{b64}") format("woff2")}}')
+        said.append(f'{f["family"]} {f["style"]} '
+                    f'{lo}{"" if lo == hi else f"-{hi}"}, '
+                    f'{len(raw):,} B raw / {len(b64):,} B inlined')
+    return "\n".join(rules) + "\n", said
 
 
 # ---------------------------------------------------------------------------
@@ -58,6 +176,39 @@ def split_source(text: str) -> tuple[str, list[str]]:
     return chunks[0], [c for c in chunks[1:] if c.strip()]
 
 
+def deck_name(preamble: str) -> str:
+    """The product name, off the `# Slides — Vouch` line. Slide 1 sets it big."""
+    m = re.search(r"^#\s+.*?[—-]\s*(\S.*?)\s*$", preamble, flags=re.MULTILINE)
+    return m.group(1) if m else "Vouch"
+
+
+def sections(preamble: str, total: int) -> list[str]:
+    """The header bar text for each slide, from the shape table in slides.md.
+
+    The table already says which slides belong to which part of the talk.
+    That part name is what the reference deck puts in its header bar: it does
+    not change slide to slide, so the room can see which movement it is in.
+    """
+    out = [""] * total
+    rows = [r for r in preamble.splitlines() if r.startswith("|")]
+    head = next((i for i, r in enumerate(rows) if "Slides" in r), None)
+    if head is None:
+        return out
+    for row in rows[head + 2:]:
+        cells = [c.strip() for c in row.strip().strip("|").split("|")]
+        if len(cells) < 2:
+            continue
+        m = re.match(r"^(\d+)(?:\s*[–—-]\s*(\d+))?$", cells[1])
+        if not m:
+            break                     # the shape table has ended
+        lo = int(m.group(1))
+        hi = int(m.group(2) or m.group(1))
+        for n in range(lo, hi + 1):
+            if 1 <= n <= total:
+                out[n - 1] = cells[0]
+    return out
+
+
 # ---------------------------------------------------------------------------
 # markdown, the small part of it this deck uses
 # ---------------------------------------------------------------------------
@@ -73,8 +224,9 @@ def inline(text: str) -> str:
     return out
 
 
-# The only hue in the deck. A column called "evidenced" or "partly" is the
-# product's own language, so it keeps the product's own colour (brief 0025).
+# The only hue in the deck that is not the accent. A column called "evidenced"
+# or "partly" is the product's own language, so it keeps the product's own
+# colour (brief 0025).
 VERDICT = {"evidenced": "shown", "partly": "partly",
            "partly evidenced": "partly", "not evidenced": "not"}
 
@@ -99,9 +251,20 @@ def render_table(rows: list[str]) -> str:
 
 
 def render_blocks(lines: list[str]) -> str:
-    """Blocks: headline, footnote, fenced code, table, bullet list, paragraph."""
+    """Blocks: headline, footnote, fenced code, table, bullet list, paragraph.
+
+    Two kinds of paragraph, because the reference deck has two. `.lead` is the
+    thesis — large, short measure, the sentence the room is meant to take
+    away. `.body` is the reasoning underneath it — serif, small, set in a
+    ruled block so it cannot be mistaken for the headline's equal.
+
+    A paragraph is a lead if it sits directly under the headline, or if it
+    carries the slide's accent. Both are the same test in different words:
+    is this the line that matters.
+    """
     out: list[str] = []
     i = 0
+    prev = ""
     while i < len(lines):
         line = lines[i]
 
@@ -116,23 +279,26 @@ def render_blocks(lines: list[str]) -> str:
                 code.append(lines[j])
                 j += 1
             out.append("<pre>" + html.escape("\n".join(code)) + "</pre>")
+            prev = "pre"
             i = j + 1
             continue
 
         if line.startswith("# "):
-            out.append(f"<h1>{inline(line[2:].strip())}</h1>")
+            out.append(f"<h2>{inline(line[2:].strip())}</h2>")
+            prev = "h"
             i += 1
             continue
 
-        # A blockquote is the footnote: a source, a date, a caveat. Smaller and
-        # set apart, so it cannot be mistaken for the argument.
+        # A blockquote is the footnote: a source, a date, a caveat. Serif,
+        # italic and quiet, so it cannot be mistaken for the argument.
         if line.startswith(">"):
             j = i
             note: list[str] = []
             while j < len(lines) and lines[j].startswith(">"):
                 note.append(lines[j].lstrip(">").strip())
                 j += 1
-            out.append(f'<p class="foot">{inline(" ".join(note))}</p>')
+            out.append(f'<p class="src">{inline(" ".join(note))}</p>')
+            prev = "src"
             i = j
             continue
 
@@ -143,6 +309,7 @@ def render_blocks(lines: list[str]) -> str:
                 rows.append(lines[j])
                 j += 1
             out.append(render_table(rows))
+            prev = "table"
             i = j
             continue
 
@@ -151,13 +318,14 @@ def render_blocks(lines: list[str]) -> str:
         # them beats a paragraph the room has to parse.
         if ROW.match(line):
             j = i
-            rows: list[str] = []
+            rows = []
             while j < len(lines) and ROW.match(lines[j]):
                 m = ROW.match(lines[j])
                 rows.append(f'<div class="row"><span class="t">{inline(m.group(1))}'
                             f'</span><span>{inline(m.group(2))}</span></div>')
                 j += 1
             out.append('<div class="stack">' + "".join(rows) + "</div>")
+            prev = "stack"
             i = j
             continue
 
@@ -168,6 +336,7 @@ def render_blocks(lines: list[str]) -> str:
                 items.append(lines[j].lstrip()[2:].strip())
                 j += 1
             out.append("<ul>" + "".join(f"<li>{inline(t)}</li>" for t in items) + "</ul>")
+            prev = "ul"
             i = j
             continue
 
@@ -177,19 +346,57 @@ def render_blocks(lines: list[str]) -> str:
                and not ROW.match(lines[i])):
             para.append(lines[i].strip())
             i += 1
-        out.append(f"<p>{inline(' '.join(para))}</p>")
+        text = inline(" ".join(para))
+        if prev == "h" or "hi" in re.findall(r'class="(\w+)"', text):
+            out.append(f'<p class="lead">{text}</p>')
+        else:
+            out.append(f'<div class="body"><p>{text}</p></div>')
+        prev = "p"
 
     return "".join(out)
 
 
-def render_slide(raw: str, number: int, total: int) -> str:
+def guard(body: str, number: int) -> None:
+    """A headline left on the tail of a paragraph renders as a literal "#" on
+    the slide, and nothing else complains. It shipped once. Refuse it."""
+    if "# " in re.sub(r"<pre>.*?</pre>", "", body, flags=re.DOTALL):
+        raise SystemExit(
+            f"slide {number}: a '#' is inside a paragraph. A headline must "
+            f"start its own line in slides.md.")
+
+
+def render_title(raw: str, name: str) -> str:
+    """Slide 1. A kicker of metadata, the product name set large, the thesis.
+
+    Every word here is already in slides.md. The byline becomes the kicker,
+    because that is what it is — who, and for whom. The headline becomes the
+    lead. The paragraph under it stays where it is. Nothing is rewritten; the
+    only thing that changes is which size each part is set at.
+    """
+    lines = [l for l in raw.split("\n") if not l.startswith("## ")]
+    head = next((l[2:].strip() for l in lines if l.startswith("# ")), "")
+    byline = " ".join(l.lstrip(">").strip() for l in lines if l.startswith(">"))
+    rest = [l for l in lines
+            if l.strip() and not l.startswith(("# ", ">"))]
+    return (
+        f'<p class="kicker">{inline(byline)}</p>'
+        f"<h1>{inline(name)}</h1>"
+        f'<p class="lead wide">{inline(head)}</p>'
+        f'<div class="body"><p>{inline(" ".join(s.strip() for s in rest))}</p></div>'
+    )
+
+
+def render_slide(raw: str, number: int, total: int, name: str,
+                 section: str) -> str:
     """One `## Slide N — Title` block becomes one <section>.
 
     The `Slide N` half is dropped: the number is already in the corner. What
-    is left is the eyebrow — the section, small and quiet above the headline.
+    is left is the kicker — what this slide is, small and gold above the
+    headline. The header bar above it carries the part of the talk, which
+    does not change slide to slide.
 
-    `## Slide N` with nothing after it draws no eyebrow. That is for a slide
-    whose headline is the whole slide: slides 1 and 4.
+    `## Slide N` with nothing after it draws no kicker. That is for a slide
+    whose headline is the whole slide: slides 1 and 5.
     """
     lines = raw.split("\n")
     kicker = ""
@@ -200,25 +407,24 @@ def render_slide(raw: str, number: int, total: int) -> str:
     label = kicker
     kicker = re.sub(r"^Slide\s+\d+\s*[—-]?\s*", "", kicker)
 
-    body = render_blocks(lines)
+    if number == 1:
+        flow = render_title(raw, name)
+        guard(flow, number)
+        cls = " title"
+    else:
+        body = render_blocks(lines)
+        guard(body, number)
+        flow = (f'<p class="kicker">{inline(kicker)}</p>' if kicker else "") + body
+        cls = ""
 
-    # A headline left on the tail of a paragraph renders as a literal "#" on
-    # the slide, and nothing else complains. It shipped once. Refuse it.
-    if "# " in re.sub(r"<pre>.*?</pre>", "", body, flags=re.DOTALL):
-        raise SystemExit(
-            f"slide {number}: a '#' is inside a paragraph. A headline must "
-            f"start its own line in slides.md.")
-
-    pct = round(number / total * 100, 2)
+    hdr = section or name
     return (
         f'<section class="slide" id="s{number}" aria-label="{html.escape(label)}">'
         f'<div class="stage">'
-        + (f'<p class="eyebrow">{inline(kicker)}</p>' if kicker else "")
-        + f'<div class="body">{body}</div>'
-        f'</div>'
-        f'<p class="num">{number} / {total}</p>'
-        f'<div class="bar"><span style="width:{pct}%"></span></div>'
-        f"</section>"
+        f'<div class="hdr">{inline(hdr)}</div>'
+        f'<div class="flow{cls}">{flow}</div>'
+        f'<div class="num">{number:02d} / {total:02d}</div>'
+        f"</div></section>"
     )
 
 
@@ -226,256 +432,286 @@ def render_slide(raw: str, number: int, total: int) -> str:
 # the page
 # ---------------------------------------------------------------------------
 
-# Slide type is not in tokens.css — that file is sized for a 1240px app page,
-# where the largest value is 38px. A deck read from the back of a room needs
-# a bigger scale, so one is set here and only here. Reported as a gap.
+# The deck's look is taken wholesale from the author's own Enterprise Brain
+# deck (brief 0027): the palette, the type scale, the fixed stage, the header
+# bar, and the four components a slide is built out of. Only the verdict
+# colours are Vouch's own, and they come from tokens.css — they mean something
+# the demo relies on twenty minutes later.
 DECK_CSS = """
-/* ---- the deck's own scale. Everything else comes from tokens.css -------- */
+/* ---- the deck's own palette. Not the product's; a deck is not an app ----- */
 :root {
-  --d-head:    54px;  /* the headline. The argument, read in one second      */
-  --d-body:    30px;  /* body. The floor is 28px: readable from the back     */
-  --d-table:   28px;
-  --d-code:    27px;  /* the graph on slide 8. Mono, because it is drawn     */
-  --d-foot:    24px;  /* a source, a date, a caveat. Never the argument      */
-  --d-eyebrow: 20px;  /* which section this is. Not read out                 */
-  --d-label:   19px;  /* the name of a block. A label, never a sentence      */
-  --d-stage:  1240px; /* --v-page-max: the column the product uses           */
+  --ink:        #10141B;   /* the slide                                      */
+  --ink2:       #1A212B;   /* a block inside a slide                         */
+  --paper:      #EDEAE3;   /* headline and strong text, warm off white       */
+  --muted:      #8B94A1;   /* secondary text                                 */
+  --signal:     #D4A342;   /* the accent                                     */
+  --signal-dim: #5A4820;   /* the body block's left rule                     */
+  --live:       #5E9E8F;   /* a second accent                                */
+  --edge:       #2A323D;   /* borders, and the gaps a grid shows through     */
+  --dim:        #6C7683;   /* a footnote, a slide number                     */
+  --read:       #B8BFC8;   /* serif body copy                                */
+  --k: 1;                  /* the stage's scale. The script sets it          */
 
-  /* ---- the accent. DECK ONLY. Never in the product, never in tokens.css --
-     Every hue in tokens.css is spoken for: 160 and 80 are two of the three
-     answers, 25 means something broke, 330 means the app is working on this
-     right now. Borrowing any of them would teach the room a meaning twenty
-     minutes before the demo uses it for real. So the deck takes the one
-     direction none of them occupy — violet, 285 — and takes it nowhere else.
-     It marks three things: the eyebrow, a block label, and the one line on
-     a slide that matters. Nothing else in the deck carries a hue except the
-     three answer colours, where they mean the three answers.              */
-  --d-accent:      oklch(0.800 0.115 285);  /* the line that matters        */
-  --d-accent-dim:  oklch(0.660 0.075 285);  /* eyebrow, block label         */
+  --ui:    "Archivo", system-ui, -apple-system, "Helvetica Neue", sans-serif;
+  --serif: "Source Serif 4", Georgia, "Times New Roman", serif;
 }
 
-* { box-sizing: border-box; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body {
-  margin: 0;
-  background: var(--v-bg-0);
-  color: var(--v-ink);
-  font-family: var(--v-font-ui);
-  font-size: var(--d-body);
-  line-height: var(--v-lh-lead);
+  background: #080A0E;
+  color: var(--paper);
+  font-family: var(--ui);
+  -webkit-font-smoothing: antialiased;
 }
+body { overflow: hidden; }
 
-.slide {
+/* ---- the stage ----------------------------------------------------------
+   A slide is a fixed 1600x900 rectangle, scaled to whatever window it is
+   opened in. Laying out against a fixed size is the only way "does it fit"
+   has an answer at all: a percentage cannot be checked.
+   ------------------------------------------------------------------------ */
+
+.slide { height: 100vh; display: grid; place-items: center; overflow: hidden; }
+
+.stage {
   position: relative;
-  width: 100vw;
-  height: 100vh;
-  padding: var(--v-s-8) var(--v-s-8) var(--v-s-7);
+  width: 1600px;
+  height: 900px;
+  flex: none;
+  transform: scale(var(--k));
+  transform-origin: center center;
+  background: var(--ink);
+  padding: 94px 84px 74px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  overflow: hidden;           /* a slide that does not fit is a content bug */
-  border-bottom: 1px solid var(--v-line);   /* only seen when scrolling */
+  overflow: hidden;        /* a slide that does not fit is a content bug */
 }
 
-.stage { width: 100%; max-width: var(--d-stage); margin: 0 auto; }
-
-/* ---- the four parts of a slide ------------------------------------------
-   Eyebrow, headline, body, footnote. They are told apart by size, weight and
-   ink step — not by hue. Every hue in tokens.css is spoken for: rose means
-   "working right now", the three answer colours mean the three answers, red
-   means something broke. A deck has no accent of its own, so the hierarchy is
-   built from contrast, which is also what survives greyscale and the back row.
-   ------------------------------------------------------------------------ */
-
-.eyebrow {
-  margin: 0 0 var(--v-s-5);
-  max-width: none;          /* a section label never wraps if it can help it */
-  font-size: var(--d-eyebrow);
-  letter-spacing: 0.1em;
+/* The part of the talk. It does not change slide to slide, so the room can
+   see which movement it is in without being told. */
+.hdr {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 46px;
+  padding: 0 84px;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--edge);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--d-accent-dim);
 }
 
-h1 {
-  margin: 0 0 var(--v-s-5);
-  max-width: 40ch;      /* 40, not 34: a ruling headline sets the measure */
-  font-family: var(--v-font-display);
-  font-weight: var(--v-weight-bold);
-  font-size: var(--d-head);
-  line-height: var(--v-lh-answer);
-  color: var(--v-ink-strong);
+.num {
+  position: absolute;
+  right: 84px; bottom: 24px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: #4E5764;
 }
 
-/* A headline that follows body copy is the punchline, not the title. It gets
-   air above it so the eye lands on it last and hardest. */
-:not(h1) + h1 { margin-top: var(--v-s-6); }
+/* ---- the parts of a slide ----------------------------------------------- */
 
-p, ul { margin: 0 0 var(--v-s-5); max-width: 62ch; color: var(--v-ink-2); }
-.body > :last-child { margin-bottom: 0; }
-li { margin-bottom: var(--v-s-2); }
-strong { color: var(--v-ink-strong); font-weight: var(--v-weight-medium); }
+.kicker {
+  margin-bottom: 24px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
+  color: var(--signal);
+}
+
+h1 {          /* the title slide only */
+  font-size: 102px;
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.035em;
+}
+
+h2 {          /* every headline. The argument, read in one second */
+  font-size: 58px;
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.027em;
+  max-width: 24ch;
+}
+
+h3 { font-size: 23px; font-weight: 600; line-height: 1.18; }
+
+/* A headline that follows anything is the punchline, not the title. It gets
+   air above it, so the eye lands on it last and hardest. */
+.flow > * + h2 { margin-top: 38px; }
+
+/* The thesis: the sentence the room is meant to leave with. */
+.lead { font-size: 29px; line-height: 1.36; max-width: 38ch; margin-top: 24px; }
+.lead.wide { max-width: 52ch; }
+
+/* The reasoning under the thesis. Serif and small on purpose: it is read, not
+   glanced at, and it must not compete with the headline. */
+.body {
+  margin-top: 24px;
+  padding-left: 22px;
+  border-left: 2px solid var(--signal-dim);
+  max-width: 78ch;
+  font-family: var(--serif);
+  font-size: 17.5px;
+  line-height: 1.58;
+  color: var(--read);
+}
+.body p + p { margin-top: 0.55em; }
+.body strong { color: var(--paper); font-weight: 600; }
+
+/* A source, a date, a caveat. Never the argument. */
+.src {
+  margin-top: 14px;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--dim);
+}
+.src strong { font-style: normal; color: var(--muted); }
+/* A box around a report number inside an italic footnote is one box too many.
+   The footnote is already set apart; the code just stands upright. */
+.src code { padding: 0; background: none; font-style: normal; color: var(--muted); }
+
+/* The one line on a slide that matters, when it is not the headline. */
+.hi { color: var(--signal); }
+strong { color: var(--paper); font-weight: 700; }
 
 /* ---- labelled blocks ----------------------------------------------------
-   Two to four parts, each with a name. The name is the accent, small and
-   in caps; the text beside it is ordinary body. A room reads the names down
-   the left and knows the shape of the slide before hearing a word of it.
+   Two to four parts, each with a name. The room reads the names down the
+   left and knows the shape of the slide before hearing a word of it.
    ------------------------------------------------------------------------ */
 
-.stack { margin: 0 0 var(--v-s-6); }
+.stack { display: flex; flex-direction: column; margin-top: 24px; }
 .row {
-  display: grid;
-  grid-template-columns: 250px 1fr;
-  gap: var(--v-s-5);
+  display: flex;
   align-items: baseline;
-  padding: var(--v-s-3) 0;
-  border-bottom: 1px solid var(--v-line);
-  color: var(--v-ink-2);
-  line-height: var(--v-lh-body);
+  gap: 22px;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--edge);
+  font-size: 22px;
+  line-height: 1.33;
 }
-.row:first-child { border-top: 1px solid var(--v-line); }
 .row .t {
-  font-size: var(--d-label);
-  font-weight: var(--v-weight-medium);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--d-accent-dim);
+  min-width: 230px;
+  flex: none;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  color: var(--muted);
 }
 
-/* The one line on a slide that matters, when it is not the headline. */
-.hi { color: var(--d-accent); }
-
-.foot {
-  max-width: 62ch;
-  font-size: var(--d-foot);
-  line-height: var(--v-lh-body);
-  color: var(--v-ink-4);
+ul { list-style: none; margin-top: 20px; }
+li {
+  padding: 9px 0;
+  border-top: 1px solid var(--edge);
+  font-size: 19px;
+  line-height: 1.4;
+  color: #C3CAD3;
 }
-h1 + /* ---- labelled blocks ----------------------------------------------------
-   Two to four parts, each with a name. The name is the accent, small and
-   in caps; the text beside it is ordinary body. A room reads the names down
-   the left and knows the shape of the slide before hearing a word of it.
-   ------------------------------------------------------------------------ */
-
-.stack { margin: 0 0 var(--v-s-6); }
-.row {
-  display: grid;
-  grid-template-columns: 250px 1fr;
-  gap: var(--v-s-5);
-  align-items: baseline;
-  padding: var(--v-s-3) 0;
-  border-bottom: 1px solid var(--v-line);
-  color: var(--v-ink-2);
-  line-height: var(--v-lh-body);
-}
-.row:first-child { border-top: 1px solid var(--v-line); }
-.row .t {
-  font-size: var(--d-label);
-  font-weight: var(--v-weight-medium);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--d-accent-dim);
-}
-
-/* The one line on a slide that matters, when it is not the headline. */
-.hi { color: var(--d-accent); }
-
-.foot { margin-top: calc(var(--v-s-5) * -1 + var(--v-s-3)); }
+li:first-child { border-top: none; }
 
 /* Inline code stays in the UI face on purpose. tokens.css reserves mono for
    lines quoted out of a resume, and a library name is not one. */
 code {
-  padding: 0.08em 0.32em;
-  background: var(--v-bg-2);
-  border-radius: var(--v-radius-2);
-  color: var(--v-ink);
+  padding: 0.08em 0.34em;
+  background: var(--ink2);
+  border-radius: 3px;
+  color: var(--paper);
   font-family: inherit;
+  font-size: 0.94em;
 }
 
+/* Slide 8's graph. Drawn with characters, so it must align. */
 pre {
-  margin: 0 0 var(--v-s-5);
-  padding: var(--v-s-5);
-  background: var(--v-bg-205);
-  border-left: var(--v-quote-edge) solid var(--v-line-strong);
-  border-radius: var(--v-radius-3);
-  font-family: var(--v-font-mono);   /* drawn with characters. It must align */
-  font-size: var(--d-code);
-  line-height: var(--v-lh-body);
-  color: var(--v-ink);
+  margin-top: 24px;
+  padding: 22px 24px;
+  background: var(--ink2);
+  border-left: 4px solid var(--signal-dim);
+  font-family: var(--v-font-mono);
+  font-size: 19px;
+  line-height: 1.55;
+  color: var(--read);
   overflow: hidden;
 }
 
+/* ---- the one table, on slide 6 ------------------------------------------
+   The three answer colours are the product's own, out of tokens.css. They
+   mean on this slide exactly what they mean in the demo twenty minutes
+   later, so nothing here borrows them and nothing here overrides them.
+   ------------------------------------------------------------------------ */
+
 table {
   width: 100%;
-  margin: 0 0 var(--v-s-5);
+  margin-top: 24px;
   border-collapse: collapse;
-  font-size: var(--d-table);
+  font-size: 20px;
+  background: var(--ink2);
 }
-th, td { padding: var(--v-s-3) var(--v-s-4); text-align: left; }
+th, td { padding: 13px 18px; text-align: left; line-height: 1.35; }
 th {
-  font-size: var(--d-eyebrow);
-  font-weight: var(--v-weight-medium);
-  letter-spacing: 0.04em;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
   text-transform: uppercase;
-  color: var(--v-ink-4);
-  border-bottom: 1px solid var(--v-line-strong);
+  color: var(--muted);
+  border-bottom: 1px solid var(--edge);
 }
-td { color: var(--v-ink-2); border-bottom: 1px solid var(--v-line); }
-
-/* The three answers, and nothing else in the deck, carry a hue. */
+td { color: var(--read); border-bottom: 1px solid var(--edge); }
+tr:last-child td { border-bottom: none; }
 th.v-shown  { color: var(--v-shown); }
 th.v-partly { color: var(--v-partly); }
 th.v-not    { color: var(--v-not); }
-tbody tr:nth-child(odd) td { background: var(--v-bg-212); }
-
-.num {
-  position: absolute;
-  right: var(--v-s-6);
-  bottom: var(--v-s-5);
-  margin: 0;
-  font-size: var(--d-eyebrow);
-  color: var(--v-ink-4);
-}
-
-.bar {
-  position: absolute;
-  left: 0; right: 0; bottom: 0;
-  height: var(--v-quote-edge);
-  background: var(--v-bg-2);
-}
-.bar span { display: block; height: 100%; background: var(--v-ink-4); }
 
 /* ---- presenting ---------------------------------------------------------
    Without the script the page is still the whole deck, scrolled. The script
-   only hides the other slides; it decides nothing.
+   scales the stage and hides the other slides; it decides nothing.
    ------------------------------------------------------------------------ */
+body.js { overflow: hidden; }
 body.js .slide { display: none; }
-body.js .slide.on { display: flex; }
+body.js .slide.on { display: grid; }
+body:not(.js) { overflow: auto; }
 
 /* ---- Cmd+P: one slide per page, the backup that needs no browser -------- */
 @media print {
-  @page { size: 1440px 810px; margin: 0; }
-  html, body { background: #fff; }
-  body.js .slide, body.js .slide.on { display: flex; }
-  .slide {
-    width: 1440px;
-    height: 810px;
-    border: 0;
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { overflow: visible; background: #fff; }
+  :root { --k: 1; }
+  body.js .slide, body.js .slide.on, .slide {
+    display: block;
+    width: 1600px;
+    height: 900px;
     break-after: page;
     page-break-after: always;
+  }
+  .stage {
+    transform: none;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
-    background: var(--v-bg-0);
   }
   .slide:last-child { break-after: auto; page-break-after: auto; }
 }
 """
 
 SCRIPT = """
-// Keys and the counter. Nothing else. If this never runs, the deck is still
-// the whole deck, top to bottom, by scrolling.
+// The scale, the keys and the counter. Nothing else. If this never runs, the
+// deck is still the whole deck, top to bottom, by scrolling.
 (function () {
   var slides = [].slice.call(document.querySelectorAll('.slide'));
   if (!slides.length) return;
+  function scale() {
+    document.documentElement.style.setProperty(
+      '--k', Math.min(window.innerWidth / 1600, window.innerHeight / 900));
+  }
+  scale();
+  window.addEventListener('resize', scale);
   document.body.classList.add('js');
   var at = 0;
   function show(n) {
@@ -501,28 +737,36 @@ SCRIPT = """
 """
 
 
-def build() -> int:
+def build(refresh_fonts: bool = False) -> int:
     preamble, raws = split_source(SOURCE.read_text(encoding="utf-8"))
     total = len(raws)
-    slides = "".join(render_slide(r, i + 1, total) for i, r in enumerate(raws))
+    name = deck_name(preamble)
+    parts = sections(preamble, total)
+    slides = "".join(render_slide(r, i + 1, total, name, parts[i])
+                     for i, r in enumerate(raws))
 
     tokens = TOKENS.read_text(encoding="utf-8")
     if "url(" in re.sub(r"/\*.*?\*/", "", tokens, flags=re.DOTALL):
         raise SystemExit("tokens.css has a live url() — it would be fetched. Stop.")
 
-    title = "Slides — Vouch"
+    faces, said = font_css(refresh_fonts)
+
+    title = f"Slides — {name}"
     page = (
         "<!doctype html>\n"
         '<html lang="en"><head><meta charset="utf-8">'
         f'<meta name="viewport" content="width={STAGE_W}">'
-        f"<title>{title}</title>\n"
+        f"<title>{html.escape(title)}</title>\n"
         "<!-- Generated by build.py from slides.md. Do not edit this file. -->\n"
-        f"<style>\n{tokens}\n{DECK_CSS}</style></head>\n"
+        f"<style>\n{faces}{tokens}\n{DECK_CSS}</style></head>\n"
         f"<body>{slides}<script>{SCRIPT}</script></body></html>\n"
     )
     # Nothing may point off this machine. Checked before it is written, so a
-    # bad deck never reaches disk.
+    # bad deck never reaches disk. A data: URI is not off the machine — it is
+    # the file itself — so those are removed first and everything else that
+    # smells of a fetch is refused.
     live = re.sub(r"/\*.*?\*/|<!--.*?-->", "", page, flags=re.DOTALL)
+    live = re.sub(r'url\("data:[^"]*"\)', "", live)
     outside = re.findall(r'(?:https?:|url\(|@import|src=|<link)', live)
     if outside:
         raise SystemExit(f"slides.html would reference something external: {outside}")
@@ -533,6 +777,8 @@ def build() -> int:
     print(f"{TARGET.relative_to(ROOT)}: {total} slides, "
           f"{len(page.encode()):,} bytes, running order dropped "
           f"({len(preamble.splitlines())} lines).")
+    for line in said:
+        print(f"  font: {line}")
     return total
 
 
@@ -543,16 +789,18 @@ def build() -> int:
 CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 
 PROBE = """
-<style>.slide { height: %dpx !important; }</style>
+<style>:root{--k:1 !important}</style>
 <script>
 window.addEventListener('load', function () {
   var out = [].slice.call(document.querySelectorAll('.slide')).map(function (s, i) {
     s.classList.add('on');
-    var st = s.querySelector('.stage');
+    var f = s.querySelector('.flow');
+    // offsetHeight, not a bounding rect: the stage is scaled, and a rect
+    // would report the scaled size rather than the laid-out one.
     return {n: i + 1,
-            need: Math.ceil(st.getBoundingClientRect().height),
-            have: s.clientHeight - %d,
-            wide: Math.ceil(st.scrollWidth) > Math.ceil(st.clientWidth)};
+            need: f.offsetHeight,
+            have: %d,
+            wide: Math.ceil(f.scrollWidth) > Math.ceil(f.clientWidth)};
   });
   // Everything this document fetched, asked of the document. A net log cannot
   // be used for this: it also carries Chrome's own housekeeping, which has
@@ -600,9 +848,9 @@ def check(total: int) -> None:
         print("no Chrome on this machine; fit not measured")
         return
 
-    pad = 72 + 52  # --v-s-8 top, --v-s-7 bottom: the slide's own padding
+    room = STAGE_H - PAD_T - PAD_B
     probe = TARGET.read_text(encoding="utf-8").replace(
-        "</body>", (PROBE % (STAGE_H, pad)) + "</body>")
+        "</body>", (PROBE % room) + "</body>")
 
     with tempfile.TemporaryDirectory() as tmp:
         tmp = Path(tmp)
@@ -637,6 +885,6 @@ def check(total: int) -> None:
 
 
 if __name__ == "__main__":
-    n = build()
+    n = build("--fonts" in sys.argv)
     if "--check" in sys.argv:
         check(n)

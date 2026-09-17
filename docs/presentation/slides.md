@@ -140,7 +140,7 @@ the answer. Two readers, same PDF: file order, or position on the page.
 
 # So how the file is cut into lines decides the answer.
 
-==The verdict changed. Nothing about the model did.==
+The verdict changed. Nothing about the model did.
 
 > Same resume, same post, same model. Runs minutes apart. Report `0020`.
 

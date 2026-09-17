@@ -48,13 +48,13 @@ against a stopwatch. That is still item 1 of `docs/standing.md`.
 
 ---
 
-## Slide 1 — Title
+## Slide 1
 
 # Checking a resume against a job post
 
 Every requirement. One line of evidence. Or nothing.
 
-Muhammad Abdulkariim · DataRobot Professional Services
+> Muhammad Abdulkariim · DataRobot Professional Services
 
 ---
 
@@ -64,7 +64,9 @@ A job post asks for twenty-odd things.
 
 A person reads it once and guesses.
 
-**The guess is the product.** Not the writing — the checking.
+# The guess is the product.
+
+Not the writing — the checking.
 
 I built this because I am job hunting. **The demo runs on your job post.**
 
@@ -76,13 +78,15 @@ The obvious build: one model call, over the post and the resume together.
 
 Then it says "yes, strong match on Kubernetes".
 
-**And you cannot tell whether the resume said it or the model wanted it to.**
+# And you cannot tell whether the resume said it or the model wanted it to.
 
 That is the whole problem. Everything else here is a consequence.
 
 ---
 
-## Slide 4 — DEMO
+## Slide 4
+
+# DEMO
 
 (blank slide, or the app itself)
 
@@ -95,7 +99,7 @@ then the page for the rest. The clicks are in `demo-script.md`.
 
 ## Slide 5 — The resume is a tool, not a prompt argument
 
-The resume is never pasted into the prompt.
+# The resume is never pasted into the prompt.
 
 It is indexed by line number, and the agent **searches** it.
 
@@ -109,26 +113,26 @@ The judge returns a **line number** and a verdict.
 
 The quote you see is read back out of the file at that number.
 
-**A fabricated quote is therefore impossible.** Not unlikely. Impossible.
+# A fabricated quote is therefore impossible.
+
+Not unlikely. Impossible.
 
 ---
 
 ## Slide 7 — How the file is cut into lines decides the answer
 
 Slide 6 says the quote has to be a real line. So the line breaks are not a
-detail — they are the answer.
-
-Two readers, same PDF. One returns the text in the order the file was written.
-The other orders it by where it sits on the page.
+detail — they are the answer. Two readers, same PDF: file order, versus
+position on the page.
 
 | 16 September | lines | evidenced | partly | the call |
 |---|---|---|---|---|
 | `pypdf` | 160 | 3 | 17 | **weak** |
 | `pdfplumber` | **51** | **6** | **13** | **worth applying** |
 
-Same resume, same post, same model. Runs minutes apart.
+> Same resume, same post, same model. Runs minutes apart.
 
-**The verdict changed and nothing about the model did.**
+# The verdict changed and nothing about the model did.
 
 ---
 
@@ -141,7 +145,9 @@ extract → search → judge → verify ─┬→ (retry) → search
                                                     report
 ```
 
-`verify` **always runs**. It is not the model's decision.
+# `verify` always runs.
+
+It is not the model's decision.
 
 The retry is a **conditional edge**, not an `if` inside a node. That is why I
 can point at where the agent decides anything.
@@ -150,7 +156,9 @@ can point at where the agent decides anything.
 
 ## Slide 9 — Why this is an agent
 
-Not because it calls a model. Three reasons, and each one is on slide 8.
+# Not because it calls a model.
+
+Three reasons, and each one is on slide 8.
 
 **It has tools and picks how to use them.** It writes its own search terms, per
 requirement.
@@ -166,7 +174,9 @@ look found nothing.
 
 ## Slide 10 — Why these libraries, and not the other four
 
-**LangGraph.** Over LangChain, CrewAI, Pydantic AI and LlamaIndex — and over
+# LangGraph.
+
+Over LangChain, CrewAI, Pydantic AI and LlamaIndex — and over
 DSPy ReAct, which I know best and which is not on their list anyway.
 
 Because the audit is a **cyclic graph with a real decision in it**, and a
@@ -176,7 +186,7 @@ Because **the trace is the demo** — LangGraph streams state node by node.
 
 The rest is libraries too: FastAPI, `rank_bm25`, Groq. **None of it is my code.**
 
-Written down before I built it: `docs/decisions/0001`.
+> Written down before I built it: `docs/decisions/0001`.
 
 ---
 
@@ -187,7 +197,7 @@ The retry used to fire on the model reporting its own evidence as weak.
 **It fired zero times. 0 of 21, 0 of 23, 0 of 21** — including on verdicts that
 were wrong, where the model's own written reason said "does not mention".
 
-**A self-report nobody can check is not a trigger.**
+# A self-report nobody can check is not a trigger.
 
 ---
 
@@ -196,7 +206,9 @@ were wrong, where the model's own written reason said "does not mention".
 It now triggers on something observable: a first pass that **found nothing**,
 and a quote that **failed verification**.
 
-Same post, 15 September: it fired **three times**, nobody pressing anything.
+# It fired three times. Nobody pressed anything.
+
+> Same post, 15 September.
 
 One of those flipped an answer from not-evidenced to evidenced, on a verified
 line.
@@ -217,6 +229,8 @@ Known, not solved.
 **Nothing budgets retries across a run.** Three searches per requirement is
 capped. How many requirements retry is not. One resume retried on 6 of 6.
 
+# All three were found by running it, not by reading it.
+
 ---
 
 ## Slide 14 — What I learned
@@ -227,7 +241,7 @@ How the PDF was read moved the verdict from weak to worth applying — slide 7.
 Retrieval closed a gap that was not a gap. Repaired line breaks removed a false
 finding.
 
-**The model never changed. Not once.**
+# The model never changed. Not once.
 
 That is the thing I would carry into a customer deployment.
 
@@ -235,8 +249,9 @@ That is the thing I would carry into a customer deployment.
 
 ## Slide 15 — How it was built
 
-I wrote a method for running a project with coding agents, and built this with
-it. `FORMWORK.md`, at the root.
+# I built this by directing agents.
+
+> `FORMWORK.md`, at the root.
 
 Every piece was **briefed before it started** and **reported when it finished** —
 including what the brief got wrong. The guardrails refuse rather than advise: a
@@ -253,7 +268,9 @@ artifact**: 24 briefs, 8 decisions, 23 reports.
 
 ## Slide 16 — What this actually is
 
-Not a resume tool. **It audits a document against a rulebook and returns a
+# Not a resume tool.
+
+**It audits a document against a rulebook and returns a
 per-item verdict with cited evidence — and refuses to cite what is not there.**
 
 A job post is a rulebook. So is a policy, a tender, a regulation.
@@ -280,4 +297,6 @@ answers. Measured token usage. Durable orchestration. A human review gate.
 Per-tenant isolation.
 
 Vouch refuses to claim what it cannot evidence. The method refuses to let a turn
-end on a red gate. **Make the guarantee structural, not a promise.**
+end on a red gate.
+
+# Make the guarantee structural, not a promise.

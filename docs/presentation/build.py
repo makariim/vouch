@@ -71,11 +71,18 @@ def inline(text: str) -> str:
     return out
 
 
+# The only hue in the deck. A column called "evidenced" or "partly" is the
+# product's own language, so it keeps the product's own colour (brief 0025).
+VERDICT = {"evidenced": "shown", "partly": "partly",
+           "partly evidenced": "partly", "not evidenced": "not"}
+
+
 def render_table(rows: list[str]) -> str:
     cells = [[c.strip() for c in r.strip().strip("|").split("|")] for r in rows]
     head, body = cells[0], cells[2:]  # cells[1] is the |---|---| rule
     out = ["<table><thead><tr>"]
-    out += [f"<th>{inline(c)}</th>" for c in head]
+    out += [(f'<th class="v-{VERDICT[c.lower()]}">{inline(c)}</th>'
+             if c.lower() in VERDICT else f"<th>{inline(c)}</th>") for c in head]
     out.append("</tr></thead><tbody>")
     for row in body:
         out.append("<tr>" + "".join(f"<td>{inline(c)}</td>" for c in row) + "</tr>")
@@ -84,7 +91,7 @@ def render_table(rows: list[str]) -> str:
 
 
 def render_blocks(lines: list[str]) -> str:
-    """Blocks: heading, fenced code, table, bullet list, paragraph."""
+    """Blocks: headline, footnote, fenced code, table, bullet list, paragraph."""
     out: list[str] = []
     i = 0
     while i < len(lines):
@@ -109,6 +116,18 @@ def render_blocks(lines: list[str]) -> str:
             i += 1
             continue
 
+        # A blockquote is the footnote: a source, a date, a caveat. Smaller and
+        # set apart, so it cannot be mistaken for the argument.
+        if line.startswith(">"):
+            j = i
+            note: list[str] = []
+            while j < len(lines) and lines[j].startswith(">"):
+                note.append(lines[j].lstrip(">").strip())
+                j += 1
+            out.append(f'<p class="foot">{inline(" ".join(note))}</p>')
+            i = j
+            continue
+
         if line.startswith("|"):
             j = i
             rows: list[str] = []
@@ -130,7 +149,7 @@ def render_blocks(lines: list[str]) -> str:
             continue
 
         para: list[str] = []
-        while i < len(lines) and lines[i].strip() and not lines[i].startswith(("|", "```", "# ")):
+        while i < len(lines) and lines[i].strip() and not lines[i].startswith(("|", "```", "# ", ">")):
             para.append(lines[i].strip())
             i += 1
         out.append(f"<p>{inline(' '.join(para))}</p>")
@@ -142,9 +161,10 @@ def render_slide(raw: str, number: int, total: int) -> str:
     """One `## Slide N — Title` block becomes one <section>.
 
     The `Slide N` half is dropped: the number is already in the corner. What
-    is left is the slide's title, and it is the only title most slides have —
-    only slide 1 carries a `#` heading of its own. Where there is one, the
-    kicker would just repeat it, so it is not drawn.
+    is left is the eyebrow — the section, small and quiet above the headline.
+
+    `## Slide N` with nothing after it draws no eyebrow. That is for a slide
+    whose headline is the whole slide: slides 1 and 4.
     """
     lines = raw.split("\n")
     kicker = ""
@@ -153,16 +173,22 @@ def render_slide(raw: str, number: int, total: int) -> str:
         lines = lines[1:]
 
     label = kicker
-    kicker = re.sub(r"^Slide\s+\d+\s*[—-]\s*", "", kicker)
-    if any(l.startswith("# ") for l in lines):
-        kicker = ""
+    kicker = re.sub(r"^Slide\s+\d+\s*[—-]?\s*", "", kicker)
 
     body = render_blocks(lines)
+
+    # A headline left on the tail of a paragraph renders as a literal "#" on
+    # the slide, and nothing else complains. It shipped once. Refuse it.
+    if "# " in re.sub(r"<pre>.*?</pre>", "", body, flags=re.DOTALL):
+        raise SystemExit(
+            f"slide {number}: a '#' is inside a paragraph. A headline must "
+            f"start its own line in slides.md.")
+
     pct = round(number / total * 100, 2)
     return (
         f'<section class="slide" id="s{number}" aria-label="{html.escape(label)}">'
         f'<div class="stage">'
-        + (f'<p class="kicker">{inline(kicker)}</p>' if kicker else "")
+        + (f'<p class="eyebrow">{inline(kicker)}</p>' if kicker else "")
         + f'<div class="body">{body}</div>'
         f'</div>'
         f'<p class="num">{number} / {total}</p>'
@@ -181,11 +207,12 @@ def render_slide(raw: str, number: int, total: int) -> str:
 DECK_CSS = """
 /* ---- the deck's own scale. Everything else comes from tokens.css -------- */
 :root {
-  --d-title:  56px;   /* the one line on the slide, the # heading            */
-  --d-body:   30px;   /* body. The floor is 28px: readable from the back     */
-  --d-table:  28px;
-  --d-code:   27px;   /* the graph on slide 8. Mono, because it is drawn     */
-  --d-kicker: 20px;   /* which slide this is. Not read out                   */
+  --d-head:    54px;  /* the headline. The argument, read in one second      */
+  --d-body:    30px;  /* body. The floor is 28px: readable from the back     */
+  --d-table:   28px;
+  --d-code:    27px;  /* the graph on slide 8. Mono, because it is drawn     */
+  --d-foot:    24px;  /* a source, a date, a caveat. Never the argument      */
+  --d-eyebrow: 20px;  /* which section this is. Not read out                 */
   --d-stage:  1240px; /* --v-page-max: the column the product uses           */
 }
 
@@ -214,38 +241,49 @@ html, body {
 
 .stage { width: 100%; max-width: var(--d-stage); margin: 0 auto; }
 
-.kicker {
+/* ---- the four parts of a slide ------------------------------------------
+   Eyebrow, headline, body, footnote. They are told apart by size, weight and
+   ink step — not by hue. Every hue in tokens.css is spoken for: rose means
+   "working right now", the three answer colours mean the three answers, red
+   means something broke. A deck has no accent of its own, so the hierarchy is
+   built from contrast, which is also what survives greyscale and the back row.
+   ------------------------------------------------------------------------ */
+
+.eyebrow {
   margin: 0 0 var(--v-s-5);
-  font-size: var(--d-kicker);
-  letter-spacing: 0.08em;
+  max-width: none;          /* a section label never wraps if it can help it */
+  font-size: var(--d-eyebrow);
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--v-ink-4);
+  color: var(--v-ink-3);
 }
 
 h1 {
   margin: 0 0 var(--v-s-5);
-  max-width: 22ch;
+  max-width: 34 58ch;
   font-family: var(--v-font-display);
   font-weight: var(--v-weight-bold);
-  font-size: var(--d-title);
+  font-size: var(--d-head);
   line-height: var(--v-lh-answer);
   color: var(--v-ink-strong);
 }
 
-h1::after {
-  content: "";
-  display: block;
-  width: 96px;
-  height: var(--v-quote-edge);
-  margin-top: var(--v-s-4);
-  background: var(--v-shown);
-  border-radius: var(--v-radius-1);
-}
+/* A headline that follows body copy is the punchline, not the title. It gets
+   air above it so the eye lands on it last and hardest. */
+:not(h1) + h1 { margin-top: var(--v-s-6); }
 
-p, ul { margin: 0 0 var(--v-s-5); max-width: 46ch; color: var(--v-ink-2); }
+p, ul { margin: 0 0 var(--v-s-5); max-width: ch; color: var(--v-ink-2); }
 .body > :last-child { margin-bottom: 0; }
 li { margin-bottom: var(--v-s-2); }
 strong { color: var(--v-ink-strong); font-weight: var(--v-weight-medium); }
+
+.foot {
+  max-width: 62ch;
+  font-size: var(--d-foot);
+  line-height: var(--v-lh-body);
+  color: var(--v-ink-4);
+}
+h1 + .foot { margin-top: calc(var(--v-s-5) * -1 + var(--v-s-3)); }
 
 /* Inline code stays in the UI face on purpose. tokens.css reserves mono for
    lines quoted out of a resume, and a library name is not one. */
@@ -261,7 +299,7 @@ pre {
   margin: 0 0 var(--v-s-5);
   padding: var(--v-s-5);
   background: var(--v-bg-205);
-  border-left: var(--v-quote-edge) solid var(--v-shown);
+  border-left: var(--v-quote-edge) solid var(--v-line-strong);
   border-radius: var(--v-radius-3);
   font-family: var(--v-font-mono);   /* drawn with characters. It must align */
   font-size: var(--d-code);
@@ -278,7 +316,7 @@ table {
 }
 th, td { padding: var(--v-s-3) var(--v-s-4); text-align: left; }
 th {
-  font-size: var(--d-kicker);
+  font-size: var(--d-eyebrow);
   font-weight: var(--v-weight-medium);
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -286,6 +324,11 @@ th {
   border-bottom: 1px solid var(--v-line-strong);
 }
 td { color: var(--v-ink-2); border-bottom: 1px solid var(--v-line); }
+
+/* The three answers, and nothing else in the deck, carry a hue. */
+th.v-shown  { color: var(--v-shown); }
+th.v-partly { color: var(--v-partly); }
+th.v-not    { color: var(--v-not); }
 tbody tr:nth-child(odd) td { background: var(--v-bg-212); }
 
 .num {
@@ -293,7 +336,7 @@ tbody tr:nth-child(odd) td { background: var(--v-bg-212); }
   right: var(--v-s-6);
   bottom: var(--v-s-5);
   margin: 0;
-  font-size: var(--d-kicker);
+  font-size: var(--d-eyebrow);
   color: var(--v-ink-4);
 }
 
@@ -303,7 +346,7 @@ tbody tr:nth-child(odd) td { background: var(--v-bg-212); }
   height: var(--v-quote-edge);
   background: var(--v-bg-2);
 }
-.bar span { display: block; height: 100%; background: var(--v-shown); }
+.bar span { display: block; height: 100%; background: var(--v-ink-4); }
 
 /* ---- presenting ---------------------------------------------------------
    Without the script the page is still the whole deck, scrolled. The script

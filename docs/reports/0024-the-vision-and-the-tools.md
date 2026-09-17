@@ -11,9 +11,10 @@ minutes, and it closes by declaring that questions are after the fifteen, not
 inside it.** Under the other reading there is half a minute for questions, which
 is nothing — so the file names the next two cuts rather than pretending.
 
-The deck is **seventeen slides**, up from fourteen. Slides 6, 7, 10 and 11 were
-not touched; the last two are now numbered 11 and 12, and nothing in their
-bodies moved.
+The deck is **seventeen slides**, up from fourteen, and **all seventeen fit the
+stage**. Slides 6, 10 and 11 were not touched; the last two are now numbered 11
+and 12, and nothing in their bodies moved. **Slide 7 was trimmed to fit after
+the director released the constraint** — see below.
 
 ## The six gaps, and where each one landed
 
@@ -78,6 +79,10 @@ so they are named:
   examples make the point; four made a fifth line
 - *"so cost is measured not calculated"* — cut from slide 17. Slide 13 and the
   demo script both still say it
+- **slide 7's two-reader sentence**, compressed rather than cut — *"One returns
+  the text in the order the file was written. The other orders it by where it
+  sits on the page"* became *"file order, versus position on the page"*. Same
+  mechanism, one line instead of two. Its own section below
 
 ## The new clock
 
@@ -153,22 +158,50 @@ retries"*, which reads as though nothing caps them. `MAX_ATTEMPTS = 3` in
 how many requirements retry in a run. Slide 13 now says that, and slide 9's
 *"up to three searches"* agrees with the code.
 
-## Slide 7 still does not fit, and I left it that way
+## Slide 7, and how it was trimmed
 
-Report `0023` measured slide 7 over by 52px and named the cut: its second
-paragraph, which the table's own columns already say. **Brief `0024` says do not
-touch slides 6, 7, 10 or 11.** The two instructions cannot both be followed, so
-the protection won and the overflow stands.
+Report `0023` measured slide 7 over by 52px and named the cut: **delete the
+second paragraph**, on the grounds that the table's columns already say it. The
+first pass of this brief could not act on it — `0024` protected slide 7 — and
+the report said so. **The director then released the constraint: do not lose the
+argument, do not lose the table, do not lose the last line.**
 
-**It is the only slide of seventeen that does not fit**, and the fix is one
-paragraph whenever somebody who owns slide 7 wants it gone.
+**I did not take `0023`'s cut.** The table's columns are `pypdf` and
+`pdfplumber` — two library names. They say which reader won; they do not say
+*why*, and the why is the whole point: one returns text in the order the file
+was written, the other by where it sits on the page. Deleting that paragraph
+would have left a slide that asserts a result with no mechanism.
+
+So it was compressed instead, in three steps, measured after each:
+
+| | need | |
+|---|---|---|
+| start | 737px | over by 52 |
+| the two-reader sentence cut to one line | 691px | over by 6 |
+| shortening the opening sentence | 691px | **no change** |
+| merging the two opening paragraphs | **671px** | fits, with 14px spare |
+
+**The second step taught me something worth writing down.** Shortening the
+opening from 103 characters to 73 moved nothing, because at the deck's body size
+the column already holds well over 103 — it was one rendered line either way.
+**Source line breaks in `slides.md` have nothing to do with rendered height.**
+What costs height is a rendered line or a paragraph gap, and only removing one of
+those helps.
+
+So the last 6px came from **merging the two opening paragraphs into one**, which
+removes a paragraph gap and no words at all. The original wording — *"not a
+detail — they are the answer"* — was restored once that was understood; the
+shortened version had been paying for nothing.
+
+**Nothing was lost.** The table, the control line and the closing line are
+untouched, and the mechanism survives in a shorter sentence.
 
 ## What was run
 
 | | |
 |---|---|
-| `python3 docs/presentation/build.py --check` | **17 slides. Slide 7 over by 52px, the other 16 fit. 0 fetched** |
-| the same, six times | after each trim. Slides 15, 16 and 17 each overran and were cut back, by sentence, never by type size |
+| `python3 docs/presentation/build.py --check` | **17 slides, all 17 fit at 1440x810. 0 fetched** |
+| the same, nine times | after each trim. Slides 7, 15, 16 and 17 each overran and were cut back, by sentence or by paragraph gap, never by type size |
 | `grep` over `docs/reports/` | **18 of 22 reports name something the brief got wrong.** The number on slide 15 |
 | `grep` over `src/audit/graph.py` | `MAX_ATTEMPTS = 3`, which corrected slide 13 |
 | the four protected slides, read back | bodies identical. Only the `Slide N —` prefix moved on two of them, and `0023` established that prefix is dropped on screen |
@@ -184,7 +217,7 @@ check a presentation. The evidence is everything above.
 | | |
 |---|---|
 | `docs/presentation/slides.md` | 14 slides to 17. Six gaps, the new clock, the questions ruling |
-| `docs/presentation/slides.html` | regenerated. 38,514 bytes, still one file, still fetches nothing |
+| `docs/presentation/slides.html` | regenerated. 38,443 bytes, still one file, still fetches nothing |
 | `docs/presentation/demo-script.md` | slide references renumbered, and **seven new rows** in the question table |
 
 Nothing outside `docs/presentation/` and this report was written.
@@ -215,7 +248,8 @@ and three of them have a wrong answer that is easy to give under pressure.
 Each row says where to point and, where it matters, what not to say.
 
 **Asked for but not done.** Gap 1 got 2 minutes against a brief that budgeted
-2–3, and slide 7 still overflows. Both are named above with why.
+2–3. That is the one place the arithmetic squeezed something the brief asked
+for, and it is named above.
 
 **Wrong in the brief.** The gate claim in Gap 6, which is not evidenced anywhere
 in this repository and is not on a slide. Section "Wrong in the brief".

@@ -94,6 +94,34 @@ rewrite a resume — **as a suggestion, against evidence, never as a rewrite.**
 tool may change on your behalf. That rule does not exist yet, and shipping this
 without one is how an honest product becomes a dishonest one.
 
+## 9. Notice when it has read almost nothing
+
+The extension finds the job description by scoring every block on a page: most
+text, fewest links. Menus and related-job lists are mostly links; a description
+is mostly sentences.
+
+That works on LinkedIn and on hosted job boards. On one company's own careers
+page — an Ashby-hosted `?ashby_jid=` layout with the description inside a tab
+panel — it picked a small block and read **four lines** where the post has many
+more.
+
+**The part that matters is not the miss. It is what it said next.** The panel
+reported *"1 of 4 things they ask for look possible"* with no hedge. It had no
+idea it had failed.
+
+**The fix:** compare what was extracted against the page it came from. When the
+text is implausibly small, say *"I could not read this page properly"* and offer
+the full page instead of quoting a number.
+
+**Why it matters more than the bug:** the whole product refuses to guess. When
+there is no evidence it says so and quotes nothing. Here it guessed, and a
+confident wrong number is worse than an admission.
+
+**Why not yet:** found on 2026-09-17, after the build was finished. It is one
+threshold and a different message, and it wants a real measurement of what
+"implausibly small" is across several sites — not a number picked here.
+
+
 ---
 
 ## What is deliberately not on this list

@@ -1,6 +1,6 @@
 # The extension
 
-A Chrome extension that notices you are on a job post and gives you one glance:
+An MV3 extension that notices you are on a job post and gives you one glance:
 should you apply, what they need that you cannot show, what proves you fit,
 which lines to fix.
 
@@ -9,11 +9,15 @@ Nothing is scraped, no terms are broken, and there is no bot detection to beat.
 
 ## Load it
 
-1. Open `chrome://extensions`.
-2. Turn on **Developer mode**, top right.
-3. Click **Load unpacked**.
-4. Choose this folder — `extension/`, the one holding `manifest.json`.
-5. Pin **Vouch** to the toolbar so the mark is visible.
+**Load it unpacked in [Brave](https://brave.com/).** That is where it was built
+and where it is demonstrated. A work Chrome managed by corporate policy will
+refuse an unpacked extension no matter what you click — that is the policy doing
+its job, not a fault in this.
+
+1. Open the browser's extensions page and turn on **Developer mode**, top right.
+2. Click **Load unpacked**.
+3. Choose this folder — `extension/`, the one holding `manifest.json`.
+4. Pin **Vouch** to the toolbar so the mark is visible.
 
 After editing any file, press the reload arrow on the extension's card. A
 content script change also needs the job page reloaded.
@@ -22,7 +26,7 @@ There is no build step, no npm, no framework. Plain JS, HTML and CSS.
 
 > [!NOTE]
 > **Chrome 137 and later ignore `--load-extension` on the command line.** That
-> only affects scripted launches, not the five steps above. If you are
+> only affects scripted launches, not the four steps above. If you are
 > automating it, Chrome for Testing and Chromium still accept the flag; this is
 > what `extension/tools/` assumes.
 
@@ -68,8 +72,8 @@ uv run uvicorn audit.server:app --port 8000
 ```
 
 The extension talks to `localhost:8000` and nothing else — `host_permissions` in
-`manifest.json` lists localhost only, so a fetch anywhere else fails in Chrome
-before it reaches the network.
+`manifest.json` lists localhost only, so a fetch anywhere else fails in the
+browser before it reaches the network.
 
 If the server is not running the panel says so and offers the command. It does
 not fall back to fixtures on its own.

@@ -233,9 +233,9 @@ WHAT IT CAUGHT :: 18 of 22 reports name something the brief got wrong.
 WHAT IT MISSED :: The planning role offered to build, four times. ==I caught it, not the kit.==
 
 I briefed it, I read every report, I rejected work. `docs/` is the handover:
-26 briefs, 8 decisions, 24 reports.
+a brief, a decision record and a report for every piece of work.
 
-> `FORMWORK.md`, at the root.
+> Counted 17 September, in report `0024`. `FORMWORK.md`, at the root.
 
 ---
 

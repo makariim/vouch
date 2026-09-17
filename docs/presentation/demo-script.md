@@ -156,7 +156,19 @@ Find one with a reason and **no quote at all**. Point at the empty space.
 
 > "That is this resume against this post, today."
 
-### 7. Optional, only if you are ahead of the clock
+### 7. Show `docs/decisions/`. Ten seconds
+
+Leave the browser. Open the `docs/decisions/` folder — **have the window open
+behind the browser before you start**, so this is one switch and not a hunt.
+
+> "Eight numbered decision records. Every choice this project made has one, with
+> the reason it was made and what it cost."
+
+**Ten seconds, then move.** Do not open a file and do not read a title out. The
+folder is the point: the panel sees the thing itself, not a slide claiming it
+exists.
+
+### 8. Optional, only if you are ahead of the clock
 
 Open one requirement and press **"Look again at this one"**.
 
@@ -179,6 +191,7 @@ to happen next.
 | The server died | Fallback tab, and do not go back to the terminal |
 | The panel is empty, or Brave will not load the extension | **Drop part one and go to the page.** Say "the extension is the same audit in the page you are about to see" and move. Never spend more than the 45 seconds on it |
 | The panel says Vouch is not running | The server. Same fallback, or drop part one |
+| The demo has gone badly and you need ground back | **`docs/decisions/`, step 7.** Ten seconds that cannot fail — it is a folder, not a running thing |
 
 **Switching to the fallback, out loud, every time:**
 
@@ -220,4 +233,5 @@ that would actually cost you the interview.
 | "How would it scale?" | Slide 16. Parallel by construction, and the free local screen is what makes the paid call affordable |
 | "Why LangGraph and not X?" | Slide 8, and `docs/decisions/0001` is the written argument with the options that lost |
 | "Did you write this, or did the agents?" | Slide 13. I briefed it, read every report and rejected work — and the repository is the evidence. One example worth having ready: two sessions found the same hole in the API contract independently, and both reports say so |
+| "Is that method open source?" | Yes — it is published as `formwork-kit`. **One sentence, then stop.** It is an answer, not an opening — do not claim anybody else uses it |
 | "What did you learn?" | Slide 12. Almost every model problem was a data problem |
